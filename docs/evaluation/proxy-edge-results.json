@@ -1,0 +1,18 @@
+{
+  "at": "2026-10-11T05:20:29.065Z",
+  "checks": [
+    {
+      "name": "New production bundle and HEAD remain available without backend",
+      "status": "PASS"
+    },
+    {
+      "name": "Stopped backend produces 502 JSON without HTML fallback",
+      "status": "PASS"
+    },
+    {
+      "name": "Directory junction cannot expose a file outside dist",
+      "status": "PASS"
+    }
+  ],
+  "status": "PASS"
+}

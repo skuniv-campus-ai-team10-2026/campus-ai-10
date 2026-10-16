@@ -1,0 +1,257 @@
+{
+  "actualResponses": {
+    "syntheticModelWarning": {
+      "report": {
+        "id": 254,
+        "studentId": 1,
+        "originalText": "누리관 101호 배터리가 부풀어 올라 터질 것 같아요",
+        "category": "OTHER",
+        "subcategory": "UNKNOWN",
+        "locationText": "누리관 101호",
+        "building": "누리관",
+        "floor": "1",
+        "symptom": "배터리가 부풀어 올라 터질 것 같음",
+        "occurredAtText": null,
+        "routingRuleId": null,
+        "assignedDepartmentId": null,
+        "routeStatus": "NEEDS_REVIEW",
+        "status": "RECEIVED",
+        "emergencyHint": true,
+        "resolutionText": null,
+        "embeddingModel": null,
+        "createdAt": "2026-10-16T12:54:34.858207+09:00",
+        "updatedAt": "2026-10-16T12:54:34.858207+09:00",
+        "occurredOn": null,
+        "incidentId": null,
+        "requestKind": "REPORT",
+        "reviewNote": null,
+        "assignedDepartment": null
+      },
+      "aiMode": "LIVE",
+      "status": "ACCEPTED"
+    },
+    "leakCompleted": {
+      "id": 255,
+      "studentId": 1,
+      "originalText": "다솜관 501호 천장에 물방울이 맺혀 바닥으로 계속 떨어집니다.",
+      "category": "FACILITY",
+      "subcategory": "LEAK",
+      "locationText": "다솜관 501호",
+      "building": "다솜관",
+      "floor": "5",
+      "symptom": "천장에서 물이 계속 떨어짐",
+      "occurredAtText": null,
+      "routingRuleId": null,
+      "assignedDepartmentId": null,
+      "routeStatus": "NEEDS_REVIEW",
+      "status": "RESOLVED",
+      "emergencyHint": false,
+      "resolutionText": "시연 점검 및 설정 변경 완료",
+      "embeddingModel": null,
+      "createdAt": "2026-10-16T12:54:35.183878+09:00",
+      "updatedAt": "2026-10-16T12:54:35+09:00",
+      "occurredOn": null,
+      "incidentId": 77,
+      "requestKind": "REPORT",
+      "reviewNote": null,
+      "assignedDepartment": null
+    },
+    "vagueWifi": {
+      "status": "NEEDS_INPUT",
+      "revision": 1,
+      "analysis": {
+        "intent": "REPORT",
+        "report": {
+          "category": "IT",
+          "subcategory": "WIFI",
+          "locationText": "한빛관 512호",
+          "building": "한빛관",
+          "floor": "5",
+          "symptom": "와이파이 연결이 안 됨",
+          "occurredAtText": null,
+          "followUpQuestion": "와이파이 연결 자체가 안 되나요, 연결 후 인터넷이 안 되나요? 끊기거나 느린 경우도 알려주세요.",
+          "missingFields": [],
+          "emergencyHint": false
+        },
+        "clarification": {
+          "reason": "SYMPTOM_DETAIL",
+          "neededReasons": [
+            "SYMPTOM_DETAIL"
+          ],
+          "message": "어떻게 문제가 나타나는지에 따라 확인 방법이 달라져요.",
+          "source": "AI_AND_RULES"
+        },
+        "followUpState": {
+          "turns": 0,
+          "noProgress": 0,
+          "askedFields": [],
+          "reviewFields": [],
+          "status": "CONTINUE",
+          "nextField": "SYMPTOM",
+          "nextReason": "SYMPTOM_DETAIL",
+          "askedReasons": [],
+          "unavailableReasons": [],
+          "knownEvidence": {
+            "locationEvidence": "한빛관 512호"
+          },
+          "neededReasons": [
+            "SYMPTOM_DETAIL"
+          ],
+          "urgentReview": false
+        },
+        "aiMode": "LIVE"
+      },
+      "latestAnswer": null,
+      "message": "추가로 확정하기 어려운 정보는 관리자에게 검토를 요청할 수 있습니다.",
+      "aiMode": "LIVE"
+    },
+    "multiTurnWifi": {
+      "report": {
+        "id": 256,
+        "studentId": 1,
+        "originalText": "늘봄관 와이파이가 안 돼요.",
+        "category": "IT",
+        "subcategory": "WIFI",
+        "locationText": "늘봄관 316호",
+        "building": "늘봄관",
+        "floor": "3",
+        "symptom": "Wi-Fi에 연결되지만 인터넷 페이지가 열리지 않음",
+        "occurredAtText": null,
+        "routingRuleId": 1,
+        "assignedDepartmentId": 1,
+        "routeStatus": "MATCHED",
+        "status": "RECEIVED",
+        "emergencyHint": false,
+        "resolutionText": null,
+        "embeddingModel": null,
+        "createdAt": "2026-10-16T12:54:36.225894+09:00",
+        "updatedAt": "2026-10-16T12:54:36.225894+09:00",
+        "occurredOn": null,
+        "incidentId": null,
+        "requestKind": "REPORT",
+        "reviewNote": null,
+        "assignedDepartment": {
+          "id": 1,
+          "name": "정보전산원",
+          "contactPhone": "02-940-7043",
+          "sourceUrl": "https://www.skuniv.ac.kr/campus-network",
+          "verified": true
+        }
+      },
+      "aiMode": "LIVE",
+      "status": "ACCEPTED"
+    },
+    "mixedProblems": {
+      "report": {
+        "id": 257,
+        "studentId": 1,
+        "originalText": "솔빛관 306호에서 와이파이가 계속 끊기고 천장에서는 물이 떨어져요.",
+        "category": "FACILITY",
+        "subcategory": "LEAK",
+        "locationText": "솔빛관 306호",
+        "building": "솔빛관",
+        "floor": "3",
+        "symptom": "천장에서 물이 떨어지고 와이파이가 계속 끊김",
+        "occurredAtText": null,
+        "routingRuleId": null,
+        "assignedDepartmentId": null,
+        "routeStatus": "NEEDS_REVIEW",
+        "status": "RECEIVED",
+        "emergencyHint": false,
+        "resolutionText": null,
+        "embeddingModel": null,
+        "createdAt": "2026-10-16T12:54:36.465158+09:00",
+        "updatedAt": "2026-10-16T12:54:36.465158+09:00",
+        "occurredOn": null,
+        "incidentId": null,
+        "requestKind": "REPORT",
+        "reviewNote": null,
+        "assignedDepartment": null
+      },
+      "aiMode": "LIVE",
+      "status": "ACCEPTED"
+    }
+  },
+  "policyVersion": "hybrid-check-v2",
+  "scope": "Real HTTP and isolated skope_test MySQL; saved LIVE envelopes and one synthetic warning. No paid calls.",
+  "testSuites": [
+    {
+      "name": "edu.skope.ai.AiFollowUpTest",
+      "tests": "5",
+      "failures": "0",
+      "errors": "0",
+      "skipped": "0"
+    },
+    {
+      "name": "edu.skope.ai.AiServiceTest",
+      "tests": "22",
+      "failures": "0",
+      "errors": "0",
+      "skipped": "0"
+    },
+    {
+      "name": "edu.skope.ai.ClarificationPolicyTest",
+      "tests": "18",
+      "failures": "0",
+      "errors": "0",
+      "skipped": "0"
+    },
+    {
+      "name": "edu.skope.ai.FollowUpPolicyTest",
+      "tests": "41",
+      "failures": "0",
+      "errors": "0",
+      "skipped": "0"
+    },
+    {
+      "name": "edu.skope.ai.HybridBoundaryAuditTest",
+      "tests": "17",
+      "failures": "0",
+      "errors": "0",
+      "skipped": "0"
+    },
+    {
+      "name": "edu.skope.ai.HybridVerificationTest",
+      "tests": "1",
+      "failures": "0",
+      "errors": "0",
+      "skipped": "0"
+    },
+    {
+      "name": "edu.skope.ApiIntegrationTest",
+      "tests": "20",
+      "failures": "0",
+      "errors": "0",
+      "skipped": "0"
+    },
+    {
+      "name": "edu.skope.HybridReplayIntegrationTest",
+      "tests": "5",
+      "failures": "0",
+      "errors": "0",
+      "skipped": "0"
+    },
+    {
+      "name": "edu.skope.service.IntakeServiceTest",
+      "tests": "4",
+      "failures": "0",
+      "errors": "0",
+      "skipped": "0"
+    }
+  ],
+  "newPaidCalls": 0,
+  "newTokens": 0,
+  "estimatedNewCostUsd": 0,
+  "regressionTestCount": 132,
+  "evaluationHarnessTests": 1,
+  "completedAt": "2026-10-16T12:55:58.151654+09:00",
+  "runtimeCheck": {
+    "aiMode": "LIVE",
+    "embeddingMode": "LIVE",
+    "databaseMode": "MYSQL",
+    "backendPid": 13400,
+    "frontendHttpStatus": 200,
+    "demoReportCountBefore": 4,
+    "demoReportCountAfter": 4
+  }
+}

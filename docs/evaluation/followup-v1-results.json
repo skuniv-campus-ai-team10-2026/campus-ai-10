@@ -1,0 +1,2192 @@
+{
+  "fixtureId" : "followup-v1",
+  "fixtureSha256" : "bad04470eaf7ac57bbc791446dbed59ed69ff6179fbccf881cc8ee48d037d0a9",
+  "evaluatedAt" : "2026-10-15T17:38:36.044196700+09:00",
+  "requestedMode" : "OFFLINE",
+  "promptVersion" : "followup-v1",
+  "policyVersion" : "safe-merge-v2",
+  "sourceHashes" : {
+    "src\\main\\java\\edu\\skope\\ai\\AiService.java" : "bd4500d0dbb132f5f575dfee327e1a5cdaf30890793717f90d36fc97cc67d84b",
+    "src\\main\\java\\edu\\skope\\ai\\FollowUpPolicy.java" : "e8ad13e2ba95f3e3f0cc659e528b218c48e77c4bd52af71a3902f54822b23668",
+    "src\\main\\java\\edu\\skope\\ai\\EmergencySignals.java" : "1866dc34cc23629a0b9af8b106b136f2148d45157ef20d79f058761a1d17fe07",
+    "src\\main\\java\\edu\\skope\\service\\SimilarityService.java" : "96909e8518cd4eb302bc80809de5a98c42260475a4ea6c8e9c6f2a5b8c84c48b"
+  },
+  "model" : "gpt-6-luna",
+  "embeddingModel" : "text-embedding-3-small",
+  "scope" : "Actual production AiService analysis/merge and SimilarityService with isolated H2. No browser or MySQL revalidation; no DEMO. Seeded previous reports are fixed synthetic inputs, not claimed previous model output.",
+  "labelLimitation" : "NEW_QUALITY inputs authored before provider outputs; developer may inspect expectations to agree required behavior. Not blind human independent evaluation. Local regression examples and old fresh-v1 are DEVELOPMENT_REUSE, never mixed into new-quality accuracy.",
+  "developerSeenGroupIds" : [ "N02", "N03", "N10" ],
+  "cohortNote" : "N02/N03/N10 were used in implementation discussions or local regression design before LIVE; their frozen labels remain unchanged, but results are DEVELOPMENT_SEEN and excluded from new-quality aggregates.",
+  "preflight" : {
+    "plannedAnalysisCalls" : 16,
+    "plannedUniqueEmbeddingCalls" : 3,
+    "conservativeEstimatedMaximumUsd" : 0.15404672,
+    "budgetUsd" : 1.0,
+    "automaticPaidRetries" : 0,
+    "pricingVerifiedDate" : "2026-10-14",
+    "inputUsdPerMillion" : 0.1,
+    "outputUsdPerMillion" : 0.5,
+    "embeddingUsdPerMillion" : 0.02,
+    "guardMultiplier" : 2,
+    "pricingSources" : [ "https://developers.openai.com/api/docs/models/gpt-6-luna", "https://developers.openai.com/api/docs/models/text-embedding-3-small" ]
+  },
+  "previousRunSummary" : {
+    "evaluatedAt" : "2026-10-15T09:41:33.534987800+09:00",
+    "sourceHashes" : {
+      "src\\main\\java\\edu\\skope\\ai\\AiService.java" : "e4f1f7f089c2ab0857287e58ddb41654f3aea3133880c9dd6596c043c329cfc0",
+      "src\\main\\java\\edu\\skope\\ai\\FollowUpPolicy.java" : "991d34a8f488a72ee1c2c6a5c9948b6d59de4e99cbd56ac40451e9dc66ef375a",
+      "src\\main\\java\\edu\\skope\\ai\\EmergencySignals.java" : "1866dc34cc23629a0b9af8b106b136f2148d45157ef20d79f058761a1d17fe07",
+      "src\\main\\java\\edu\\skope\\service\\SimilarityService.java" : "96909e8518cd4eb302bc80809de5a98c42260475a4ea6c8e9c6f2a5b8c84c48b"
+    },
+    "policyVersion" : "safe-merge-v1",
+    "summary" : {
+      "analysisCount" : 16,
+      "analysisPass" : 15,
+      "analysisFail" : 1,
+      "analysisUnverified" : 0,
+      "newQuality" : {
+        "count" : 13,
+        "pass" : 13,
+        "fail" : 0,
+        "unverified" : 0,
+        "exactScenarioPassRate" : 1.0
+      },
+      "developmentSeen" : {
+        "count" : 3,
+        "pass" : 2,
+        "fail" : 1,
+        "unverified" : 0
+      },
+      "qualityGate" : "JUnit PASS means evidence collection completed; inspect per-case PASS/FAIL for quality. Same cases replayed after fixes are development regressions, not a new independent accuracy estimate."
+    },
+    "failedCases" : [ {
+      "id" : "N02a",
+      "actual" : {
+        "intent" : "REPORT",
+        "report" : {
+          "category" : "IT",
+          "subcategory" : "WIFI",
+          "locationText" : null,
+          "building" : null,
+          "floor" : null,
+          "symptom" : "무선 인터넷이 3분마다 끊김",
+          "occurredAtText" : "어제 저녁부터",
+          "followUpQuestion" : "장소 정보가 서로 달라 확인이 필요해요. 확실한 건물과 층 또는 호실만 알려주세요.",
+          "missingFields" : [ "LOCATION" ],
+          "emergencyHint" : false
+        },
+        "followUpState" : {
+          "turns" : 1,
+          "noProgress" : 1,
+          "askedFields" : [ "LOCATION" ],
+          "reviewFields" : [ "LOCATION" ],
+          "status" : "CONTINUE",
+          "nextField" : "LOCATION"
+        },
+        "aiMode" : "LIVE"
+      },
+      "failedChecks" : [ "equals:/report/building" ],
+      "causes" : {
+        "equals:/report/building" : "SERVER_POSTPROCESSING_CHANGED_CORRECT_MODEL_FIELD"
+      },
+      "cacheKey" : "adeaf77ec4926b4721b635e3479cde47eaab04b685ff96936e6ee5dc4c7fa9af"
+    } ],
+    "providerMeasurement" : {
+      "newAnalysisCalls" : 16,
+      "newEmbeddingCalls" : 3,
+      "newExternalCalls" : 19,
+      "newCallFailures" : 0,
+      "cacheHits" : 1,
+      "newUsage" : {
+        "/chat/completions" : {
+          "responses" : 16,
+          "inputTokens" : 19551,
+          "outputTokens" : 2058,
+          "totalTokens" : 21609
+        },
+        "/embeddings" : {
+          "responses" : 3,
+          "inputTokens" : 249,
+          "outputTokens" : 0,
+          "totalTokens" : 249
+        }
+      },
+      "cumulative" : {
+        "analysisAttempts" : 16,
+        "embeddingAttempts" : 3,
+        "hasIncompleteOrFailed" : false,
+        "estimatedCostUsd" : 0.0029890800000000003,
+        "conservativeCostUsd" : 0.048688640000000005,
+        "inputTokens" : 19800,
+        "outputTokens" : 2058,
+        "totalTokens" : 21858
+      },
+      "maximumAnalysisCalls" : 20,
+      "maximumEmbeddingCalls" : 4,
+      "budgetUsd" : 1.0,
+      "automaticPaidRetries" : 0,
+      "cacheDirectory" : ".runtime/ai-quality-cache/followup-v1"
+    },
+    "note" : "Original raw provider envelopes remain immutable in the cache; this file presents the latest deterministic policy evaluation."
+  },
+  "analysisRows" : [ {
+    "id" : "N01a",
+    "group" : "N01",
+    "cohort" : "NEW_QUALITY",
+    "expected" : {
+      "equals" : {
+        "/intent" : "REPORT",
+        "/report/category" : "IT",
+        "/report/subcategory" : "WIFI"
+      },
+      "missingContains" : [ "LOCATION" ],
+      "question" : true
+    },
+    "previousReport" : null,
+    "previousState" : null,
+    "input" : {
+      "text" : "강의 듣는 중 무선 인터넷이 자꾸 중단돼요.",
+      "preferredIntent" : "REPORT"
+    },
+    "rawModelOutput" : {
+      "intent" : "REPORT",
+      "report" : {
+        "category" : "IT",
+        "subcategory" : "WIFI",
+        "locationText" : null,
+        "building" : null,
+        "floor" : null,
+        "symptom" : "강의 중 무선 인터넷이 자꾸 중단됨",
+        "occurredAtText" : "강의 듣는 중",
+        "followUpQuestion" : "문제가 발생한 건물과 층을 알려주시겠어요?",
+        "missingFields" : [ "LOCATION" ],
+        "emergencyHint" : false
+      }
+    },
+    "actual" : {
+      "intent" : "REPORT",
+      "report" : {
+        "category" : "IT",
+        "subcategory" : "WIFI",
+        "locationText" : null,
+        "building" : null,
+        "floor" : null,
+        "symptom" : "강의 중 무선 인터넷이 자꾸 중단됨",
+        "occurredAtText" : "강의 듣는 중",
+        "followUpQuestion" : "문제가 발생한 건물이나 구체적인 장소를 알려주세요. 모르면 아래에서 직접 확인 후 접수할 수 있어요.",
+        "missingFields" : [ "LOCATION" ],
+        "emergencyHint" : false
+      },
+      "followUpState" : {
+        "turns" : 0,
+        "noProgress" : 0,
+        "askedFields" : [ ],
+        "reviewFields" : [ ],
+        "status" : "CONTINUE",
+        "nextField" : "LOCATION"
+      },
+      "aiMode" : "LIVE"
+    },
+    "checks" : {
+      "equals:/intent" : true,
+      "equals:/report/category" : true,
+      "equals:/report/subcategory" : true,
+      "question" : true,
+      "missing:LOCATION" : true
+    },
+    "rawFieldChecks" : {
+      "equals:/intent" : true,
+      "equals:/report/category" : true,
+      "equals:/report/subcategory" : true,
+      "question" : true,
+      "missing:LOCATION" : true
+    },
+    "failedChecks" : [ ],
+    "causes" : { },
+    "status" : "PASS",
+    "source" : "CACHED_LIVE_RAW_PROVIDER_RESPONSE",
+    "cacheKey" : "0c9207e855e44d82fc4bae7e9c928f59719e6bb2644b7900634933e83af40430",
+    "actualProviderModel" : "gpt-6-luna"
+  }, {
+    "id" : "N01b",
+    "group" : "N01",
+    "cohort" : "NEW_QUALITY",
+    "expected" : {
+      "equals" : {
+        "/report/building" : "해솔관",
+        "/report/floor" : "4",
+        "/report/category" : "IT",
+        "/report/subcategory" : "WIFI"
+      },
+      "contains" : {
+        "/report/locationText" : [ "406" ],
+        "/report/occurredAtText" : [ "오늘", "아침" ],
+        "/report/symptom" : [ "3분" ]
+      },
+      "question" : false
+    },
+    "previousReport" : {
+      "category" : "IT",
+      "subcategory" : "WIFI",
+      "locationText" : null,
+      "building" : null,
+      "floor" : null,
+      "symptom" : "강의 중 무선 인터넷이 자꾸 중단됨",
+      "occurredAtText" : "강의 듣는 중",
+      "followUpQuestion" : "문제가 발생한 건물이나 구체적인 장소를 알려주세요. 모르면 아래에서 직접 확인 후 접수할 수 있어요.",
+      "missingFields" : [ "LOCATION" ],
+      "emergencyHint" : false
+    },
+    "previousState" : {
+      "turns" : 0,
+      "noProgress" : 0,
+      "askedFields" : [ ],
+      "reviewFields" : [ ],
+      "status" : "CONTINUE",
+      "nextField" : "LOCATION"
+    },
+    "input" : {
+      "text" : "강의 듣는 중 무선 인터넷이 자꾸 중단돼요.",
+      "preferredIntent" : "REPORT",
+      "followUp" : {
+        "field" : "LOCATION",
+        "answer" : "해솔관 406호이고, 오늘 아침부터 3분마다 연결이 끊겨요.",
+        "previousReport" : {
+          "category" : "IT",
+          "subcategory" : "WIFI",
+          "locationText" : null,
+          "building" : null,
+          "floor" : null,
+          "symptom" : "강의 중 무선 인터넷이 자꾸 중단됨",
+          "occurredAtText" : "강의 듣는 중",
+          "followUpQuestion" : "문제가 발생한 건물이나 구체적인 장소를 알려주세요. 모르면 아래에서 직접 확인 후 접수할 수 있어요.",
+          "missingFields" : [ "LOCATION" ],
+          "emergencyHint" : false
+        },
+        "state" : {
+          "turns" : 0,
+          "noProgress" : 0,
+          "askedFields" : [ ],
+          "reviewFields" : [ ],
+          "status" : "CONTINUE",
+          "nextField" : "LOCATION"
+        }
+      }
+    },
+    "rawModelOutput" : {
+      "intent" : "REPORT",
+      "report" : {
+        "category" : "IT",
+        "subcategory" : "WIFI",
+        "locationText" : "해솔관 406호",
+        "building" : "해솔관",
+        "floor" : "4",
+        "symptom" : "무선 인터넷 연결이 3분마다 끊김",
+        "occurredAtText" : "오늘 아침부터",
+        "followUpQuestion" : null,
+        "missingFields" : [ ],
+        "emergencyHint" : false
+      },
+      "updates" : {
+        "LOCATION" : {
+          "action" : "SET",
+          "evidence" : "해솔관 406호"
+        },
+        "SYMPTOM" : {
+          "action" : "SET",
+          "evidence" : "3분마다 연결이 끊겨요"
+        },
+        "OCCURRED_AT" : {
+          "action" : "SET",
+          "evidence" : "오늘 아침부터"
+        },
+        "CATEGORY" : {
+          "action" : "KEEP",
+          "evidence" : null
+        }
+      }
+    },
+    "actual" : {
+      "intent" : "REPORT",
+      "report" : {
+        "category" : "IT",
+        "subcategory" : "WIFI",
+        "locationText" : "해솔관 406호",
+        "building" : "해솔관",
+        "floor" : "4",
+        "symptom" : "무선 인터넷 연결이 3분마다 끊김",
+        "occurredAtText" : "오늘 아침부터",
+        "followUpQuestion" : null,
+        "missingFields" : [ ],
+        "emergencyHint" : false
+      },
+      "followUpState" : {
+        "turns" : 1,
+        "noProgress" : 0,
+        "askedFields" : [ "LOCATION" ],
+        "reviewFields" : [ ],
+        "status" : "COMPLETE",
+        "nextField" : null
+      },
+      "aiMode" : "LIVE"
+    },
+    "checks" : {
+      "equals:/report/building" : true,
+      "equals:/report/floor" : true,
+      "equals:/report/category" : true,
+      "equals:/report/subcategory" : true,
+      "contains:/report/locationText:406" : true,
+      "contains:/report/occurredAtText:오늘" : true,
+      "contains:/report/occurredAtText:아침" : true,
+      "contains:/report/symptom:3분" : true,
+      "question" : true
+    },
+    "rawFieldChecks" : {
+      "equals:/report/building" : true,
+      "equals:/report/floor" : true,
+      "equals:/report/category" : true,
+      "equals:/report/subcategory" : true,
+      "contains:/report/locationText:406" : true,
+      "contains:/report/occurredAtText:오늘" : true,
+      "contains:/report/occurredAtText:아침" : true,
+      "contains:/report/symptom:3분" : true,
+      "question" : true
+    },
+    "failedChecks" : [ ],
+    "causes" : { },
+    "status" : "PASS",
+    "source" : "CACHED_LIVE_RAW_PROVIDER_RESPONSE",
+    "cacheKey" : "c6459f7a0326e5a27f1437a63e53ed7ecd5af6164c73f5ba4ed8effd614015c5",
+    "actualProviderModel" : "gpt-6-luna"
+  }, {
+    "id" : "N01c",
+    "group" : "N01",
+    "cohort" : "NEW_QUALITY",
+    "expected" : {
+      "preserve" : [ "category", "subcategory", "building", "floor", "locationText", "symptom" ],
+      "contains" : {
+        "/report/occurredAtText" : [ "어제", "저녁" ]
+      },
+      "excludes" : {
+        "/report/occurredAtText" : [ "오늘" ]
+      },
+      "question" : false
+    },
+    "previousReport" : {
+      "category" : "IT",
+      "subcategory" : "WIFI",
+      "locationText" : "해솔관 406호",
+      "building" : "해솔관",
+      "floor" : "4",
+      "symptom" : "무선 인터넷 연결이 3분마다 끊김",
+      "occurredAtText" : "오늘 아침부터",
+      "followUpQuestion" : null,
+      "missingFields" : [ ],
+      "emergencyHint" : false
+    },
+    "previousState" : {
+      "turns" : 1,
+      "noProgress" : 0,
+      "askedFields" : [ "LOCATION" ],
+      "reviewFields" : [ ],
+      "status" : "COMPLETE",
+      "nextField" : null
+    },
+    "input" : {
+      "text" : "강의 듣는 중 무선 인터넷이 자꾸 중단돼요.",
+      "preferredIntent" : "REPORT",
+      "followUp" : {
+        "field" : "OCCURRED_AT",
+        "answer" : "시간만 정정할게요. 오늘 아침이 아니라 어제 저녁부터예요.",
+        "previousReport" : {
+          "category" : "IT",
+          "subcategory" : "WIFI",
+          "locationText" : "해솔관 406호",
+          "building" : "해솔관",
+          "floor" : "4",
+          "symptom" : "무선 인터넷 연결이 3분마다 끊김",
+          "occurredAtText" : "오늘 아침부터",
+          "followUpQuestion" : null,
+          "missingFields" : [ ],
+          "emergencyHint" : false
+        },
+        "state" : {
+          "turns" : 1,
+          "noProgress" : 0,
+          "askedFields" : [ "LOCATION" ],
+          "reviewFields" : [ ],
+          "status" : "COMPLETE",
+          "nextField" : null
+        }
+      }
+    },
+    "rawModelOutput" : {
+      "intent" : "REPORT",
+      "report" : {
+        "category" : "IT",
+        "subcategory" : "WIFI",
+        "locationText" : "해솔관 406호",
+        "building" : "해솔관",
+        "floor" : "4",
+        "symptom" : "무선 인터넷 연결이 3분마다 끊김",
+        "occurredAtText" : "어제 저녁부터",
+        "followUpQuestion" : null,
+        "missingFields" : [ ],
+        "emergencyHint" : false
+      },
+      "updates" : {
+        "LOCATION" : {
+          "action" : "KEEP",
+          "evidence" : null
+        },
+        "SYMPTOM" : {
+          "action" : "KEEP",
+          "evidence" : null
+        },
+        "OCCURRED_AT" : {
+          "action" : "SET",
+          "evidence" : "어제 저녁부터"
+        },
+        "CATEGORY" : {
+          "action" : "KEEP",
+          "evidence" : null
+        }
+      }
+    },
+    "actual" : {
+      "intent" : "REPORT",
+      "report" : {
+        "category" : "IT",
+        "subcategory" : "WIFI",
+        "locationText" : "해솔관 406호",
+        "building" : "해솔관",
+        "floor" : "4",
+        "symptom" : "무선 인터넷 연결이 3분마다 끊김",
+        "occurredAtText" : "어제 저녁부터",
+        "followUpQuestion" : null,
+        "missingFields" : [ ],
+        "emergencyHint" : false
+      },
+      "followUpState" : {
+        "turns" : 2,
+        "noProgress" : 0,
+        "askedFields" : [ "LOCATION", "OCCURRED_AT" ],
+        "reviewFields" : [ ],
+        "status" : "COMPLETE",
+        "nextField" : null
+      },
+      "aiMode" : "LIVE"
+    },
+    "checks" : {
+      "contains:/report/occurredAtText:어제" : true,
+      "contains:/report/occurredAtText:저녁" : true,
+      "excludes:/report/occurredAtText:오늘" : true,
+      "preserve:category" : true,
+      "preserve:subcategory" : true,
+      "preserve:building" : true,
+      "preserve:floor" : true,
+      "preserve:locationText" : true,
+      "preserve:symptom" : true,
+      "question" : true
+    },
+    "rawFieldChecks" : {
+      "contains:/report/occurredAtText:어제" : true,
+      "contains:/report/occurredAtText:저녁" : true,
+      "excludes:/report/occurredAtText:오늘" : true,
+      "preserve:category" : true,
+      "preserve:subcategory" : true,
+      "preserve:building" : true,
+      "preserve:floor" : true,
+      "preserve:locationText" : true,
+      "preserve:symptom" : true,
+      "question" : true
+    },
+    "failedChecks" : [ ],
+    "causes" : { },
+    "status" : "PASS",
+    "source" : "CACHED_LIVE_RAW_PROVIDER_RESPONSE",
+    "cacheKey" : "b374b3848dfcc14975010197223eb7e4f387db83afac2478adcee6eae8b47fa8",
+    "actualProviderModel" : "gpt-6-luna"
+  }, {
+    "id" : "N02a",
+    "group" : "N02",
+    "cohort" : "DEVELOPMENT_SEEN",
+    "expected" : {
+      "equals" : {
+        "/report/building" : "다온관",
+        "/report/floor" : null
+      },
+      "excludes" : {
+        "/report/locationText" : [ "해솔관", "406", "4층" ]
+      },
+      "preserve" : [ "category", "subcategory", "symptom", "occurredAtText" ]
+    },
+    "previousReport" : {
+      "category" : "IT",
+      "subcategory" : "WIFI",
+      "locationText" : "해솔관 4층 406호",
+      "building" : "해솔관",
+      "floor" : "4",
+      "symptom" : "무선 인터넷이 3분마다 끊김",
+      "occurredAtText" : "어제 저녁부터",
+      "missingFields" : [ ],
+      "followUpQuestion" : null,
+      "emergencyHint" : false
+    },
+    "previousState" : null,
+    "input" : {
+      "text" : "해솔관 406호에서 어제 저녁부터 무선 인터넷이 3분마다 끊겨요.",
+      "preferredIntent" : "REPORT",
+      "followUp" : {
+        "field" : "LOCATION",
+        "answer" : "건물이 해솔관이 아니라 다온관이에요. 층과 호실은 잘 모르겠어요.",
+        "previousReport" : {
+          "category" : "IT",
+          "subcategory" : "WIFI",
+          "locationText" : "해솔관 4층 406호",
+          "building" : "해솔관",
+          "floor" : "4",
+          "symptom" : "무선 인터넷이 3분마다 끊김",
+          "occurredAtText" : "어제 저녁부터",
+          "missingFields" : [ ],
+          "followUpQuestion" : null,
+          "emergencyHint" : false
+        }
+      }
+    },
+    "rawModelOutput" : {
+      "intent" : "REPORT",
+      "report" : {
+        "category" : "IT",
+        "subcategory" : "WIFI",
+        "locationText" : "다온관",
+        "building" : "다온관",
+        "floor" : null,
+        "symptom" : "무선 인터넷이 3분마다 끊김",
+        "occurredAtText" : "어제 저녁부터",
+        "followUpQuestion" : null,
+        "missingFields" : [ ],
+        "emergencyHint" : false
+      },
+      "updates" : {
+        "LOCATION" : {
+          "action" : "SET",
+          "evidence" : "건물이 해솔관이 아니라 다온관이에요."
+        },
+        "SYMPTOM" : {
+          "action" : "KEEP",
+          "evidence" : null
+        },
+        "OCCURRED_AT" : {
+          "action" : "KEEP",
+          "evidence" : null
+        },
+        "CATEGORY" : {
+          "action" : "KEEP",
+          "evidence" : null
+        }
+      }
+    },
+    "actual" : {
+      "intent" : "REPORT",
+      "report" : {
+        "category" : "IT",
+        "subcategory" : "WIFI",
+        "locationText" : "다온관",
+        "building" : "다온관",
+        "floor" : null,
+        "symptom" : "무선 인터넷이 3분마다 끊김",
+        "occurredAtText" : "어제 저녁부터",
+        "followUpQuestion" : null,
+        "missingFields" : [ ],
+        "emergencyHint" : false
+      },
+      "followUpState" : {
+        "turns" : 1,
+        "noProgress" : 0,
+        "askedFields" : [ "LOCATION" ],
+        "reviewFields" : [ ],
+        "status" : "COMPLETE",
+        "nextField" : null
+      },
+      "aiMode" : "LIVE"
+    },
+    "checks" : {
+      "equals:/report/building" : true,
+      "equals:/report/floor" : true,
+      "excludes:/report/locationText:해솔관" : true,
+      "excludes:/report/locationText:406" : true,
+      "excludes:/report/locationText:4층" : true,
+      "preserve:category" : true,
+      "preserve:subcategory" : true,
+      "preserve:symptom" : true,
+      "preserve:occurredAtText" : true
+    },
+    "rawFieldChecks" : {
+      "equals:/report/building" : true,
+      "equals:/report/floor" : true,
+      "excludes:/report/locationText:해솔관" : true,
+      "excludes:/report/locationText:406" : true,
+      "excludes:/report/locationText:4층" : true,
+      "preserve:category" : true,
+      "preserve:subcategory" : true,
+      "preserve:symptom" : true,
+      "preserve:occurredAtText" : true
+    },
+    "failedChecks" : [ ],
+    "causes" : { },
+    "status" : "PASS",
+    "source" : "CACHED_LIVE_RAW_PROVIDER_RESPONSE",
+    "cacheKey" : "adeaf77ec4926b4721b635e3479cde47eaab04b685ff96936e6ee5dc4c7fa9af",
+    "actualProviderModel" : "gpt-6-luna"
+  }, {
+    "id" : "N03a",
+    "group" : "N03",
+    "cohort" : "DEVELOPMENT_SEEN",
+    "expected" : {
+      "unresolvedLocation" : true,
+      "preserve" : [ "category", "subcategory", "symptom", "occurredAtText" ],
+      "question" : true
+    },
+    "previousReport" : {
+      "category" : "IT",
+      "subcategory" : "WIFI",
+      "locationText" : "해솔관 4층 406호",
+      "building" : "해솔관",
+      "floor" : "4",
+      "symptom" : "무선 인터넷이 3분마다 끊김",
+      "occurredAtText" : "어제 저녁부터",
+      "missingFields" : [ ],
+      "followUpQuestion" : null,
+      "emergencyHint" : false
+    },
+    "previousState" : null,
+    "input" : {
+      "text" : "해솔관 406호에서 어제 저녁부터 무선 인터넷이 3분마다 끊겨요.",
+      "preferredIntent" : "REPORT",
+      "followUp" : {
+        "field" : "LOCATION",
+        "answer" : "해솔관 2층 507호였던 것 같아요.",
+        "previousReport" : {
+          "category" : "IT",
+          "subcategory" : "WIFI",
+          "locationText" : "해솔관 4층 406호",
+          "building" : "해솔관",
+          "floor" : "4",
+          "symptom" : "무선 인터넷이 3분마다 끊김",
+          "occurredAtText" : "어제 저녁부터",
+          "missingFields" : [ ],
+          "followUpQuestion" : null,
+          "emergencyHint" : false
+        }
+      }
+    },
+    "rawModelOutput" : {
+      "intent" : "REPORT",
+      "report" : {
+        "category" : "IT",
+        "subcategory" : "WIFI",
+        "locationText" : "해솔관 2층 507호였던 것 같아요",
+        "building" : "해솔관",
+        "floor" : null,
+        "symptom" : "무선 인터넷이 3분마다 끊김",
+        "occurredAtText" : "어제 저녁부터",
+        "followUpQuestion" : "해솔관의 몇 층, 몇 호가 맞는지 확인해 주실 수 있나요?",
+        "missingFields" : [ ],
+        "emergencyHint" : false
+      },
+      "updates" : {
+        "LOCATION" : {
+          "action" : "CLARIFY",
+          "evidence" : "해솔관 2층 507호였던 것 같아요."
+        },
+        "SYMPTOM" : {
+          "action" : "KEEP",
+          "evidence" : null
+        },
+        "OCCURRED_AT" : {
+          "action" : "KEEP",
+          "evidence" : null
+        },
+        "CATEGORY" : {
+          "action" : "KEEP",
+          "evidence" : null
+        }
+      }
+    },
+    "actual" : {
+      "intent" : "REPORT",
+      "report" : {
+        "category" : "IT",
+        "subcategory" : "WIFI",
+        "locationText" : "해솔관",
+        "building" : "해솔관",
+        "floor" : null,
+        "symptom" : "무선 인터넷이 3분마다 끊김",
+        "occurredAtText" : "어제 저녁부터",
+        "followUpQuestion" : "장소 정보가 서로 달라 확인이 필요해요. 확실한 건물과 층 또는 호실만 알려주세요.",
+        "missingFields" : [ "LOCATION" ],
+        "emergencyHint" : false
+      },
+      "followUpState" : {
+        "turns" : 1,
+        "noProgress" : 0,
+        "askedFields" : [ "LOCATION" ],
+        "reviewFields" : [ "LOCATION" ],
+        "status" : "CONTINUE",
+        "nextField" : "LOCATION"
+      },
+      "aiMode" : "LIVE"
+    },
+    "checks" : {
+      "preserve:category" : true,
+      "preserve:subcategory" : true,
+      "preserve:symptom" : true,
+      "preserve:occurredAtText" : true,
+      "question" : true,
+      "unresolvedLocation" : true
+    },
+    "rawFieldChecks" : {
+      "preserve:category" : true,
+      "preserve:subcategory" : true,
+      "preserve:symptom" : true,
+      "preserve:occurredAtText" : true,
+      "question" : true,
+      "unresolvedLocation" : false
+    },
+    "failedChecks" : [ ],
+    "causes" : { },
+    "status" : "PASS",
+    "source" : "CACHED_LIVE_RAW_PROVIDER_RESPONSE",
+    "cacheKey" : "bfd8a57d2f90d09910234d66dd9e1de1cf7b9e83072ec218bcf1db9719cace24",
+    "actualProviderModel" : "gpt-6-luna"
+  }, {
+    "id" : "N04a",
+    "group" : "N04",
+    "cohort" : "NEW_QUALITY",
+    "expected" : {
+      "equals" : {
+        "/report/locationText" : null,
+        "/report/building" : null,
+        "/report/floor" : null
+      },
+      "preserve" : [ "category", "subcategory", "symptom", "occurredAtText" ],
+      "missingContains" : [ "LOCATION" ],
+      "question" : true
+    },
+    "previousReport" : {
+      "category" : "IT",
+      "subcategory" : "WIFI",
+      "locationText" : "해솔관 4층 406호",
+      "building" : "해솔관",
+      "floor" : "4",
+      "symptom" : "무선 인터넷이 3분마다 끊김",
+      "occurredAtText" : "어제 저녁부터",
+      "missingFields" : [ ],
+      "followUpQuestion" : null,
+      "emergencyHint" : false
+    },
+    "previousState" : null,
+    "input" : {
+      "text" : "해솔관 406호에서 어제 저녁부터 무선 인터넷이 3분마다 끊겨요.",
+      "preferredIntent" : "REPORT",
+      "followUp" : {
+        "field" : "LOCATION",
+        "answer" : "장소를 잘못 적었어요. 건물과 층, 호실 정보는 모두 지워 주세요. 정확한 위치는 모르겠습니다.",
+        "previousReport" : {
+          "category" : "IT",
+          "subcategory" : "WIFI",
+          "locationText" : "해솔관 4층 406호",
+          "building" : "해솔관",
+          "floor" : "4",
+          "symptom" : "무선 인터넷이 3분마다 끊김",
+          "occurredAtText" : "어제 저녁부터",
+          "missingFields" : [ ],
+          "followUpQuestion" : null,
+          "emergencyHint" : false
+        }
+      }
+    },
+    "rawModelOutput" : {
+      "intent" : "REPORT",
+      "report" : {
+        "category" : "IT",
+        "subcategory" : "WIFI",
+        "locationText" : null,
+        "building" : null,
+        "floor" : null,
+        "symptom" : "무선 인터넷이 3분마다 끊김",
+        "occurredAtText" : "어제 저녁부터",
+        "followUpQuestion" : "무선 인터넷이 끊기는 증상은 어떤 내용인가요?",
+        "missingFields" : [ "LOCATION" ],
+        "emergencyHint" : false
+      },
+      "updates" : {
+        "LOCATION" : {
+          "action" : "CLEAR",
+          "evidence" : "건물과 층, 호실 정보는 모두 지워 주세요."
+        },
+        "SYMPTOM" : {
+          "action" : "KEEP",
+          "evidence" : null
+        },
+        "OCCURRED_AT" : {
+          "action" : "KEEP",
+          "evidence" : null
+        },
+        "CATEGORY" : {
+          "action" : "KEEP",
+          "evidence" : null
+        }
+      }
+    },
+    "actual" : {
+      "intent" : "REPORT",
+      "report" : {
+        "category" : "IT",
+        "subcategory" : "WIFI",
+        "locationText" : null,
+        "building" : null,
+        "floor" : null,
+        "symptom" : "무선 인터넷이 3분마다 끊김",
+        "occurredAtText" : "어제 저녁부터",
+        "followUpQuestion" : "문제가 발생한 건물이나 구체적인 장소를 알려주세요. 모르면 아래에서 직접 확인 후 접수할 수 있어요.",
+        "missingFields" : [ "LOCATION" ],
+        "emergencyHint" : false
+      },
+      "followUpState" : {
+        "turns" : 1,
+        "noProgress" : 1,
+        "askedFields" : [ "LOCATION" ],
+        "reviewFields" : [ ],
+        "status" : "CONTINUE",
+        "nextField" : "LOCATION"
+      },
+      "aiMode" : "LIVE"
+    },
+    "checks" : {
+      "equals:/report/locationText" : true,
+      "equals:/report/building" : true,
+      "equals:/report/floor" : true,
+      "preserve:category" : true,
+      "preserve:subcategory" : true,
+      "preserve:symptom" : true,
+      "preserve:occurredAtText" : true,
+      "question" : true,
+      "missing:LOCATION" : true
+    },
+    "rawFieldChecks" : {
+      "equals:/report/locationText" : true,
+      "equals:/report/building" : true,
+      "equals:/report/floor" : true,
+      "preserve:category" : true,
+      "preserve:subcategory" : true,
+      "preserve:symptom" : true,
+      "preserve:occurredAtText" : true,
+      "question" : true,
+      "missing:LOCATION" : true
+    },
+    "failedChecks" : [ ],
+    "causes" : { },
+    "status" : "PASS",
+    "source" : "CACHED_LIVE_RAW_PROVIDER_RESPONSE",
+    "cacheKey" : "4403a3e75ba062cf047738926ec1a9afa1f8eaa00184e1eccb3b53b91b4a26a9",
+    "actualProviderModel" : "gpt-6-luna"
+  }, {
+    "id" : "N05a",
+    "group" : "N05",
+    "cohort" : "NEW_QUALITY",
+    "expected" : {
+      "preserve" : [ "category", "subcategory", "building", "floor", "locationText", "occurredAtText" ],
+      "contains" : {
+        "/report/symptom" : [ "느" ]
+      },
+      "question" : false
+    },
+    "previousReport" : {
+      "category" : "IT",
+      "subcategory" : "WIFI",
+      "locationText" : "해솔관 4층 406호",
+      "building" : "해솔관",
+      "floor" : "4",
+      "symptom" : "무선 인터넷이 3분마다 끊김",
+      "occurredAtText" : "어제 저녁부터",
+      "missingFields" : [ ],
+      "followUpQuestion" : null,
+      "emergencyHint" : false
+    },
+    "previousState" : null,
+    "input" : {
+      "text" : "해솔관 406호에서 어제 저녁부터 무선 인터넷이 3분마다 끊겨요.",
+      "preferredIntent" : "REPORT",
+      "followUp" : {
+        "field" : "SYMPTOM",
+        "answer" : "증상만 정정할게요. 연결이 끊기는 건 아니고 인터넷 속도가 매우 느려요.",
+        "previousReport" : {
+          "category" : "IT",
+          "subcategory" : "WIFI",
+          "locationText" : "해솔관 4층 406호",
+          "building" : "해솔관",
+          "floor" : "4",
+          "symptom" : "무선 인터넷이 3분마다 끊김",
+          "occurredAtText" : "어제 저녁부터",
+          "missingFields" : [ ],
+          "followUpQuestion" : null,
+          "emergencyHint" : false
+        }
+      }
+    },
+    "rawModelOutput" : {
+      "intent" : "REPORT",
+      "report" : {
+        "category" : "IT",
+        "subcategory" : "WIFI",
+        "locationText" : "해솔관 4층 406호",
+        "building" : "해솔관",
+        "floor" : "4",
+        "symptom" : "인터넷 속도가 매우 느림",
+        "occurredAtText" : "어제 저녁부터",
+        "followUpQuestion" : null,
+        "missingFields" : [ ],
+        "emergencyHint" : false
+      },
+      "updates" : {
+        "LOCATION" : {
+          "action" : "KEEP",
+          "evidence" : null
+        },
+        "SYMPTOM" : {
+          "action" : "SET",
+          "evidence" : "인터넷 속도가 매우 느려요"
+        },
+        "OCCURRED_AT" : {
+          "action" : "KEEP",
+          "evidence" : null
+        },
+        "CATEGORY" : {
+          "action" : "KEEP",
+          "evidence" : null
+        }
+      }
+    },
+    "actual" : {
+      "intent" : "REPORT",
+      "report" : {
+        "category" : "IT",
+        "subcategory" : "WIFI",
+        "locationText" : "해솔관 4층 406호",
+        "building" : "해솔관",
+        "floor" : "4",
+        "symptom" : "인터넷 속도가 매우 느림",
+        "occurredAtText" : "어제 저녁부터",
+        "followUpQuestion" : null,
+        "missingFields" : [ ],
+        "emergencyHint" : false
+      },
+      "followUpState" : {
+        "turns" : 1,
+        "noProgress" : 0,
+        "askedFields" : [ "SYMPTOM" ],
+        "reviewFields" : [ ],
+        "status" : "COMPLETE",
+        "nextField" : null
+      },
+      "aiMode" : "LIVE"
+    },
+    "checks" : {
+      "contains:/report/symptom:느" : true,
+      "preserve:category" : true,
+      "preserve:subcategory" : true,
+      "preserve:building" : true,
+      "preserve:floor" : true,
+      "preserve:locationText" : true,
+      "preserve:occurredAtText" : true,
+      "question" : true
+    },
+    "rawFieldChecks" : {
+      "contains:/report/symptom:느" : true,
+      "preserve:category" : true,
+      "preserve:subcategory" : true,
+      "preserve:building" : true,
+      "preserve:floor" : true,
+      "preserve:locationText" : true,
+      "preserve:occurredAtText" : true,
+      "question" : true
+    },
+    "failedChecks" : [ ],
+    "causes" : { },
+    "status" : "PASS",
+    "source" : "CACHED_LIVE_RAW_PROVIDER_RESPONSE",
+    "cacheKey" : "17457118082f315c20f0e0b04373169388ea16d3a6cc9646285b5e2bae940da3",
+    "actualProviderModel" : "gpt-6-luna"
+  }, {
+    "id" : "N06a",
+    "group" : "N06",
+    "cohort" : "NEW_QUALITY",
+    "expected" : {
+      "equals" : {
+        "/report/category" : "FACILITY",
+        "/report/subcategory" : "ELECTRIC"
+      },
+      "preserve" : [ "building", "floor", "locationText", "occurredAtText" ],
+      "contains" : {
+        "/report/symptom" : [ "전등" ]
+      },
+      "question" : false
+    },
+    "previousReport" : {
+      "category" : "IT",
+      "subcategory" : "WIFI",
+      "locationText" : "해솔관 4층 406호",
+      "building" : "해솔관",
+      "floor" : "4",
+      "symptom" : "무선 인터넷이 3분마다 끊김",
+      "occurredAtText" : "어제 저녁부터",
+      "missingFields" : [ ],
+      "followUpQuestion" : null,
+      "emergencyHint" : false
+    },
+    "previousState" : null,
+    "input" : {
+      "text" : "해솔관 406호에서 어제 저녁부터 무선 인터넷이 3분마다 끊겨요.",
+      "preferredIntent" : "REPORT",
+      "followUp" : {
+        "field" : "CATEGORY",
+        "answer" : "와이파이 문제가 아니라 전등이 켜지지 않는 문제로 정정합니다. 장소와 시작 시점은 그대로예요.",
+        "previousReport" : {
+          "category" : "IT",
+          "subcategory" : "WIFI",
+          "locationText" : "해솔관 4층 406호",
+          "building" : "해솔관",
+          "floor" : "4",
+          "symptom" : "무선 인터넷이 3분마다 끊김",
+          "occurredAtText" : "어제 저녁부터",
+          "missingFields" : [ ],
+          "followUpQuestion" : null,
+          "emergencyHint" : false
+        }
+      }
+    },
+    "rawModelOutput" : {
+      "intent" : "REPORT",
+      "report" : {
+        "category" : "FACILITY",
+        "subcategory" : "ELECTRIC",
+        "locationText" : "해솔관 4층 406호",
+        "building" : "해솔관",
+        "floor" : "4",
+        "symptom" : "전등이 켜지지 않음",
+        "occurredAtText" : "어제 저녁부터",
+        "followUpQuestion" : null,
+        "missingFields" : [ ],
+        "emergencyHint" : false
+      },
+      "updates" : {
+        "LOCATION" : {
+          "action" : "KEEP",
+          "evidence" : null
+        },
+        "SYMPTOM" : {
+          "action" : "SET",
+          "evidence" : "전등이 켜지지 않는 문제"
+        },
+        "OCCURRED_AT" : {
+          "action" : "KEEP",
+          "evidence" : null
+        },
+        "CATEGORY" : {
+          "action" : "SET",
+          "evidence" : "전등이 켜지지 않는 문제로 정정합니다."
+        }
+      }
+    },
+    "actual" : {
+      "intent" : "REPORT",
+      "report" : {
+        "category" : "FACILITY",
+        "subcategory" : "ELECTRIC",
+        "locationText" : "해솔관 4층 406호",
+        "building" : "해솔관",
+        "floor" : "4",
+        "symptom" : "전등이 켜지지 않음",
+        "occurredAtText" : "어제 저녁부터",
+        "followUpQuestion" : null,
+        "missingFields" : [ ],
+        "emergencyHint" : false
+      },
+      "followUpState" : {
+        "turns" : 1,
+        "noProgress" : 0,
+        "askedFields" : [ "CATEGORY" ],
+        "reviewFields" : [ ],
+        "status" : "COMPLETE",
+        "nextField" : null
+      },
+      "aiMode" : "LIVE"
+    },
+    "checks" : {
+      "equals:/report/category" : true,
+      "equals:/report/subcategory" : true,
+      "contains:/report/symptom:전등" : true,
+      "preserve:building" : true,
+      "preserve:floor" : true,
+      "preserve:locationText" : true,
+      "preserve:occurredAtText" : true,
+      "question" : true
+    },
+    "rawFieldChecks" : {
+      "equals:/report/category" : true,
+      "equals:/report/subcategory" : true,
+      "contains:/report/symptom:전등" : true,
+      "preserve:building" : true,
+      "preserve:floor" : true,
+      "preserve:locationText" : true,
+      "preserve:occurredAtText" : true,
+      "question" : true
+    },
+    "failedChecks" : [ ],
+    "causes" : { },
+    "status" : "PASS",
+    "source" : "CACHED_LIVE_RAW_PROVIDER_RESPONSE",
+    "cacheKey" : "0e98085e07d866a79acff37916a43256dc443ee9308101a349d8f5004cc0adb5",
+    "actualProviderModel" : "gpt-6-luna"
+  }, {
+    "id" : "N07a",
+    "group" : "N07",
+    "cohort" : "NEW_QUALITY",
+    "expected" : {
+      "equals" : {
+        "/intent" : "REPORT",
+        "/report/subcategory" : "WIFI"
+      },
+      "missingContains" : [ "LOCATION" ],
+      "question" : true
+    },
+    "previousReport" : null,
+    "previousState" : null,
+    "input" : {
+      "text" : "강의 중에 와이파이 접속이 계속 끊겨서 신고하려고 해요.",
+      "preferredIntent" : "REPORT"
+    },
+    "rawModelOutput" : {
+      "intent" : "REPORT",
+      "report" : {
+        "category" : "IT",
+        "subcategory" : "WIFI",
+        "locationText" : null,
+        "building" : null,
+        "floor" : null,
+        "symptom" : "강의 중 와이파이 접속이 계속 끊김",
+        "occurredAtText" : "강의 중",
+        "followUpQuestion" : "어느 건물과 강의실에서 발생했나요?",
+        "missingFields" : [ "LOCATION" ],
+        "emergencyHint" : false
+      }
+    },
+    "actual" : {
+      "intent" : "REPORT",
+      "report" : {
+        "category" : "IT",
+        "subcategory" : "WIFI",
+        "locationText" : null,
+        "building" : null,
+        "floor" : null,
+        "symptom" : "강의 중 와이파이 접속이 계속 끊김",
+        "occurredAtText" : "강의 중",
+        "followUpQuestion" : "문제가 발생한 건물이나 구체적인 장소를 알려주세요. 모르면 아래에서 직접 확인 후 접수할 수 있어요.",
+        "missingFields" : [ "LOCATION" ],
+        "emergencyHint" : false
+      },
+      "followUpState" : {
+        "turns" : 0,
+        "noProgress" : 0,
+        "askedFields" : [ ],
+        "reviewFields" : [ ],
+        "status" : "CONTINUE",
+        "nextField" : "LOCATION"
+      },
+      "aiMode" : "LIVE"
+    },
+    "checks" : {
+      "equals:/intent" : true,
+      "equals:/report/subcategory" : true,
+      "question" : true,
+      "missing:LOCATION" : true
+    },
+    "rawFieldChecks" : {
+      "equals:/intent" : true,
+      "equals:/report/subcategory" : true,
+      "question" : true,
+      "missing:LOCATION" : true
+    },
+    "failedChecks" : [ ],
+    "causes" : { },
+    "status" : "PASS",
+    "source" : "CACHED_LIVE_RAW_PROVIDER_RESPONSE",
+    "cacheKey" : "098a2b1d514789f3fb19bd80e91799d004e07fe47de21acc3ba62ecb07df94da",
+    "actualProviderModel" : "gpt-6-luna"
+  }, {
+    "id" : "N07b",
+    "group" : "N07",
+    "cohort" : "NEW_QUALITY",
+    "expected" : {
+      "equals" : {
+        "/report/building" : null,
+        "/report/locationText" : null
+      },
+      "missingContains" : [ "LOCATION" ],
+      "question" : true,
+      "preserve" : [ "category", "subcategory", "symptom" ]
+    },
+    "previousReport" : {
+      "category" : "IT",
+      "subcategory" : "WIFI",
+      "locationText" : null,
+      "building" : null,
+      "floor" : null,
+      "symptom" : "강의 중 와이파이 접속이 계속 끊김",
+      "occurredAtText" : "강의 중",
+      "followUpQuestion" : "문제가 발생한 건물이나 구체적인 장소를 알려주세요. 모르면 아래에서 직접 확인 후 접수할 수 있어요.",
+      "missingFields" : [ "LOCATION" ],
+      "emergencyHint" : false
+    },
+    "previousState" : {
+      "turns" : 0,
+      "noProgress" : 0,
+      "askedFields" : [ ],
+      "reviewFields" : [ ],
+      "status" : "CONTINUE",
+      "nextField" : "LOCATION"
+    },
+    "input" : {
+      "text" : "강의 중에 와이파이 접속이 계속 끊겨서 신고하려고 해요.",
+      "preferredIntent" : "REPORT",
+      "followUp" : {
+        "field" : "LOCATION",
+        "answer" : "거기요.",
+        "previousReport" : {
+          "category" : "IT",
+          "subcategory" : "WIFI",
+          "locationText" : null,
+          "building" : null,
+          "floor" : null,
+          "symptom" : "강의 중 와이파이 접속이 계속 끊김",
+          "occurredAtText" : "강의 중",
+          "followUpQuestion" : "문제가 발생한 건물이나 구체적인 장소를 알려주세요. 모르면 아래에서 직접 확인 후 접수할 수 있어요.",
+          "missingFields" : [ "LOCATION" ],
+          "emergencyHint" : false
+        },
+        "state" : {
+          "turns" : 0,
+          "noProgress" : 0,
+          "askedFields" : [ ],
+          "reviewFields" : [ ],
+          "status" : "CONTINUE",
+          "nextField" : "LOCATION"
+        }
+      }
+    },
+    "rawModelOutput" : {
+      "intent" : "REPORT",
+      "report" : {
+        "category" : "IT",
+        "subcategory" : "WIFI",
+        "locationText" : null,
+        "building" : null,
+        "floor" : null,
+        "symptom" : "강의 중 와이파이 접속이 계속 끊김",
+        "occurredAtText" : "강의 중",
+        "followUpQuestion" : "문제가 발생한 건물이나 구체적인 장소를 알려주세요.",
+        "missingFields" : [ "LOCATION" ],
+        "emergencyHint" : false
+      },
+      "updates" : {
+        "LOCATION" : {
+          "action" : "KEEP",
+          "evidence" : null
+        },
+        "SYMPTOM" : {
+          "action" : "KEEP",
+          "evidence" : null
+        },
+        "OCCURRED_AT" : {
+          "action" : "KEEP",
+          "evidence" : null
+        },
+        "CATEGORY" : {
+          "action" : "KEEP",
+          "evidence" : null
+        }
+      }
+    },
+    "actual" : {
+      "intent" : "REPORT",
+      "report" : {
+        "category" : "IT",
+        "subcategory" : "WIFI",
+        "locationText" : null,
+        "building" : null,
+        "floor" : null,
+        "symptom" : "강의 중 와이파이 접속이 계속 끊김",
+        "occurredAtText" : "강의 중",
+        "followUpQuestion" : "문제가 발생한 건물이나 구체적인 장소를 알려주세요. 모르면 아래에서 직접 확인 후 접수할 수 있어요.",
+        "missingFields" : [ "LOCATION" ],
+        "emergencyHint" : false
+      },
+      "followUpState" : {
+        "turns" : 1,
+        "noProgress" : 1,
+        "askedFields" : [ "LOCATION" ],
+        "reviewFields" : [ ],
+        "status" : "CONTINUE",
+        "nextField" : "LOCATION"
+      },
+      "aiMode" : "LIVE"
+    },
+    "checks" : {
+      "equals:/report/building" : true,
+      "equals:/report/locationText" : true,
+      "preserve:category" : true,
+      "preserve:subcategory" : true,
+      "preserve:symptom" : true,
+      "question" : true,
+      "missing:LOCATION" : true
+    },
+    "rawFieldChecks" : {
+      "equals:/report/building" : true,
+      "equals:/report/locationText" : true,
+      "preserve:category" : true,
+      "preserve:subcategory" : true,
+      "preserve:symptom" : true,
+      "question" : true,
+      "missing:LOCATION" : true
+    },
+    "failedChecks" : [ ],
+    "causes" : { },
+    "status" : "PASS",
+    "source" : "CACHED_LIVE_RAW_PROVIDER_RESPONSE",
+    "cacheKey" : "1618a5d6edc9634ebeca1c85bbe0bfc75a877047e843f4a107a2d510c7ce33c1",
+    "actualProviderModel" : "gpt-6-luna"
+  }, {
+    "id" : "N07c",
+    "group" : "N07",
+    "cohort" : "NEW_QUALITY",
+    "expected" : {
+      "equals" : {
+        "/report/building" : null,
+        "/report/locationText" : null
+      },
+      "missingContains" : [ "LOCATION" ],
+      "question" : false,
+      "preserve" : [ "category", "subcategory", "symptom" ]
+    },
+    "previousReport" : {
+      "category" : "IT",
+      "subcategory" : "WIFI",
+      "locationText" : null,
+      "building" : null,
+      "floor" : null,
+      "symptom" : "강의 중 와이파이 접속이 계속 끊김",
+      "occurredAtText" : "강의 중",
+      "followUpQuestion" : "문제가 발생한 건물이나 구체적인 장소를 알려주세요. 모르면 아래에서 직접 확인 후 접수할 수 있어요.",
+      "missingFields" : [ "LOCATION" ],
+      "emergencyHint" : false
+    },
+    "previousState" : {
+      "turns" : 1,
+      "noProgress" : 1,
+      "askedFields" : [ "LOCATION" ],
+      "reviewFields" : [ ],
+      "status" : "CONTINUE",
+      "nextField" : "LOCATION"
+    },
+    "input" : {
+      "text" : "강의 중에 와이파이 접속이 계속 끊겨서 신고하려고 해요.",
+      "preferredIntent" : "REPORT",
+      "followUp" : {
+        "field" : "LOCATION",
+        "answer" : "건물 이름은 잘 모르겠어요.",
+        "previousReport" : {
+          "category" : "IT",
+          "subcategory" : "WIFI",
+          "locationText" : null,
+          "building" : null,
+          "floor" : null,
+          "symptom" : "강의 중 와이파이 접속이 계속 끊김",
+          "occurredAtText" : "강의 중",
+          "followUpQuestion" : "문제가 발생한 건물이나 구체적인 장소를 알려주세요. 모르면 아래에서 직접 확인 후 접수할 수 있어요.",
+          "missingFields" : [ "LOCATION" ],
+          "emergencyHint" : false
+        },
+        "state" : {
+          "turns" : 1,
+          "noProgress" : 1,
+          "askedFields" : [ "LOCATION" ],
+          "reviewFields" : [ ],
+          "status" : "CONTINUE",
+          "nextField" : "LOCATION"
+        }
+      }
+    },
+    "rawModelOutput" : {
+      "intent" : "REPORT",
+      "report" : {
+        "category" : "IT",
+        "subcategory" : "WIFI",
+        "locationText" : null,
+        "building" : null,
+        "floor" : null,
+        "symptom" : "강의 중 와이파이 접속이 계속 끊김",
+        "occurredAtText" : "강의 중",
+        "followUpQuestion" : "문제가 발생한 건물이나 구체적인 장소를 알려주세요.",
+        "missingFields" : [ "LOCATION" ],
+        "emergencyHint" : false
+      },
+      "updates" : {
+        "LOCATION" : {
+          "action" : "KEEP",
+          "evidence" : null
+        },
+        "SYMPTOM" : {
+          "action" : "KEEP",
+          "evidence" : null
+        },
+        "OCCURRED_AT" : {
+          "action" : "KEEP",
+          "evidence" : null
+        },
+        "CATEGORY" : {
+          "action" : "KEEP",
+          "evidence" : null
+        }
+      }
+    },
+    "actual" : {
+      "intent" : "REPORT",
+      "report" : {
+        "category" : "IT",
+        "subcategory" : "WIFI",
+        "locationText" : null,
+        "building" : null,
+        "floor" : null,
+        "symptom" : "강의 중 와이파이 접속이 계속 끊김",
+        "occurredAtText" : "강의 중",
+        "followUpQuestion" : null,
+        "missingFields" : [ "LOCATION" ],
+        "emergencyHint" : false
+      },
+      "followUpState" : {
+        "turns" : 2,
+        "noProgress" : 2,
+        "askedFields" : [ "LOCATION", "LOCATION" ],
+        "reviewFields" : [ ],
+        "status" : "NO_PROGRESS",
+        "nextField" : null
+      },
+      "aiMode" : "LIVE"
+    },
+    "checks" : {
+      "equals:/report/building" : true,
+      "equals:/report/locationText" : true,
+      "preserve:category" : true,
+      "preserve:subcategory" : true,
+      "preserve:symptom" : true,
+      "question" : true,
+      "missing:LOCATION" : true
+    },
+    "rawFieldChecks" : {
+      "equals:/report/building" : true,
+      "equals:/report/locationText" : true,
+      "preserve:category" : true,
+      "preserve:subcategory" : true,
+      "preserve:symptom" : true,
+      "question" : false,
+      "missing:LOCATION" : true
+    },
+    "failedChecks" : [ ],
+    "causes" : { },
+    "status" : "PASS",
+    "source" : "CACHED_LIVE_RAW_PROVIDER_RESPONSE",
+    "cacheKey" : "f96c4d47d65e43e66ddb0ebbbb789c080f6ed5a9be2c2dd79f51db4cf7865bc9",
+    "actualProviderModel" : "gpt-6-luna"
+  }, {
+    "id" : "N08a",
+    "group" : "N08",
+    "cohort" : "NEW_QUALITY",
+    "expected" : {
+      "equals" : {
+        "/intent" : "QUESTION",
+        "/report/category" : "IT",
+        "/report/subcategory" : "WIFI"
+      },
+      "question" : false
+    },
+    "previousReport" : null,
+    "previousState" : null,
+    "input" : {
+      "text" : "교내 무선망 접속 설정은 어느 부서에 물어보면 되나요?",
+      "preferredIntent" : "AUTO"
+    },
+    "rawModelOutput" : {
+      "intent" : "QUESTION",
+      "report" : {
+        "category" : "IT",
+        "subcategory" : "WIFI",
+        "locationText" : null,
+        "building" : null,
+        "floor" : null,
+        "symptom" : "교내 무선망 접속 설정 문의",
+        "occurredAtText" : null,
+        "followUpQuestion" : null,
+        "missingFields" : [ ],
+        "emergencyHint" : false
+      }
+    },
+    "actual" : {
+      "intent" : "QUESTION",
+      "report" : {
+        "category" : "IT",
+        "subcategory" : "WIFI",
+        "locationText" : null,
+        "building" : null,
+        "floor" : null,
+        "symptom" : "교내 무선망 접속 설정 문의",
+        "occurredAtText" : null,
+        "followUpQuestion" : null,
+        "missingFields" : [ "LOCATION" ],
+        "emergencyHint" : false
+      },
+      "aiMode" : "LIVE"
+    },
+    "checks" : {
+      "equals:/intent" : true,
+      "equals:/report/category" : true,
+      "equals:/report/subcategory" : true,
+      "question" : true
+    },
+    "rawFieldChecks" : {
+      "equals:/intent" : true,
+      "equals:/report/category" : true,
+      "equals:/report/subcategory" : true,
+      "question" : true
+    },
+    "failedChecks" : [ ],
+    "causes" : { },
+    "status" : "PASS",
+    "source" : "CACHED_LIVE_RAW_PROVIDER_RESPONSE",
+    "cacheKey" : "cd18ddff56cfaf56371f288a61af3da25ac7742d86035f6ed44b8c22e0520d1c",
+    "actualProviderModel" : "gpt-6-luna"
+  }, {
+    "id" : "N09a",
+    "group" : "N09",
+    "cohort" : "NEW_QUALITY",
+    "expected" : {
+      "equals" : {
+        "/report/emergencyHint" : true,
+        "/report/subcategory" : "ELECTRIC",
+        "/report/building" : "도담관",
+        "/report/floor" : "3"
+      }
+    },
+    "previousReport" : null,
+    "previousState" : null,
+    "input" : {
+      "text" : "도담관 312호 콘센트에서 스파크가 계속 튀고 있습니다.",
+      "preferredIntent" : "REPORT"
+    },
+    "rawModelOutput" : {
+      "intent" : "REPORT",
+      "report" : {
+        "category" : "FACILITY",
+        "subcategory" : "ELECTRIC",
+        "locationText" : "도담관 312호",
+        "building" : "도담관",
+        "floor" : "3",
+        "symptom" : "콘센트에서 스파크가 계속 튐",
+        "occurredAtText" : "계속",
+        "followUpQuestion" : null,
+        "missingFields" : [ ],
+        "emergencyHint" : true
+      }
+    },
+    "actual" : {
+      "intent" : "REPORT",
+      "report" : {
+        "category" : "FACILITY",
+        "subcategory" : "ELECTRIC",
+        "locationText" : "도담관 312호",
+        "building" : "도담관",
+        "floor" : "3",
+        "symptom" : "콘센트에서 스파크가 계속 튐",
+        "occurredAtText" : "계속",
+        "followUpQuestion" : null,
+        "missingFields" : [ ],
+        "emergencyHint" : true
+      },
+      "followUpState" : {
+        "turns" : 0,
+        "noProgress" : 0,
+        "askedFields" : [ ],
+        "reviewFields" : [ ],
+        "status" : "COMPLETE",
+        "nextField" : null
+      },
+      "aiMode" : "LIVE"
+    },
+    "checks" : {
+      "equals:/report/emergencyHint" : true,
+      "equals:/report/subcategory" : true,
+      "equals:/report/building" : true,
+      "equals:/report/floor" : true
+    },
+    "rawFieldChecks" : {
+      "equals:/report/emergencyHint" : true,
+      "equals:/report/subcategory" : true,
+      "equals:/report/building" : true,
+      "equals:/report/floor" : true
+    },
+    "failedChecks" : [ ],
+    "causes" : { },
+    "status" : "PASS",
+    "source" : "CACHED_LIVE_RAW_PROVIDER_RESPONSE",
+    "cacheKey" : "1e40fdbe323e274b535c1efa4c3a117456a04ae7d510f5bbfd8b777ec07bf50d",
+    "actualProviderModel" : "gpt-6-luna"
+  }, {
+    "id" : "N10a",
+    "group" : "N10",
+    "cohort" : "DEVELOPMENT_SEEN",
+    "expected" : {
+      "equals" : {
+        "/report/emergencyHint" : false,
+        "/report/subcategory" : "ELECTRIC",
+        "/report/building" : "도담관",
+        "/report/floor" : "3"
+      }
+    },
+    "previousReport" : null,
+    "previousState" : null,
+    "input" : {
+      "text" : "도담관 312호 조명이 켜지지 않지만 불꽃이나 연기, 타는 냄새는 전혀 없습니다.",
+      "preferredIntent" : "REPORT"
+    },
+    "rawModelOutput" : {
+      "intent" : "REPORT",
+      "report" : {
+        "category" : "FACILITY",
+        "subcategory" : "ELECTRIC",
+        "locationText" : "도담관 312호",
+        "building" : "도담관",
+        "floor" : "3",
+        "symptom" : "조명이 켜지지 않음",
+        "occurredAtText" : null,
+        "followUpQuestion" : null,
+        "missingFields" : [ ],
+        "emergencyHint" : false
+      }
+    },
+    "actual" : {
+      "intent" : "REPORT",
+      "report" : {
+        "category" : "FACILITY",
+        "subcategory" : "ELECTRIC",
+        "locationText" : "도담관 312호",
+        "building" : "도담관",
+        "floor" : "3",
+        "symptom" : "조명이 켜지지 않음",
+        "occurredAtText" : null,
+        "followUpQuestion" : null,
+        "missingFields" : [ ],
+        "emergencyHint" : false
+      },
+      "followUpState" : {
+        "turns" : 0,
+        "noProgress" : 0,
+        "askedFields" : [ ],
+        "reviewFields" : [ ],
+        "status" : "COMPLETE",
+        "nextField" : null
+      },
+      "aiMode" : "LIVE"
+    },
+    "checks" : {
+      "equals:/report/emergencyHint" : true,
+      "equals:/report/subcategory" : true,
+      "equals:/report/building" : true,
+      "equals:/report/floor" : true
+    },
+    "rawFieldChecks" : {
+      "equals:/report/emergencyHint" : true,
+      "equals:/report/subcategory" : true,
+      "equals:/report/building" : true,
+      "equals:/report/floor" : true
+    },
+    "failedChecks" : [ ],
+    "causes" : { },
+    "status" : "PASS",
+    "source" : "CACHED_LIVE_RAW_PROVIDER_RESPONSE",
+    "cacheKey" : "a508dfd48273291efaf0dc39d177132574d7cd2d041a779aff9484f41e5f4118",
+    "actualProviderModel" : "gpt-6-luna"
+  }, {
+    "id" : "N11a",
+    "group" : "N11",
+    "cohort" : "NEW_QUALITY",
+    "expected" : {
+      "equals" : {
+        "/report/emergencyHint" : true,
+        "/report/subcategory" : "ELECTRIC",
+        "/report/building" : "도담관",
+        "/report/floor" : "3"
+      }
+    },
+    "previousReport" : null,
+    "previousState" : null,
+    "input" : {
+      "text" : "도담관 312호 콘센트에서 불꽃은 없지만 타는 냄새가 계속 나요.",
+      "preferredIntent" : "REPORT"
+    },
+    "rawModelOutput" : {
+      "intent" : "REPORT",
+      "report" : {
+        "category" : "FACILITY",
+        "subcategory" : "ELECTRIC",
+        "locationText" : "도담관 312호",
+        "building" : "도담관",
+        "floor" : "3",
+        "symptom" : "콘센트에서 타는 냄새가 계속 남",
+        "occurredAtText" : null,
+        "followUpQuestion" : null,
+        "missingFields" : [ ],
+        "emergencyHint" : true
+      }
+    },
+    "actual" : {
+      "intent" : "REPORT",
+      "report" : {
+        "category" : "FACILITY",
+        "subcategory" : "ELECTRIC",
+        "locationText" : "도담관 312호",
+        "building" : "도담관",
+        "floor" : "3",
+        "symptom" : "콘센트에서 타는 냄새가 계속 남",
+        "occurredAtText" : null,
+        "followUpQuestion" : null,
+        "missingFields" : [ ],
+        "emergencyHint" : true
+      },
+      "followUpState" : {
+        "turns" : 0,
+        "noProgress" : 0,
+        "askedFields" : [ ],
+        "reviewFields" : [ ],
+        "status" : "COMPLETE",
+        "nextField" : null
+      },
+      "aiMode" : "LIVE"
+    },
+    "checks" : {
+      "equals:/report/emergencyHint" : true,
+      "equals:/report/subcategory" : true,
+      "equals:/report/building" : true,
+      "equals:/report/floor" : true
+    },
+    "rawFieldChecks" : {
+      "equals:/report/emergencyHint" : true,
+      "equals:/report/subcategory" : true,
+      "equals:/report/building" : true,
+      "equals:/report/floor" : true
+    },
+    "failedChecks" : [ ],
+    "causes" : { },
+    "status" : "PASS",
+    "source" : "CACHED_LIVE_RAW_PROVIDER_RESPONSE",
+    "cacheKey" : "6553deffe0817fd6096a7814afef01aa4226c19c943193410952af0302cb0767",
+    "actualProviderModel" : "gpt-6-luna"
+  }, {
+    "id" : "N12a",
+    "group" : "N12",
+    "cohort" : "NEW_QUALITY",
+    "expected" : {
+      "equals" : {
+        "/report/building" : "다온관",
+        "/report/floor" : "2"
+      },
+      "missingContains" : [ "SYMPTOM" ],
+      "question" : false,
+      "maxTurns" : 3
+    },
+    "previousReport" : {
+      "category" : "OTHER",
+      "subcategory" : "UNKNOWN",
+      "locationText" : null,
+      "building" : null,
+      "floor" : null,
+      "symptom" : null,
+      "occurredAtText" : null,
+      "missingFields" : [ "LOCATION", "SYMPTOM" ],
+      "followUpQuestion" : "어느 건물인가요?",
+      "emergencyHint" : false
+    },
+    "previousState" : {
+      "turns" : 2,
+      "noProgress" : 0,
+      "askedFields" : [ "LOCATION", "SYMPTOM" ],
+      "status" : "CONTINUE",
+      "nextField" : "LOCATION"
+    },
+    "input" : {
+      "text" : "신고할 문제가 있는데 설명하기가 어렵네요.",
+      "preferredIntent" : "REPORT",
+      "followUp" : {
+        "field" : "LOCATION",
+        "answer" : "위치는 다온관 207호입니다.",
+        "previousReport" : {
+          "category" : "OTHER",
+          "subcategory" : "UNKNOWN",
+          "locationText" : null,
+          "building" : null,
+          "floor" : null,
+          "symptom" : null,
+          "occurredAtText" : null,
+          "missingFields" : [ "LOCATION", "SYMPTOM" ],
+          "followUpQuestion" : "어느 건물인가요?",
+          "emergencyHint" : false
+        },
+        "state" : {
+          "turns" : 2,
+          "noProgress" : 0,
+          "askedFields" : [ "LOCATION", "SYMPTOM" ],
+          "status" : "CONTINUE",
+          "nextField" : "LOCATION"
+        }
+      }
+    },
+    "rawModelOutput" : {
+      "intent" : "REPORT",
+      "report" : {
+        "category" : "OTHER",
+        "subcategory" : "UNKNOWN",
+        "locationText" : "다온관 207호",
+        "building" : "다온관",
+        "floor" : "2",
+        "symptom" : null,
+        "occurredAtText" : null,
+        "followUpQuestion" : "어떤 문제가 발생했는지 설명해 주실 수 있나요?",
+        "missingFields" : [ "SYMPTOM" ],
+        "emergencyHint" : false
+      },
+      "updates" : {
+        "LOCATION" : {
+          "action" : "SET",
+          "evidence" : "위치는 다온관 207호입니다."
+        },
+        "SYMPTOM" : {
+          "action" : "KEEP",
+          "evidence" : null
+        },
+        "OCCURRED_AT" : {
+          "action" : "KEEP",
+          "evidence" : null
+        },
+        "CATEGORY" : {
+          "action" : "KEEP",
+          "evidence" : null
+        }
+      }
+    },
+    "actual" : {
+      "intent" : "REPORT",
+      "report" : {
+        "category" : "OTHER",
+        "subcategory" : "UNKNOWN",
+        "locationText" : "다온관 207호",
+        "building" : "다온관",
+        "floor" : "2",
+        "symptom" : null,
+        "occurredAtText" : null,
+        "followUpQuestion" : null,
+        "missingFields" : [ "SYMPTOM" ],
+        "emergencyHint" : false
+      },
+      "followUpState" : {
+        "turns" : 3,
+        "noProgress" : 0,
+        "askedFields" : [ "LOCATION", "SYMPTOM", "LOCATION" ],
+        "reviewFields" : [ ],
+        "status" : "LIMIT",
+        "nextField" : null
+      },
+      "aiMode" : "LIVE"
+    },
+    "checks" : {
+      "equals:/report/building" : true,
+      "equals:/report/floor" : true,
+      "question" : true,
+      "missing:SYMPTOM" : true,
+      "maxTurns" : true
+    },
+    "rawFieldChecks" : {
+      "equals:/report/building" : true,
+      "equals:/report/floor" : true,
+      "question" : false,
+      "missing:SYMPTOM" : true,
+      "maxTurns" : false
+    },
+    "failedChecks" : [ ],
+    "causes" : { },
+    "status" : "PASS",
+    "source" : "CACHED_LIVE_RAW_PROVIDER_RESPONSE",
+    "cacheKey" : "451e9a0aeb699ab73a69d79f2a3d00f6f418ee1c068979680ffa154404080089",
+    "actualProviderModel" : "gpt-6-luna"
+  } ],
+  "providerMeasurement" : {
+    "newAnalysisCalls" : 0,
+    "newEmbeddingCalls" : 0,
+    "newExternalCalls" : 0,
+    "newCallFailures" : 0,
+    "cacheHits" : 20,
+    "newUsage" : { },
+    "cumulative" : {
+      "analysisAttempts" : 16,
+      "embeddingAttempts" : 3,
+      "hasIncompleteOrFailed" : false,
+      "estimatedCostUsd" : 0.0029890800000000003,
+      "conservativeCostUsd" : 0.048688640000000005,
+      "inputTokens" : 19800,
+      "outputTokens" : 2058,
+      "totalTokens" : 21858
+    },
+    "maximumAnalysisCalls" : 20,
+    "maximumEmbeddingCalls" : 4,
+    "budgetUsd" : 1.0,
+    "automaticPaidRetries" : 0,
+    "cacheDirectory" : ".runtime/ai-quality-cache/followup-v1"
+  },
+  "pairs" : {
+    "tp" : 1,
+    "fp" : 0,
+    "tn" : 1,
+    "fn" : 0,
+    "unverified" : 0,
+    "precision" : 1.0,
+    "recall" : 1.0,
+    "threshold" : 0.82,
+    "conditionalWifiThreshold" : 0.7,
+    "rows" : [ {
+      "id" : "NP01",
+      "left" : {
+        "text" : "해솔관 4층 406호 무선 인터넷이 몇 분마다 끊겨 다시 연결해야 해요.",
+        "category" : "IT",
+        "subcategory" : "WIFI",
+        "building" : "해솔관",
+        "floor" : "4",
+        "locationText" : "해솔관 4층 406호",
+        "symptom" : "무선 인터넷 연결이 반복해서 끊김",
+        "dayOffset" : 0
+      },
+      "right" : {
+        "text" : "해솔관 406호에서 무선망이 자꾸 끊겨 재접속하는 일이 반복됩니다.",
+        "category" : "IT",
+        "subcategory" : "WIFI",
+        "building" : "해솔관",
+        "floor" : "4",
+        "locationText" : "해솔관 4층 406호",
+        "symptom" : "무선망 연결 단절과 재접속 반복",
+        "dayOffset" : 0
+      },
+      "expectedCandidate" : true,
+      "actualCandidate" : true,
+      "diagnostic" : {
+        "typeMatch" : true,
+        "buildingMatch" : true,
+        "floorMatch" : true,
+        "roomMatch" : true,
+        "timeMatch" : true,
+        "normalizedPlace" : {
+          "rightBuilding" : "해솔관",
+          "leftBuilding" : "해솔관",
+          "leftFloor" : "4",
+          "leftRoom" : "406",
+          "rightRoom" : "406",
+          "rightFloor" : "4"
+        },
+        "rawCosine" : 0.8477563462604707,
+        "threshold" : 0.82,
+        "thresholdPass" : true,
+        "windowDays" : 30,
+        "connectivitySupportThreshold" : 0.7,
+        "leftConnectivityFailure" : true,
+        "rightConnectivityFailure" : true,
+        "baselineCandidate" : true,
+        "candidate" : true,
+        "baselineExcludedBy" : [ ],
+        "excludedBy" : [ ],
+        "decisionBasis" : "EMBEDDING_THRESHOLD"
+      },
+      "embeddingsAvailable" : true,
+      "status" : "PASS",
+      "automaticIncidentLink" : false
+    }, {
+      "id" : "NP02",
+      "left" : {
+        "text" : "해솔관 4층 406호 무선 인터넷이 몇 분마다 끊겨 다시 연결해야 해요.",
+        "category" : "IT",
+        "subcategory" : "WIFI",
+        "building" : "해솔관",
+        "floor" : "4",
+        "locationText" : "해솔관 4층 406호",
+        "symptom" : "무선 인터넷 연결이 반복해서 끊김",
+        "dayOffset" : 0
+      },
+      "right" : {
+        "text" : "해솔관 406호 와이파이는 잘 되는데 접속 비밀번호 안내 스티커가 떨어져 있습니다.",
+        "category" : "IT",
+        "subcategory" : "WIFI",
+        "building" : "해솔관",
+        "floor" : "4",
+        "locationText" : "해솔관 4층 406호",
+        "symptom" : "와이파이 비밀번호 안내 스티커 탈락",
+        "dayOffset" : 0
+      },
+      "expectedCandidate" : false,
+      "actualCandidate" : false,
+      "diagnostic" : {
+        "typeMatch" : true,
+        "buildingMatch" : true,
+        "floorMatch" : true,
+        "roomMatch" : true,
+        "timeMatch" : true,
+        "normalizedPlace" : {
+          "rightBuilding" : "해솔관",
+          "leftBuilding" : "해솔관",
+          "leftFloor" : "4",
+          "leftRoom" : "406",
+          "rightRoom" : "406",
+          "rightFloor" : "4"
+        },
+        "rawCosine" : 0.7254485149921952,
+        "threshold" : 0.82,
+        "thresholdPass" : false,
+        "windowDays" : 30,
+        "connectivitySupportThreshold" : 0.7,
+        "leftConnectivityFailure" : true,
+        "rightConnectivityFailure" : false,
+        "baselineCandidate" : false,
+        "candidate" : false,
+        "baselineExcludedBy" : [ "EMBEDDING_THRESHOLD" ],
+        "excludedBy" : [ "EMBEDDING_THRESHOLD" ],
+        "decisionBasis" : "EXCLUDED"
+      },
+      "embeddingsAvailable" : true,
+      "status" : "PASS",
+      "automaticIncidentLink" : false
+    } ]
+  },
+  "developmentReuse" : {
+    "cohort" : "DEVELOPMENT_REUSE",
+    "source" : "fresh-v1-results.json",
+    "sourceSha256" : "10962a35515dcb752c587f7961c840a05a33557c5d9dd9b6268397429560961b",
+    "externalCalls" : 0,
+    "originalPairResults" : [ {
+      "id" : "P01",
+      "expectedCandidate" : true,
+      "actualCandidate" : true,
+      "status" : "PASS",
+      "rawCosine" : 0.8016152479021813,
+      "excludedBy" : [ ],
+      "decisionBasis" : "CONNECTIVITY_SYMPTOM_SUPPORT"
+    }, {
+      "id" : "P02",
+      "expectedCandidate" : true,
+      "actualCandidate" : false,
+      "status" : "FAIL",
+      "rawCosine" : 0.6964573833049279,
+      "excludedBy" : [ "EMBEDDING_THRESHOLD" ],
+      "decisionBasis" : "EXCLUDED"
+    }, {
+      "id" : "P03",
+      "expectedCandidate" : true,
+      "actualCandidate" : false,
+      "status" : "FAIL",
+      "rawCosine" : 0.787971447472181,
+      "excludedBy" : [ "EMBEDDING_THRESHOLD" ],
+      "decisionBasis" : "EXCLUDED"
+    }, {
+      "id" : "P04",
+      "expectedCandidate" : true,
+      "actualCandidate" : true,
+      "status" : "PASS",
+      "rawCosine" : 0.8300962606275433,
+      "excludedBy" : [ ],
+      "decisionBasis" : "EMBEDDING_THRESHOLD"
+    }, {
+      "id" : "P05",
+      "expectedCandidate" : true,
+      "actualCandidate" : true,
+      "status" : "PASS",
+      "rawCosine" : 0.8676612476572434,
+      "excludedBy" : [ ],
+      "decisionBasis" : "EMBEDDING_THRESHOLD"
+    }, {
+      "id" : "P06",
+      "expectedCandidate" : false,
+      "actualCandidate" : false,
+      "status" : "PASS",
+      "rawCosine" : 0.9894724839526238,
+      "excludedBy" : [ "ROOM" ],
+      "decisionBasis" : "EXCLUDED"
+    }, {
+      "id" : "P07",
+      "expectedCandidate" : false,
+      "actualCandidate" : false,
+      "status" : "PASS",
+      "rawCosine" : 0.7945340660570455,
+      "excludedBy" : [ "EMBEDDING_THRESHOLD" ],
+      "decisionBasis" : "EXCLUDED"
+    }, {
+      "id" : "P08",
+      "expectedCandidate" : false,
+      "actualCandidate" : false,
+      "status" : "PASS",
+      "rawCosine" : 0.7073538789732803,
+      "excludedBy" : [ "EMBEDDING_THRESHOLD" ],
+      "decisionBasis" : "EXCLUDED"
+    }, {
+      "id" : "P09",
+      "expectedCandidate" : false,
+      "actualCandidate" : false,
+      "status" : "PASS",
+      "rawCosine" : 0.7588786130433097,
+      "excludedBy" : [ "EMBEDDING_THRESHOLD" ],
+      "decisionBasis" : "EXCLUDED"
+    }, {
+      "id" : "P10",
+      "expectedCandidate" : false,
+      "actualCandidate" : false,
+      "status" : "PASS",
+      "rawCosine" : 0.8043016843327719,
+      "excludedBy" : [ "EMBEDDING_THRESHOLD" ],
+      "decisionBasis" : "EXCLUDED"
+    } ],
+    "note" : "Original frozen ten-pair scores and exclusions reused unchanged. No threshold selection or new independent claim."
+  },
+  "summary" : {
+    "analysisCount" : 16,
+    "analysisPass" : 16,
+    "analysisFail" : 0,
+    "analysisUnverified" : 0,
+    "newQuality" : {
+      "count" : 13,
+      "pass" : 13,
+      "fail" : 0,
+      "unverified" : 0,
+      "exactScenarioPassRate" : 1.0
+    },
+    "developmentSeen" : {
+      "count" : 3,
+      "pass" : 3,
+      "fail" : 0,
+      "unverified" : 0
+    },
+    "qualityGate" : "JUnit PASS means evidence collection completed; inspect per-case PASS/FAIL for quality. Same cases replayed after fixes are development regressions, not a new independent accuracy estimate."
+  }
+}

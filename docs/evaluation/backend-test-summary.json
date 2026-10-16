@@ -1,0 +1,44 @@
+{
+  "verifiedAt": "2026-10-11T10:07:59+09:00",
+  "command": "scripts/Test-Backend.ps1 -MySQL",
+  "total": 64.0,
+  "suites": [
+    {
+      "suite": "edu.skope.ai.AiEvaluationTest",
+      "tests": 1,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "suite": "edu.skope.ai.AiServiceTest",
+      "tests": 16,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "suite": "edu.skope.ApiIntegrationTest",
+      "tests": 12,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "suite": "edu.skope.service.IncidentServiceTest",
+      "tests": 10,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "suite": "edu.skope.service.SimilarityServiceTest",
+      "tests": 25,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    }
+  ],
+  "database": "ApiIntegrationTest uses MySQL 8.0.45; Incident/Similarity unit fixtures use H2",
+  "liveProviderCalls": 0
+}

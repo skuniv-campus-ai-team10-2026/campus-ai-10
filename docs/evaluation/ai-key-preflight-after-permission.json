@@ -1,0 +1,20 @@
+{
+  "at": "2026-10-11T23:02:09.2867676+09:00",
+  "kind": "Model metadata recheck after user permission change; no inference",
+  "results": [
+    {
+      "model": "gpt-6-luna",
+      "httpStatus": 200,
+      "modelConfirmed": true,
+      "errorCode": null,
+      "missingScopes": null
+    },
+    {
+      "model": "text-embedding-3-small",
+      "httpStatus": 200,
+      "modelConfirmed": true,
+      "errorCode": null,
+      "missingScopes": null
+    }
+  ]
+}

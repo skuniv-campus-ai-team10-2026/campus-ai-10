@@ -1,0 +1,20 @@
+{
+  "id": "hybrid-v1",
+  "labelLimitation": "Codex-authored synthetic DEVELOPMENT regressions, fixed before LIVE. Not independently human-reviewed and not an independent accuracy estimate.",
+  "plannedCalls": 9,
+  "groups": [
+    {"id":"H1","text":"은주2관에서 와이파이가 안되는 거 같습니다.","steps":[
+      {"expectedStatus":"CONTINUE","allowedReasons":["LOCATION_DETAIL","SYMPTOM_DETAIL"]},
+      {"answer":"은주2관 403호에서 어제부터 연결은 되는데 인터넷이 안 돼요.","expectedStatus":"COMPLETE","equals":{"/report/building":"은주2관","/report/floor":"4"},"contains":{"/report/occurredAtText":"어제"}}
+    ]},
+    {"id":"H2","text":"은주2관 403호 천장에서 물이 떨어져요.","steps":[{"expectedStatus":"COMPLETE","equals":{"/report/subcategory":"LEAK"}}]},
+    {"id":"H3","text":"강의실이 너무 불편해요.","steps":[
+      {"expectedStatus":"CONTINUE","allowedReasons":["ISSUE_UNCLEAR"]},
+      {"answer":"지금은 더 설명하기 어렵고 잘 모르겠어요.","expectedStatus":"MANUAL_REVIEW"}
+    ]},
+    {"id":"H4","text":"휴학 신청을 제출했는데 처리 상태가 계속 대기로 표시돼요.","steps":[{"expectedStatus":"COMPLETE","equals":{"/report/category":"ACADEMIC"}}]},
+    {"id":"H5","text":"북악관 502호 전기 시설에 문제가 있어요.","steps":[{"expectedStatus":"CONTINUE","allowedReasons":["ISSUE_UNCLEAR","TARGET_UNCLEAR"]}]},
+    {"id":"H6","text":"은주2관 어딘가에서 타는 냄새가 나요. 정확한 층은 모르겠어요.","steps":[{"expectedStatus":"COMPLETE","equals":{"/report/emergencyHint":true,"/followUpState/urgentReview":true}}]},
+    {"id":"H7","text":"북악관 502호 의자 다리가 흔들려요.","steps":[{"expectedStatus":"COMPLETE","equals":{"/report/category":"OTHER"}}]}
+  ]
+}

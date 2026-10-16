@@ -1,0 +1,53 @@
+{
+  "status": "PASS",
+  "initialFlowDateKst": "2026-10-12",
+  "finalReadAndReloadDateKst": "2026-10-13",
+  "execution": "Actual Codex in-app browser UI, local HTTP, synthetic data",
+  "applicationUrl": "http://127.0.0.1:5173",
+  "database": "skope_ai_quality",
+  "databaseEngine": "MySQL 8.0.45",
+  "aiMode": "LIVE",
+  "embeddingMode": "LIVE",
+  "llmModel": "gpt-6-luna",
+  "embeddingModel": "text-embedding-3-small",
+  "reportNumber": "SK-000001",
+  "reportId": 1,
+  "reportStatus": "RESOLVED",
+  "incidentId": 1,
+  "incidentStatus": "RESOLVED",
+  "auditEvents": 4,
+  "embeddingDimensions": 1536,
+  "input": "북악관 502호에서 와이파이가 계속 끊겨요.",
+  "resolution": "[합성 LIVE 브라우저 검증] 북악관 502호 무선망 연결 점검 및 재연결 확인을 완료했습니다.",
+  "calls": {
+    "browserLlm": 1,
+    "browserEmbedding": 1,
+    "qualityEvaluationLlm": 30,
+    "qualityEvaluationUniqueEmbedding": 21,
+    "qualityPhaseIncludingBrowser": 53,
+    "finalization20261013": 0
+  },
+  "checks": [
+    {"name": "student_login_and_live_analysis", "status": "PASS", "evidence": "../screenshots/live-analysis.png"},
+    {"name": "student_confirm_and_submit", "status": "PASS", "evidence": "../screenshots/live-submitted.png"},
+    {"name": "mysql_report_and_live_vector_persisted", "status": "PASS", "evidence": "live-browser-db-created.json"},
+    {"name": "admin_login_start_and_resolve", "status": "PASS", "evidence": "live-browser-db-resolved.json"},
+    {"name": "mysql_and_backend_restart_preserves_result", "status": "PASS", "evidence": "live-browser-student-final.txt"},
+    {"name": "student_login_detail_and_page_reload", "status": "PASS", "evidence": "../screenshots/live-student-result-detail.png"},
+    {"name": "student_logout_after_verification", "status": "PASS", "evidence": "Observed login screen in browser after logout"}
+  ],
+  "buildScope": {
+    "initialAnalysisSubmissionAndAdminFlow": "Build before final floor normalization and conditional similarity support",
+    "studentReadAfterRestart": "Final build verified with 93 passing backend tests",
+    "finalQualityLogic": "Separately verified by cached LIVE replay with production normalization and H2 similarity indexing; no new inference"
+  },
+  "unverified": [
+    "Independent human-labeled evaluation and unseen production data",
+    "Multiple similar reports through LIVE browser using final conditional policy",
+    "Production HTTPS and Secure cookie behavior",
+    "Sustained LIVE AI load and billing reconciliation"
+  ],
+  "demoEvidenceUsedAsLive": false,
+  "schoolSubmission": false,
+  "report": "../live-browser-verification.md"
+}

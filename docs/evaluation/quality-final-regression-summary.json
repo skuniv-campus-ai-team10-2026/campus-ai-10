@@ -1,0 +1,81 @@
+{
+  "at": "2026-10-13T01:01:04.1051917+09:00",
+  "command": "scripts/Test-Backend.ps1 -MySQL",
+  "database": "skope_test MySQL; isolated H2 service fixtures",
+  "externalAiCalls": 0,
+  "passed": 93.0,
+  "classes": [
+    {
+      "name": "edu.skope.ai.AiEvaluationTest",
+      "tests": 1,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "timestamp": "2026-10-12T16:00:52.080Z"
+    },
+    {
+      "name": "edu.skope.ai.AiHoldoutTest",
+      "tests": 1,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 1,
+      "timestamp": "2026-10-12T16:00:52.186Z"
+    },
+    {
+      "name": "edu.skope.ai.AiQualityCacheTest",
+      "tests": 3,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "timestamp": "2026-10-12T16:00:52.195Z"
+    },
+    {
+      "name": "edu.skope.ai.AiQualityReplayTest",
+      "tests": 1,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 1,
+      "timestamp": "2026-10-12T16:00:52.392Z"
+    },
+    {
+      "name": "edu.skope.ai.AiQualityTest",
+      "tests": 1,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 1,
+      "timestamp": "2026-10-12T16:00:52.395Z"
+    },
+    {
+      "name": "edu.skope.ai.AiServiceTest",
+      "tests": 22,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "timestamp": "2026-10-12T16:00:52.397Z"
+    },
+    {
+      "name": "edu.skope.ApiIntegrationTest",
+      "tests": 12,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "timestamp": "2026-10-12T16:00:28.516Z"
+    },
+    {
+      "name": "edu.skope.service.IncidentServiceTest",
+      "tests": 10,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "timestamp": "2026-10-12T16:00:54.780Z"
+    },
+    {
+      "name": "edu.skope.service.SimilarityServiceTest",
+      "tests": 45,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "timestamp": "2026-10-12T16:00:56.662Z"
+    }
+  ]
+}

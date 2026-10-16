@@ -1,0 +1,44 @@
+[
+  {
+    "suite": "edu.skope.ai.AiEvaluationTest",
+    "tests": 1,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0
+  },
+  {
+    "suite": "edu.skope.ai.AiHoldoutTest",
+    "tests": 1,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 1
+  },
+  {
+    "suite": "edu.skope.ai.AiServiceTest",
+    "tests": 17,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0
+  },
+  {
+    "suite": "edu.skope.ApiIntegrationTest",
+    "tests": 12,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0
+  },
+  {
+    "suite": "edu.skope.service.IncidentServiceTest",
+    "tests": 10,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0
+  },
+  {
+    "suite": "edu.skope.service.SimilarityServiceTest",
+    "tests": 25,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0
+  }
+]

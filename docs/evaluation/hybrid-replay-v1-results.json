@@ -1,0 +1,195 @@
+{
+  "actualResponses": {
+    "syntheticModelWarning": {
+      "report": {
+        "id": 166,
+        "studentId": 1,
+        "originalText": "누리관 101호 배터리가 부풀어 올라 터질 것 같아요",
+        "category": "OTHER",
+        "subcategory": "UNKNOWN",
+        "locationText": "누리관 101호",
+        "building": "누리관",
+        "floor": "1",
+        "symptom": "배터리가 부풀어 올라 터질 것 같음",
+        "occurredAtText": null,
+        "routingRuleId": null,
+        "assignedDepartmentId": null,
+        "routeStatus": "NEEDS_REVIEW",
+        "status": "RECEIVED",
+        "emergencyHint": false,
+        "resolutionText": null,
+        "embeddingModel": null,
+        "createdAt": "2026-10-16T07:49:58.712127+09:00",
+        "updatedAt": "2026-10-16T07:49:58.712127+09:00",
+        "occurredOn": null,
+        "incidentId": null,
+        "requestKind": "REPORT",
+        "reviewNote": null,
+        "assignedDepartment": null
+      },
+      "aiMode": "LIVE",
+      "status": "ACCEPTED"
+    },
+    "leakCompleted": {
+      "id": 167,
+      "studentId": 1,
+      "originalText": "다솜관 501호 천장에 물방울이 맺혀 바닥으로 계속 떨어집니다.",
+      "category": "FACILITY",
+      "subcategory": "LEAK",
+      "locationText": "다솜관 501호",
+      "building": "다솜관",
+      "floor": "5",
+      "symptom": "천장에서 물이 계속 떨어짐",
+      "occurredAtText": null,
+      "routingRuleId": null,
+      "assignedDepartmentId": null,
+      "routeStatus": "NEEDS_REVIEW",
+      "status": "RESOLVED",
+      "emergencyHint": false,
+      "resolutionText": "시연 점검 및 설정 변경 완료",
+      "embeddingModel": null,
+      "createdAt": "2026-10-16T07:49:59.066258+09:00",
+      "updatedAt": "2026-10-16T07:49:59+09:00",
+      "occurredOn": null,
+      "incidentId": 53,
+      "requestKind": "REPORT",
+      "reviewNote": null,
+      "assignedDepartment": null
+    },
+    "vagueWifi": {
+      "report": {
+        "id": 168,
+        "studentId": 1,
+        "originalText": "한빛관 512호 와이파이가 안 돼요.",
+        "category": "IT",
+        "subcategory": "WIFI",
+        "locationText": "한빛관 512호",
+        "building": "한빛관",
+        "floor": "5",
+        "symptom": "와이파이 연결이 안 됨",
+        "occurredAtText": null,
+        "routingRuleId": 1,
+        "assignedDepartmentId": 1,
+        "routeStatus": "MATCHED",
+        "status": "RECEIVED",
+        "emergencyHint": false,
+        "resolutionText": null,
+        "embeddingModel": null,
+        "createdAt": "2026-10-16T07:49:59.514603+09:00",
+        "updatedAt": "2026-10-16T07:49:59.514603+09:00",
+        "occurredOn": null,
+        "incidentId": null,
+        "requestKind": "REPORT",
+        "reviewNote": null,
+        "assignedDepartment": {
+          "id": 1,
+          "name": "정보전산원",
+          "contactPhone": "02-940-7043",
+          "sourceUrl": "https://www.skuniv.ac.kr/campus-network",
+          "verified": true
+        }
+      },
+      "aiMode": "LIVE",
+      "status": "ACCEPTED"
+    },
+    "multiTurnWifi": {
+      "report": {
+        "id": 169,
+        "studentId": 1,
+        "originalText": "늘봄관 와이파이가 안 돼요.",
+        "category": "IT",
+        "subcategory": "WIFI",
+        "locationText": "늘봄관 316호",
+        "building": "늘봄관",
+        "floor": "3",
+        "symptom": "Wi-Fi에 연결되지만 인터넷 페이지가 열리지 않음",
+        "occurredAtText": null,
+        "routingRuleId": 1,
+        "assignedDepartmentId": 1,
+        "routeStatus": "MATCHED",
+        "status": "RECEIVED",
+        "emergencyHint": false,
+        "resolutionText": null,
+        "embeddingModel": null,
+        "createdAt": "2026-10-16T07:49:59.789164+09:00",
+        "updatedAt": "2026-10-16T07:49:59.789164+09:00",
+        "occurredOn": null,
+        "incidentId": null,
+        "requestKind": "REPORT",
+        "reviewNote": null,
+        "assignedDepartment": {
+          "id": 1,
+          "name": "정보전산원",
+          "contactPhone": "02-940-7043",
+          "sourceUrl": "https://www.skuniv.ac.kr/campus-network",
+          "verified": true
+        }
+      },
+      "aiMode": "LIVE",
+      "status": "ACCEPTED"
+    },
+    "mixedProblems": {
+      "report": {
+        "id": 170,
+        "studentId": 1,
+        "originalText": "솔빛관 306호에서 와이파이가 계속 끊기고 천장에서는 물이 떨어져요.",
+        "category": "FACILITY",
+        "subcategory": "LEAK",
+        "locationText": "솔빛관 306호",
+        "building": "솔빛관",
+        "floor": "3",
+        "symptom": "천장에서 물이 떨어지고 와이파이가 계속 끊김",
+        "occurredAtText": null,
+        "routingRuleId": null,
+        "assignedDepartmentId": null,
+        "routeStatus": "NEEDS_REVIEW",
+        "status": "RECEIVED",
+        "emergencyHint": false,
+        "resolutionText": null,
+        "embeddingModel": null,
+        "createdAt": "2026-10-16T07:51:35.346147+09:00",
+        "updatedAt": "2026-10-16T07:51:35.346147+09:00",
+        "occurredOn": null,
+        "incidentId": null,
+        "requestKind": "REPORT",
+        "reviewNote": null,
+        "assignedDepartment": null
+      },
+      "status": "ACCEPTED",
+      "aiMode": "LIVE"
+    }
+  },
+  "scope": "Actual HTTP/security/intake/admin/student flows on isolated MySQL skope_test; cached LIVE model envelopes plus one synthetic warning stub. No new API calls. No browser E2E.",
+  "timestamp": "2026-10-15T22:49:50.094Z",
+  "tests": 5,
+  "failures": 2,
+  "rows": [
+    {
+      "name": "syntheticModelOnlyWarningMustSurviveRealDatabaseInsert()",
+      "status": "FAIL",
+      "source": "SYNTHETIC_MODEL_STUB"
+    },
+    {
+      "name": "cachedLeakCompletesStudentAdminStudentFlowAndDeduplicates()",
+      "status": "PASS",
+      "source": "CACHED_LIVE_RESPONSE"
+    },
+    {
+      "name": "cachedVagueWifiMustNotBeAcceptedWithoutClarification()",
+      "status": "FAIL",
+      "source": "CACHED_LIVE_RESPONSE"
+    },
+    {
+      "name": "cachedMultiTurnWifiKeepsLocationAndStoresOnce()",
+      "status": "PASS",
+      "source": "CACHED_LIVE_RESPONSE"
+    },
+    {
+      "name": "cachedMixedProblemsRemainVisibleAndUseCurrentReviewRouting()",
+      "status": "PASS",
+      "source": "CACHED_LIVE_RESPONSE"
+    }
+  ],
+  "latestTestTimestamp": "2026-10-15T22:51:23.326Z",
+  "sourceNote": "Mixed-problem storage/routing expectation was added after inspecting S18 output; it is an additional development integration probe, not part of the frozen LIVE accuracy metrics."
+}

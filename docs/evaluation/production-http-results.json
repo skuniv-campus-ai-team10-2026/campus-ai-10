@@ -1,0 +1,154 @@
+{
+  "startedAt": "2026-10-11T05:14:18.974Z",
+  "origin": "http://127.0.0.1:4173",
+  "database": "skope_verification",
+  "aiMode": "DEMO",
+  "embeddingMode": "RULE_ONLY",
+  "syntheticData": true,
+  "liveProviderCalls": 0,
+  "runId": "7ad37275",
+  "checks": [
+    {
+      "name": "TLS connection and trust validation",
+      "status": "SKIPPED",
+      "reason": "HTTP-only run; does not verify HTTPS or browser Secure-cookie transport."
+    },
+    {
+      "name": "Production SPA deep links and asset content types",
+      "status": "PASS"
+    },
+    {
+      "name": "Security headers on static and API responses",
+      "status": "PASS"
+    },
+    {
+      "name": "No directory traversal or runtime credential files",
+      "status": "PASS"
+    },
+    {
+      "name": "Unexpected Host and cross-origin requests are rejected",
+      "status": "PASS"
+    },
+    {
+      "name": "Oversized body and unauthenticated/CSRF access are rejected",
+      "status": "PASS"
+    },
+    {
+      "name": "Session ID rotates; cookie is Secure, HttpOnly and SameSite=Lax",
+      "status": "PASS"
+    },
+    {
+      "name": "SQL injection does not bypass login",
+      "status": "PASS"
+    },
+    {
+      "name": "Student ownership and role access are enforced",
+      "status": "PASS"
+    },
+    {
+      "name": "Stored content is returned as JSON and does not alter permissions",
+      "status": "PASS"
+    },
+    {
+      "name": "Repeated simultaneous UUID has one saved winner",
+      "status": "PASS"
+    },
+    {
+      "name": "Concurrent status changes have one winner and one audit transition",
+      "status": "PASS"
+    },
+    {
+      "name": "Logout invalidates the existing authenticated session",
+      "status": "PASS"
+    }
+  ],
+  "stages": [
+    {
+      "concurrentSessions": 4,
+      "distinctStudentAccounts": 2,
+      "iterationsPerSession": 5,
+      "elapsedMs": 316,
+      "requestsPerSecond": 126.76,
+      "reads": {
+        "count": 20,
+        "minMs": 15.45,
+        "p50Ms": 19.33,
+        "p95Ms": 24.52,
+        "p99Ms": 24.72,
+        "maxMs": 24.72
+      },
+      "writes": {
+        "count": 20,
+        "minMs": 32.82,
+        "p50Ms": 39.56,
+        "p95Ms": 57.57,
+        "p99Ms": 58.86,
+        "maxMs": 58.86
+      },
+      "uniqueCreatedIds": 20,
+      "failures": [],
+      "status": "PASS"
+    },
+    {
+      "concurrentSessions": 12,
+      "distinctStudentAccounts": 2,
+      "iterationsPerSession": 5,
+      "elapsedMs": 840,
+      "requestsPerSecond": 142.81,
+      "reads": {
+        "count": 60,
+        "minMs": 15.22,
+        "p50Ms": 50.45,
+        "p95Ms": 99.5,
+        "p99Ms": 121.27,
+        "maxMs": 121.27
+      },
+      "writes": {
+        "count": 60,
+        "minMs": 44.87,
+        "p50Ms": 89.28,
+        "p95Ms": 184.73,
+        "p99Ms": 299.46,
+        "maxMs": 299.46
+      },
+      "uniqueCreatedIds": 60,
+      "failures": [],
+      "status": "PASS"
+    },
+    {
+      "concurrentSessions": 24,
+      "distinctStudentAccounts": 2,
+      "iterationsPerSession": 5,
+      "elapsedMs": 1642,
+      "requestsPerSecond": 146.18,
+      "reads": {
+        "count": 120,
+        "minMs": 9.73,
+        "p50Ms": 98.9,
+        "p95Ms": 196.59,
+        "p99Ms": 376.66,
+        "maxMs": 386.81
+      },
+      "writes": {
+        "count": 120,
+        "minMs": 43.22,
+        "p50Ms": 186.65,
+        "p95Ms": 332.11,
+        "p99Ms": 407.26,
+        "maxMs": 479.68
+      },
+      "uniqueCreatedIds": 120,
+      "failures": [],
+      "status": "PASS"
+    }
+  ],
+  "completedAt": "2026-10-11T05:14:25.080Z",
+  "status": "PASS_HTTP_ONLY",
+  "limits": [
+    "Local closed-loop requests, 2 student accounts, max 24 concurrent sessions.",
+    "No LIVE AI latency/cost or internet/mobile network latency included.",
+    "Synthetic DB is retained; no real reports were sent.",
+    "HTTP only; cookies are manually forwarded by the test client, not a browser. Secure-cookie transport and HTTPS are unverified.",
+    "This is not a penetration test or production capacity guarantee."
+  ]
+}

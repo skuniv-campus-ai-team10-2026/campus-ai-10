@@ -1,0 +1,27 @@
+{
+  "startedAt": "2026-10-11T05:12:26.737Z",
+  "origin": "https://127.0.0.1:4174",
+  "database": "skope_verification",
+  "aiMode": "DEMO",
+  "embeddingMode": "RULE_ONLY",
+  "syntheticData": true,
+  "liveProviderCalls": 0,
+  "runId": "1b00ece1",
+  "checks": [
+    {
+      "name": "Verification execution",
+      "status": "FAIL",
+      "reason": "unable to verify the first certificate; if the root CA is installed locally, try running Node.js with --use-system-ca"
+    }
+  ],
+  "stages": [],
+  "completedAt": "2026-10-11T05:12:26.891Z",
+  "status": "FAIL",
+  "limits": [
+    "Local closed-loop requests, 2 student accounts, max 24 concurrent sessions.",
+    "No LIVE AI latency/cost or internet/mobile network latency included.",
+    "Synthetic DB is retained; no real reports were sent.",
+    "Self-signed certificate is trusted only by this test client; no public CA/domain/deployment verified.",
+    "This is not a penetration test or production capacity guarantee."
+  ]
+}

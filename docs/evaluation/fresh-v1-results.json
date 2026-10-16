@@ -1,0 +1,2369 @@
+{
+  "fixtureId" : "fresh-v1",
+  "fixtureSha256" : "3c2b8cd4b6294e5f52d81c6937214af8e755008ef0153a03ded6179bde3c76f2",
+  "startedAt" : "2026-10-14T03:25:24.070520300+09:00",
+  "requestedMode" : "LIVE",
+  "databaseSchema" : "skope_fresh_verification_20261014",
+  "analysisSourceSha256" : "7ba23ac5410c9bf0fa7fe9166ef6d5ad6a6bd197041891f6a672e23e3ce96c04",
+  "similaritySourceSha256" : "96909e8518cd4eb302bc80809de5a98c42260475a4ea6c8e9c6f2a5b8c84c48b",
+  "labelLimitation" : "New synthetic labels fixed before calls by Codex; not independently reviewed by a human. No threshold tuning or production changes.",
+  "scope" : "Real authenticated HTTP and isolated MySQL. Pair policy uses production SimilarityService with saved real embeddings in isolated H2. No browser/UI assertion.",
+  "maximumProviderAttempts" : 35,
+  "maximumAnalysisAttempts" : 15,
+  "maximumEmbeddingAttempts" : 20,
+  "sentences" : [ {
+    "id" : "S01",
+    "input" : {
+      "text" : "가람관 1층 103호에서 와이파이가 2분마다 끊겨 온라인 수업이 중단됩니다.",
+      "preferredIntent" : "AUTO"
+    },
+    "expected" : {
+      "intent" : "REPORT",
+      "category" : "IT",
+      "subcategory" : "WIFI",
+      "building" : "가람관",
+      "floor" : "1",
+      "emergencyHint" : false,
+      "symptomRequired" : true,
+      "locationRequired" : true
+    },
+    "httpStatus" : 200,
+    "httpActual" : {
+      "intent" : "REPORT",
+      "report" : {
+        "category" : "IT",
+        "subcategory" : "WIFI",
+        "locationText" : "가람관 1층 103호",
+        "building" : "가람관",
+        "floor" : "1",
+        "symptom" : "와이파이가 2분마다 끊겨 온라인 수업이 중단됨",
+        "occurredAtText" : null,
+        "followUpQuestion" : null,
+        "missingFields" : [ ],
+        "emergencyHint" : false
+      },
+      "aiMode" : "LIVE",
+      "questionAnswer" : null,
+      "routingPreview" : {
+        "routeStatus" : "MATCHED",
+        "routingRuleId" : 1,
+        "departmentName" : "정보전산원",
+        "contactPhone" : "02-940-7043",
+        "sourceUrl" : "https://www.skuniv.ac.kr/campus-network",
+        "verified" : true
+      }
+    },
+    "actual" : {
+      "intent" : "REPORT",
+      "report" : {
+        "category" : "IT",
+        "subcategory" : "WIFI",
+        "locationText" : "가람관 1층 103호",
+        "building" : "가람관",
+        "floor" : "1",
+        "symptom" : "와이파이가 2분마다 끊겨 온라인 수업이 중단됨",
+        "occurredAtText" : null,
+        "followUpQuestion" : null,
+        "missingFields" : [ ],
+        "emergencyHint" : false
+      },
+      "aiMode" : "LIVE"
+    },
+    "source" : "NEW_LIVE_PROVIDER_RESULT",
+    "checks" : {
+      "intent" : true,
+      "category" : true,
+      "subcategory" : true,
+      "building" : true,
+      "floor" : true,
+      "emergencyHint" : true,
+      "symptomPresence" : true,
+      "locationPresence" : true,
+      "liveMode" : true
+    },
+    "failedChecks" : [ ],
+    "status" : "PASS",
+    "note" : "Actual is AiService result after production normalization; HTTP controller intentionally hides report fields for QUESTION. No additional normalization by evaluator.",
+    "elapsedMs" : 4307
+  }, {
+    "id" : "S02",
+    "input" : {
+      "text" : "가람관 1층 103호 무선 인터넷 연결이 반복해서 끊어지고 다시 연결됩니다.",
+      "preferredIntent" : "AUTO"
+    },
+    "expected" : {
+      "intent" : "REPORT",
+      "category" : "IT",
+      "subcategory" : "WIFI",
+      "building" : "가람관",
+      "floor" : "1",
+      "emergencyHint" : false,
+      "symptomRequired" : true,
+      "locationRequired" : true
+    },
+    "httpStatus" : 200,
+    "httpActual" : {
+      "intent" : "REPORT",
+      "report" : {
+        "category" : "IT",
+        "subcategory" : "WIFI",
+        "locationText" : "가람관 1층 103호",
+        "building" : "가람관",
+        "floor" : "1",
+        "symptom" : "무선 인터넷 연결이 반복해서 끊어졌다가 다시 연결됨",
+        "occurredAtText" : null,
+        "followUpQuestion" : null,
+        "missingFields" : [ ],
+        "emergencyHint" : false
+      },
+      "aiMode" : "LIVE",
+      "questionAnswer" : null,
+      "routingPreview" : {
+        "routeStatus" : "MATCHED",
+        "routingRuleId" : 1,
+        "departmentName" : "정보전산원",
+        "contactPhone" : "02-940-7043",
+        "sourceUrl" : "https://www.skuniv.ac.kr/campus-network",
+        "verified" : true
+      }
+    },
+    "actual" : {
+      "intent" : "REPORT",
+      "report" : {
+        "category" : "IT",
+        "subcategory" : "WIFI",
+        "locationText" : "가람관 1층 103호",
+        "building" : "가람관",
+        "floor" : "1",
+        "symptom" : "무선 인터넷 연결이 반복해서 끊어졌다가 다시 연결됨",
+        "occurredAtText" : null,
+        "followUpQuestion" : null,
+        "missingFields" : [ ],
+        "emergencyHint" : false
+      },
+      "aiMode" : "LIVE"
+    },
+    "source" : "NEW_LIVE_PROVIDER_RESULT",
+    "checks" : {
+      "intent" : true,
+      "category" : true,
+      "subcategory" : true,
+      "building" : true,
+      "floor" : true,
+      "emergencyHint" : true,
+      "symptomPresence" : true,
+      "locationPresence" : true,
+      "liveMode" : true
+    },
+    "failedChecks" : [ ],
+    "status" : "PASS",
+    "note" : "Actual is AiService result after production normalization; HTTP controller intentionally hides report fields for QUESTION. No additional normalization by evaluator.",
+    "elapsedMs" : 3152
+  }, {
+    "id" : "S03",
+    "input" : {
+      "text" : "누리관 지하 2층 021호 창고의 천장 급수관 이음새에서 물이 계속 샙니다.",
+      "preferredIntent" : "AUTO"
+    },
+    "expected" : {
+      "intent" : "REPORT",
+      "category" : "FACILITY",
+      "subcategory" : "LEAK",
+      "building" : "누리관",
+      "floor" : "B2",
+      "emergencyHint" : false,
+      "symptomRequired" : true,
+      "locationRequired" : true
+    },
+    "httpStatus" : 200,
+    "httpActual" : {
+      "intent" : "REPORT",
+      "report" : {
+        "category" : "FACILITY",
+        "subcategory" : "LEAK",
+        "locationText" : "누리관 지하 2층 021호 창고",
+        "building" : "누리관",
+        "floor" : "B2",
+        "symptom" : "천장 급수관 이음새에서 물이 계속 샘",
+        "occurredAtText" : null,
+        "followUpQuestion" : null,
+        "missingFields" : [ ],
+        "emergencyHint" : false
+      },
+      "aiMode" : "LIVE",
+      "questionAnswer" : null,
+      "routingPreview" : {
+        "routeStatus" : "NEEDS_REVIEW",
+        "routingRuleId" : null,
+        "departmentName" : null,
+        "contactPhone" : null,
+        "sourceUrl" : null,
+        "verified" : false
+      }
+    },
+    "actual" : {
+      "intent" : "REPORT",
+      "report" : {
+        "category" : "FACILITY",
+        "subcategory" : "LEAK",
+        "locationText" : "누리관 지하 2층 021호 창고",
+        "building" : "누리관",
+        "floor" : "B2",
+        "symptom" : "천장 급수관 이음새에서 물이 계속 샘",
+        "occurredAtText" : null,
+        "followUpQuestion" : null,
+        "missingFields" : [ ],
+        "emergencyHint" : false
+      },
+      "aiMode" : "LIVE"
+    },
+    "source" : "NEW_LIVE_PROVIDER_RESULT",
+    "checks" : {
+      "intent" : true,
+      "category" : true,
+      "subcategory" : true,
+      "building" : true,
+      "floor" : true,
+      "emergencyHint" : true,
+      "symptomPresence" : true,
+      "locationPresence" : true,
+      "liveMode" : true
+    },
+    "failedChecks" : [ ],
+    "status" : "PASS",
+    "note" : "Actual is AiService result after production normalization; HTTP controller intentionally hides report fields for QUESTION. No additional normalization by evaluator.",
+    "elapsedMs" : 5813
+  }, {
+    "id" : "S04",
+    "input" : {
+      "text" : "명진관 3층 계단의 센서등이 사람이 지나가도 켜지지 않습니다.",
+      "preferredIntent" : "AUTO"
+    },
+    "expected" : {
+      "intent" : "REPORT",
+      "category" : "FACILITY",
+      "subcategory" : "ELECTRIC",
+      "building" : "명진관",
+      "floor" : "3",
+      "emergencyHint" : false,
+      "symptomRequired" : true,
+      "locationRequired" : true
+    },
+    "httpStatus" : 200,
+    "httpActual" : {
+      "intent" : "REPORT",
+      "report" : {
+        "category" : "FACILITY",
+        "subcategory" : "ELECTRIC",
+        "locationText" : "명진관 3층 계단",
+        "building" : "명진관",
+        "floor" : "3",
+        "symptom" : "사람이 지나가도 계단 센서등이 켜지지 않음",
+        "occurredAtText" : null,
+        "followUpQuestion" : null,
+        "missingFields" : [ ],
+        "emergencyHint" : false
+      },
+      "aiMode" : "LIVE",
+      "questionAnswer" : null,
+      "routingPreview" : {
+        "routeStatus" : "MATCHED",
+        "routingRuleId" : 2,
+        "departmentName" : "건설관리과 / 전기실",
+        "contactPhone" : "02-940-7049",
+        "sourceUrl" : "https://www.skuniv.ac.kr/notice/58965",
+        "verified" : true
+      }
+    },
+    "actual" : {
+      "intent" : "REPORT",
+      "report" : {
+        "category" : "FACILITY",
+        "subcategory" : "ELECTRIC",
+        "locationText" : "명진관 3층 계단",
+        "building" : "명진관",
+        "floor" : "3",
+        "symptom" : "사람이 지나가도 계단 센서등이 켜지지 않음",
+        "occurredAtText" : null,
+        "followUpQuestion" : null,
+        "missingFields" : [ ],
+        "emergencyHint" : false
+      },
+      "aiMode" : "LIVE"
+    },
+    "source" : "NEW_LIVE_PROVIDER_RESULT",
+    "checks" : {
+      "intent" : true,
+      "category" : true,
+      "subcategory" : true,
+      "building" : true,
+      "floor" : true,
+      "emergencyHint" : true,
+      "symptomPresence" : true,
+      "locationPresence" : true,
+      "liveMode" : true
+    },
+    "failedChecks" : [ ],
+    "status" : "PASS",
+    "note" : "Actual is AiService result after production normalization; HTTP controller intentionally hides report fields for QUESTION. No additional normalization by evaluator.",
+    "elapsedMs" : 2337
+  }, {
+    "id" : "S05",
+    "input" : {
+      "text" : "예림관 206호의 전등 벽 스위치 덮개가 깨져 수리를 요청합니다.",
+      "preferredIntent" : "AUTO"
+    },
+    "expected" : {
+      "intent" : "REPORT",
+      "category" : "FACILITY",
+      "subcategory" : "ELECTRIC",
+      "building" : "예림관",
+      "floor" : "2",
+      "emergencyHint" : false,
+      "symptomRequired" : true,
+      "locationRequired" : true
+    },
+    "httpStatus" : 200,
+    "httpActual" : {
+      "intent" : "REPORT",
+      "report" : {
+        "category" : "FACILITY",
+        "subcategory" : "ELECTRIC",
+        "locationText" : "예림관 206호",
+        "building" : "예림관",
+        "floor" : "2",
+        "symptom" : "전등 벽 스위치 덮개가 깨짐",
+        "occurredAtText" : null,
+        "followUpQuestion" : null,
+        "missingFields" : [ ],
+        "emergencyHint" : false
+      },
+      "aiMode" : "LIVE",
+      "questionAnswer" : null,
+      "routingPreview" : {
+        "routeStatus" : "MATCHED",
+        "routingRuleId" : 2,
+        "departmentName" : "건설관리과 / 전기실",
+        "contactPhone" : "02-940-7049",
+        "sourceUrl" : "https://www.skuniv.ac.kr/notice/58965",
+        "verified" : true
+      }
+    },
+    "actual" : {
+      "intent" : "REPORT",
+      "report" : {
+        "category" : "FACILITY",
+        "subcategory" : "ELECTRIC",
+        "locationText" : "예림관 206호",
+        "building" : "예림관",
+        "floor" : "2",
+        "symptom" : "전등 벽 스위치 덮개가 깨짐",
+        "occurredAtText" : null,
+        "followUpQuestion" : null,
+        "missingFields" : [ ],
+        "emergencyHint" : false
+      },
+      "aiMode" : "LIVE"
+    },
+    "source" : "NEW_LIVE_PROVIDER_RESULT",
+    "checks" : {
+      "intent" : true,
+      "category" : true,
+      "subcategory" : true,
+      "building" : true,
+      "floor" : true,
+      "emergencyHint" : true,
+      "symptomPresence" : true,
+      "locationPresence" : true,
+      "liveMode" : true
+    },
+    "failedChecks" : [ ],
+    "status" : "PASS",
+    "note" : "Actual is AiService result after production normalization; HTTP controller intentionally hides report fields for QUESTION. No additional normalization by evaluator.",
+    "elapsedMs" : 2306
+  }, {
+    "id" : "S06",
+    "input" : {
+      "text" : "가람관 208호 유선 네트워크 스위치의 랜 포트 하나가 부러졌습니다. 와이파이는 정상입니다.",
+      "preferredIntent" : "AUTO"
+    },
+    "expected" : {
+      "intent" : "REPORT",
+      "category" : "OTHER",
+      "subcategory" : "UNKNOWN",
+      "building" : "가람관",
+      "floor" : "2",
+      "emergencyHint" : false,
+      "symptomRequired" : true,
+      "locationRequired" : true
+    },
+    "httpStatus" : 200,
+    "httpActual" : {
+      "intent" : "REPORT",
+      "report" : {
+        "category" : "OTHER",
+        "subcategory" : "UNKNOWN",
+        "locationText" : "가람관 208호",
+        "building" : "가람관",
+        "floor" : "2",
+        "symptom" : "유선 네트워크 스위치의 랜 포트 하나가 부러짐",
+        "occurredAtText" : null,
+        "followUpQuestion" : null,
+        "missingFields" : [ ],
+        "emergencyHint" : false
+      },
+      "aiMode" : "LIVE",
+      "questionAnswer" : null,
+      "routingPreview" : {
+        "routeStatus" : "NEEDS_REVIEW",
+        "routingRuleId" : null,
+        "departmentName" : null,
+        "contactPhone" : null,
+        "sourceUrl" : null,
+        "verified" : false
+      }
+    },
+    "actual" : {
+      "intent" : "REPORT",
+      "report" : {
+        "category" : "OTHER",
+        "subcategory" : "UNKNOWN",
+        "locationText" : "가람관 208호",
+        "building" : "가람관",
+        "floor" : "2",
+        "symptom" : "유선 네트워크 스위치의 랜 포트 하나가 부러짐",
+        "occurredAtText" : null,
+        "followUpQuestion" : null,
+        "missingFields" : [ ],
+        "emergencyHint" : false
+      },
+      "aiMode" : "LIVE"
+    },
+    "source" : "NEW_LIVE_PROVIDER_RESULT",
+    "checks" : {
+      "intent" : true,
+      "category" : true,
+      "subcategory" : true,
+      "building" : true,
+      "floor" : true,
+      "emergencyHint" : true,
+      "symptomPresence" : true,
+      "locationPresence" : true,
+      "liveMode" : true
+    },
+    "failedChecks" : [ ],
+    "status" : "PASS",
+    "note" : "Actual is AiService result after production normalization; HTTP controller intentionally hides report fields for QUESTION. No additional normalization by evaluator.",
+    "elapsedMs" : 1540
+  }, {
+    "id" : "S07",
+    "input" : {
+      "text" : "교내 와이파이를 새 휴대폰에 등록할 때 MAC 주소를 제출해야 하나요?",
+      "preferredIntent" : "AUTO"
+    },
+    "expected" : {
+      "intent" : "QUESTION",
+      "category" : "IT",
+      "subcategory" : "WIFI",
+      "building" : null,
+      "floor" : null,
+      "emergencyHint" : false,
+      "symptomRequired" : false,
+      "locationRequired" : false
+    },
+    "httpStatus" : 200,
+    "httpActual" : {
+      "intent" : "QUESTION",
+      "report" : null,
+      "aiMode" : "LIVE",
+      "questionAnswer" : {
+        "text" : "확인된 안내 근거가 없어 답변할 수 없습니다. 학교 공식 홈페이지에서 해당 업무 담당 부서를 확인해 주세요.",
+        "verified" : false
+      },
+      "routingPreview" : null
+    },
+    "actual" : {
+      "intent" : "QUESTION",
+      "report" : {
+        "category" : "IT",
+        "subcategory" : "WIFI",
+        "locationText" : null,
+        "building" : null,
+        "floor" : null,
+        "symptom" : null,
+        "occurredAtText" : null,
+        "followUpQuestion" : null,
+        "missingFields" : [ "LOCATION", "SYMPTOM" ],
+        "emergencyHint" : false
+      },
+      "aiMode" : "LIVE"
+    },
+    "source" : "NEW_LIVE_PROVIDER_RESULT",
+    "checks" : {
+      "intent" : true,
+      "category" : true,
+      "subcategory" : true,
+      "building" : true,
+      "floor" : true,
+      "emergencyHint" : true,
+      "symptomPresence" : true,
+      "locationPresence" : true,
+      "liveMode" : true
+    },
+    "failedChecks" : [ ],
+    "status" : "PASS",
+    "note" : "Actual is AiService result after production normalization; HTTP controller intentionally hides report fields for QUESTION. No additional normalization by evaluator.",
+    "elapsedMs" : 2138
+  }, {
+    "id" : "S08",
+    "input" : {
+      "text" : "이번 학기에 휴학한 학생도 재학증명서를 발급받을 수 있는지 알려주세요.",
+      "preferredIntent" : "AUTO"
+    },
+    "expected" : {
+      "intent" : "QUESTION",
+      "category" : "ACADEMIC",
+      "subcategory" : "STUDENT_RECORD",
+      "building" : null,
+      "floor" : null,
+      "emergencyHint" : false,
+      "symptomRequired" : false,
+      "locationRequired" : false
+    },
+    "httpStatus" : 200,
+    "httpActual" : {
+      "intent" : "QUESTION",
+      "report" : null,
+      "aiMode" : "LIVE",
+      "questionAnswer" : {
+        "text" : "확인된 안내 근거가 없어 답변할 수 없습니다. 학교 공식 홈페이지에서 해당 업무 담당 부서를 확인해 주세요.",
+        "verified" : false
+      },
+      "routingPreview" : null
+    },
+    "actual" : {
+      "intent" : "QUESTION",
+      "report" : {
+        "category" : "ACADEMIC",
+        "subcategory" : "STUDENT_RECORD",
+        "locationText" : null,
+        "building" : null,
+        "floor" : null,
+        "symptom" : "휴학 중 재학증명서 발급 가능 여부 문의",
+        "occurredAtText" : null,
+        "followUpQuestion" : null,
+        "missingFields" : [ "LOCATION" ],
+        "emergencyHint" : false
+      },
+      "aiMode" : "LIVE"
+    },
+    "source" : "NEW_LIVE_PROVIDER_RESULT",
+    "checks" : {
+      "intent" : true,
+      "category" : true,
+      "subcategory" : true,
+      "building" : true,
+      "floor" : true,
+      "emergencyHint" : true,
+      "symptomPresence" : true,
+      "locationPresence" : true,
+      "liveMode" : true
+    },
+    "failedChecks" : [ ],
+    "status" : "PASS",
+    "note" : "Actual is AiService result after production normalization; HTTP controller intentionally hides report fields for QUESTION. No additional normalization by evaluator.",
+    "elapsedMs" : 2550
+  }, {
+    "id" : "S09",
+    "input" : {
+      "text" : "주말에 학생식당이 몇 시까지 운영하는지 궁금합니다.",
+      "preferredIntent" : "AUTO"
+    },
+    "expected" : {
+      "intent" : "QUESTION",
+      "category" : "OTHER",
+      "subcategory" : "UNKNOWN",
+      "building" : null,
+      "floor" : null,
+      "emergencyHint" : false,
+      "symptomRequired" : false,
+      "locationRequired" : false
+    },
+    "httpStatus" : 200,
+    "httpActual" : {
+      "intent" : "QUESTION",
+      "report" : null,
+      "aiMode" : "LIVE",
+      "questionAnswer" : {
+        "text" : "확인된 안내 근거가 없어 답변할 수 없습니다. 학교 공식 홈페이지에서 해당 업무 담당 부서를 확인해 주세요.",
+        "verified" : false
+      },
+      "routingPreview" : null
+    },
+    "actual" : {
+      "intent" : "QUESTION",
+      "report" : {
+        "category" : "OTHER",
+        "subcategory" : "UNKNOWN",
+        "locationText" : null,
+        "building" : null,
+        "floor" : null,
+        "symptom" : "주말 학생식당 운영 시간 문의",
+        "occurredAtText" : null,
+        "followUpQuestion" : null,
+        "missingFields" : [ "LOCATION" ],
+        "emergencyHint" : false
+      },
+      "aiMode" : "LIVE"
+    },
+    "source" : "NEW_LIVE_PROVIDER_RESULT",
+    "checks" : {
+      "intent" : true,
+      "category" : true,
+      "subcategory" : true,
+      "building" : true,
+      "floor" : true,
+      "emergencyHint" : true,
+      "symptomPresence" : true,
+      "locationPresence" : true,
+      "liveMode" : true
+    },
+    "failedChecks" : [ ],
+    "status" : "PASS",
+    "note" : "Actual is AiService result after production normalization; HTTP controller intentionally hides report fields for QUESTION. No additional normalization by evaluator.",
+    "elapsedMs" : 1625
+  }, {
+    "id" : "S10",
+    "input" : {
+      "text" : "성적증명서 발급 때문에 난감하네요.",
+      "preferredIntent" : "AUTO"
+    },
+    "expected" : {
+      "intent" : "UNKNOWN",
+      "category" : "ACADEMIC",
+      "subcategory" : "STUDENT_RECORD",
+      "building" : null,
+      "floor" : null,
+      "emergencyHint" : false,
+      "symptomRequired" : false,
+      "locationRequired" : false
+    },
+    "httpStatus" : 200,
+    "httpActual" : {
+      "intent" : "UNKNOWN",
+      "report" : {
+        "category" : "ACADEMIC",
+        "subcategory" : "STUDENT_RECORD",
+        "locationText" : null,
+        "building" : null,
+        "floor" : null,
+        "symptom" : "성적증명서 발급에 어려움이 있음",
+        "occurredAtText" : null,
+        "followUpQuestion" : "절차나 담당 부서에 대한 질문인가요, 실제로 발생한 문제를 신고하시려는 건가요?",
+        "missingFields" : [ "LOCATION" ],
+        "emergencyHint" : false
+      },
+      "aiMode" : "LIVE",
+      "questionAnswer" : null,
+      "routingPreview" : null
+    },
+    "actual" : {
+      "intent" : "UNKNOWN",
+      "report" : {
+        "category" : "ACADEMIC",
+        "subcategory" : "STUDENT_RECORD",
+        "locationText" : null,
+        "building" : null,
+        "floor" : null,
+        "symptom" : "성적증명서 발급에 어려움이 있음",
+        "occurredAtText" : null,
+        "followUpQuestion" : "절차나 담당 부서에 대한 질문인가요, 실제로 발생한 문제를 신고하시려는 건가요?",
+        "missingFields" : [ "LOCATION" ],
+        "emergencyHint" : false
+      },
+      "aiMode" : "LIVE"
+    },
+    "source" : "NEW_LIVE_PROVIDER_RESULT",
+    "checks" : {
+      "intent" : true,
+      "category" : true,
+      "subcategory" : true,
+      "building" : true,
+      "floor" : true,
+      "emergencyHint" : true,
+      "symptomPresence" : true,
+      "locationPresence" : true,
+      "liveMode" : true
+    },
+    "failedChecks" : [ ],
+    "status" : "PASS",
+    "note" : "Actual is AiService result after production normalization; HTTP controller intentionally hides report fields for QUESTION. No additional normalization by evaluator.",
+    "elapsedMs" : 1832
+  }, {
+    "id" : "S11",
+    "input" : {
+      "text" : "가람관에서 지내기가 좀 불편하네요.",
+      "preferredIntent" : "AUTO"
+    },
+    "expected" : {
+      "intent" : "UNKNOWN",
+      "category" : "OTHER",
+      "subcategory" : "UNKNOWN",
+      "building" : "가람관",
+      "floor" : null,
+      "emergencyHint" : false,
+      "symptomRequired" : false,
+      "locationRequired" : true
+    },
+    "httpStatus" : 200,
+    "httpActual" : {
+      "intent" : "UNKNOWN",
+      "report" : {
+        "category" : "OTHER",
+        "subcategory" : "UNKNOWN",
+        "locationText" : "가람관",
+        "building" : "가람관",
+        "floor" : null,
+        "symptom" : null,
+        "occurredAtText" : null,
+        "followUpQuestion" : "절차나 담당 부서에 대한 질문인가요, 실제로 발생한 문제를 신고하시려는 건가요?",
+        "missingFields" : [ "SYMPTOM" ],
+        "emergencyHint" : false
+      },
+      "aiMode" : "LIVE",
+      "questionAnswer" : null,
+      "routingPreview" : null
+    },
+    "actual" : {
+      "intent" : "UNKNOWN",
+      "report" : {
+        "category" : "OTHER",
+        "subcategory" : "UNKNOWN",
+        "locationText" : "가람관",
+        "building" : "가람관",
+        "floor" : null,
+        "symptom" : null,
+        "occurredAtText" : null,
+        "followUpQuestion" : "절차나 담당 부서에 대한 질문인가요, 실제로 발생한 문제를 신고하시려는 건가요?",
+        "missingFields" : [ "SYMPTOM" ],
+        "emergencyHint" : false
+      },
+      "aiMode" : "LIVE"
+    },
+    "source" : "NEW_LIVE_PROVIDER_RESULT",
+    "checks" : {
+      "intent" : true,
+      "category" : true,
+      "subcategory" : true,
+      "building" : true,
+      "floor" : true,
+      "emergencyHint" : true,
+      "symptomPresence" : true,
+      "locationPresence" : true,
+      "liveMode" : true
+    },
+    "failedChecks" : [ ],
+    "status" : "PASS",
+    "note" : "Actual is AiService result after production normalization; HTTP controller intentionally hides report fields for QUESTION. No additional normalization by evaluator.",
+    "elapsedMs" : 2140
+  }, {
+    "id" : "S12",
+    "input" : {
+      "text" : "혜성관 218호 벽 콘센트에서 불꽃이 튀고 타는 냄새가 납니다.",
+      "preferredIntent" : "AUTO"
+    },
+    "expected" : {
+      "intent" : "REPORT",
+      "category" : "FACILITY",
+      "subcategory" : "ELECTRIC",
+      "building" : "혜성관",
+      "floor" : "2",
+      "emergencyHint" : true,
+      "symptomRequired" : true,
+      "locationRequired" : true
+    },
+    "httpStatus" : 200,
+    "httpActual" : {
+      "intent" : "REPORT",
+      "report" : {
+        "category" : "FACILITY",
+        "subcategory" : "ELECTRIC",
+        "locationText" : "혜성관 218호",
+        "building" : "혜성관",
+        "floor" : "2",
+        "symptom" : "벽 콘센트에서 불꽃이 튀고 타는 냄새가 남",
+        "occurredAtText" : null,
+        "followUpQuestion" : null,
+        "missingFields" : [ ],
+        "emergencyHint" : true
+      },
+      "aiMode" : "LIVE",
+      "questionAnswer" : null,
+      "routingPreview" : {
+        "routeStatus" : "MATCHED",
+        "routingRuleId" : 2,
+        "departmentName" : "건설관리과 / 전기실",
+        "contactPhone" : "02-940-7049",
+        "sourceUrl" : "https://www.skuniv.ac.kr/notice/58965",
+        "verified" : true
+      }
+    },
+    "actual" : {
+      "intent" : "REPORT",
+      "report" : {
+        "category" : "FACILITY",
+        "subcategory" : "ELECTRIC",
+        "locationText" : "혜성관 218호",
+        "building" : "혜성관",
+        "floor" : "2",
+        "symptom" : "벽 콘센트에서 불꽃이 튀고 타는 냄새가 남",
+        "occurredAtText" : null,
+        "followUpQuestion" : null,
+        "missingFields" : [ ],
+        "emergencyHint" : true
+      },
+      "aiMode" : "LIVE"
+    },
+    "source" : "NEW_LIVE_PROVIDER_RESULT",
+    "checks" : {
+      "intent" : true,
+      "category" : true,
+      "subcategory" : true,
+      "building" : true,
+      "floor" : true,
+      "emergencyHint" : true,
+      "symptomPresence" : true,
+      "locationPresence" : true,
+      "liveMode" : true
+    },
+    "failedChecks" : [ ],
+    "status" : "PASS",
+    "note" : "Actual is AiService result after production normalization; HTTP controller intentionally hides report fields for QUESTION. No additional normalization by evaluator.",
+    "elapsedMs" : 2156
+  }, {
+    "id" : "S13",
+    "input" : {
+      "text" : "명진관 1층 전등 하나가 안 켜집니다. 불꽃이나 타는 냄새는 전혀 없습니다.",
+      "preferredIntent" : "AUTO"
+    },
+    "expected" : {
+      "intent" : "REPORT",
+      "category" : "FACILITY",
+      "subcategory" : "ELECTRIC",
+      "building" : "명진관",
+      "floor" : "1",
+      "emergencyHint" : false,
+      "symptomRequired" : true,
+      "locationRequired" : true
+    },
+    "httpStatus" : 200,
+    "httpActual" : {
+      "intent" : "REPORT",
+      "report" : {
+        "category" : "FACILITY",
+        "subcategory" : "ELECTRIC",
+        "locationText" : "명진관 1층",
+        "building" : "명진관",
+        "floor" : "1",
+        "symptom" : "전등 하나가 켜지지 않음",
+        "occurredAtText" : null,
+        "followUpQuestion" : null,
+        "missingFields" : [ ],
+        "emergencyHint" : true
+      },
+      "aiMode" : "LIVE",
+      "questionAnswer" : null,
+      "routingPreview" : {
+        "routeStatus" : "MATCHED",
+        "routingRuleId" : 2,
+        "departmentName" : "건설관리과 / 전기실",
+        "contactPhone" : "02-940-7049",
+        "sourceUrl" : "https://www.skuniv.ac.kr/notice/58965",
+        "verified" : true
+      }
+    },
+    "actual" : {
+      "intent" : "REPORT",
+      "report" : {
+        "category" : "FACILITY",
+        "subcategory" : "ELECTRIC",
+        "locationText" : "명진관 1층",
+        "building" : "명진관",
+        "floor" : "1",
+        "symptom" : "전등 하나가 켜지지 않음",
+        "occurredAtText" : null,
+        "followUpQuestion" : null,
+        "missingFields" : [ ],
+        "emergencyHint" : true
+      },
+      "aiMode" : "LIVE"
+    },
+    "source" : "NEW_LIVE_PROVIDER_RESULT",
+    "checks" : {
+      "intent" : true,
+      "category" : true,
+      "subcategory" : true,
+      "building" : true,
+      "floor" : true,
+      "emergencyHint" : false,
+      "symptomPresence" : true,
+      "locationPresence" : true,
+      "liveMode" : true
+    },
+    "failedChecks" : [ "emergencyHint" ],
+    "status" : "FAIL",
+    "note" : "Actual is AiService result after production normalization; HTTP controller intentionally hides report fields for QUESTION. No additional normalization by evaluator.",
+    "elapsedMs" : 3209
+  }, {
+    "id" : "S14",
+    "input" : {
+      "text" : "누리관 402호 창문 잠금쇠가 부러져 창문을 닫아도 고정되지 않습니다.",
+      "preferredIntent" : "AUTO"
+    },
+    "expected" : {
+      "intent" : "REPORT",
+      "category" : "OTHER",
+      "subcategory" : "UNKNOWN",
+      "building" : "누리관",
+      "floor" : "4",
+      "emergencyHint" : false,
+      "symptomRequired" : true,
+      "locationRequired" : true
+    },
+    "httpStatus" : 200,
+    "httpActual" : {
+      "intent" : "REPORT",
+      "report" : {
+        "category" : "OTHER",
+        "subcategory" : "UNKNOWN",
+        "locationText" : "누리관 402호",
+        "building" : "누리관",
+        "floor" : "4",
+        "symptom" : "창문 잠금쇠가 부러져 창문이 고정되지 않음",
+        "occurredAtText" : null,
+        "followUpQuestion" : null,
+        "missingFields" : [ ],
+        "emergencyHint" : false
+      },
+      "aiMode" : "LIVE",
+      "questionAnswer" : null,
+      "routingPreview" : {
+        "routeStatus" : "NEEDS_REVIEW",
+        "routingRuleId" : null,
+        "departmentName" : null,
+        "contactPhone" : null,
+        "sourceUrl" : null,
+        "verified" : false
+      }
+    },
+    "actual" : {
+      "intent" : "REPORT",
+      "report" : {
+        "category" : "OTHER",
+        "subcategory" : "UNKNOWN",
+        "locationText" : "누리관 402호",
+        "building" : "누리관",
+        "floor" : "4",
+        "symptom" : "창문 잠금쇠가 부러져 창문이 고정되지 않음",
+        "occurredAtText" : null,
+        "followUpQuestion" : null,
+        "missingFields" : [ ],
+        "emergencyHint" : false
+      },
+      "aiMode" : "LIVE"
+    },
+    "source" : "NEW_LIVE_PROVIDER_RESULT",
+    "checks" : {
+      "intent" : true,
+      "category" : true,
+      "subcategory" : true,
+      "building" : true,
+      "floor" : true,
+      "emergencyHint" : true,
+      "symptomPresence" : true,
+      "locationPresence" : true,
+      "liveMode" : true
+    },
+    "failedChecks" : [ ],
+    "status" : "PASS",
+    "note" : "Actual is AiService result after production normalization; HTTP controller intentionally hides report fields for QUESTION. No additional normalization by evaluator.",
+    "elapsedMs" : 1615
+  }, {
+    "id" : "S15",
+    "input" : {
+      "text" : "혜성관 지하 2층 실습실에서 지금 강한 가스 냄새가 납니다.",
+      "preferredIntent" : "AUTO"
+    },
+    "expected" : {
+      "intent" : "REPORT",
+      "category" : "OTHER",
+      "subcategory" : "UNKNOWN",
+      "building" : "혜성관",
+      "floor" : "B2",
+      "emergencyHint" : true,
+      "symptomRequired" : true,
+      "locationRequired" : true
+    },
+    "httpStatus" : 200,
+    "httpActual" : {
+      "intent" : "REPORT",
+      "report" : {
+        "category" : "OTHER",
+        "subcategory" : "UNKNOWN",
+        "locationText" : "혜성관 지하 2층 실습실",
+        "building" : "혜성관",
+        "floor" : "B2",
+        "symptom" : "강한 가스 냄새",
+        "occurredAtText" : "지금",
+        "followUpQuestion" : null,
+        "missingFields" : [ ],
+        "emergencyHint" : true
+      },
+      "aiMode" : "LIVE",
+      "questionAnswer" : null,
+      "routingPreview" : {
+        "routeStatus" : "NEEDS_REVIEW",
+        "routingRuleId" : null,
+        "departmentName" : null,
+        "contactPhone" : null,
+        "sourceUrl" : null,
+        "verified" : false
+      }
+    },
+    "actual" : {
+      "intent" : "REPORT",
+      "report" : {
+        "category" : "OTHER",
+        "subcategory" : "UNKNOWN",
+        "locationText" : "혜성관 지하 2층 실습실",
+        "building" : "혜성관",
+        "floor" : "B2",
+        "symptom" : "강한 가스 냄새",
+        "occurredAtText" : "지금",
+        "followUpQuestion" : null,
+        "missingFields" : [ ],
+        "emergencyHint" : true
+      },
+      "aiMode" : "LIVE"
+    },
+    "source" : "NEW_LIVE_PROVIDER_RESULT",
+    "checks" : {
+      "intent" : true,
+      "category" : true,
+      "subcategory" : true,
+      "building" : true,
+      "floor" : true,
+      "emergencyHint" : true,
+      "symptomPresence" : true,
+      "locationPresence" : true,
+      "liveMode" : true
+    },
+    "failedChecks" : [ ],
+    "status" : "PASS",
+    "note" : "Actual is AiService result after production normalization; HTTP controller intentionally hides report fields for QUESTION. No additional normalization by evaluator.",
+    "elapsedMs" : 1515
+  } ],
+  "pairs" : [ {
+    "id" : "P01",
+    "expectedCandidate" : true,
+    "left" : {
+      "text" : "가람관 1층 103호에서 와이파이가 2분마다 끊겨 온라인 수업이 중단됩니다.",
+      "category" : "IT",
+      "subcategory" : "WIFI",
+      "building" : "가람관",
+      "floor" : "1",
+      "locationText" : "가람관 1층 103호",
+      "symptom" : "와이파이가 2분마다 끊김",
+      "dayOffset" : 0
+    },
+    "right" : {
+      "text" : "가람관 1층 103호 무선 인터넷 연결이 반복해서 끊어지고 다시 연결됩니다.",
+      "category" : "IT",
+      "subcategory" : "WIFI",
+      "building" : "가람관",
+      "floor" : "1",
+      "locationText" : "가람관 1층 103호",
+      "symptom" : "무선 인터넷 연결이 반복해서 끊김",
+      "dayOffset" : 0
+    },
+    "diagnostic" : {
+      "typeMatch" : true,
+      "buildingMatch" : true,
+      "floorMatch" : true,
+      "roomMatch" : true,
+      "timeMatch" : true,
+      "normalizedPlace" : {
+        "rightBuilding" : "가람관",
+        "leftBuilding" : "가람관",
+        "leftFloor" : "1",
+        "leftRoom" : "103",
+        "rightRoom" : "103",
+        "rightFloor" : "1"
+      },
+      "rawCosine" : 0.8016152479021813,
+      "threshold" : 0.82,
+      "thresholdPass" : false,
+      "windowDays" : 30,
+      "connectivitySupportThreshold" : 0.7,
+      "leftConnectivityFailure" : true,
+      "rightConnectivityFailure" : true,
+      "baselineCandidate" : false,
+      "candidate" : true,
+      "baselineExcludedBy" : [ "EMBEDDING_THRESHOLD" ],
+      "excludedBy" : [ ],
+      "decisionBasis" : "CONNECTIVITY_SYMPTOM_SUPPORT"
+    },
+    "actualCandidate" : true,
+    "embeddingsAvailable" : true,
+    "source" : {
+      "left" : "CACHED_LIVE_PROVIDER_RESULT",
+      "right" : "CACHED_LIVE_PROVIDER_RESULT"
+    },
+    "persistedCandidates" : {
+      "connectivitySupportThreshold" : 0.7,
+      "reportId" : 1,
+      "windowDays" : 30,
+      "embeddingMode" : "LIVE",
+      "thresholdValidated" : false,
+      "items" : [ {
+        "pairId" : 1,
+        "relatedReportId" : 2,
+        "similarityScore" : 0.8016,
+        "reasonText" : "유형·건물 일치, 접수 시각 30일 이내. 실제 Embedding 코사인 0.8016; 연결 장애 증상 일치 보조 기준 0.70 적용(기본 0.82). 호실 일치. 발생일 미확인; 접수일은 발생일이 아님. 동일 사건 확정 전 관리자 검토 필요.",
+        "decision" : "CANDIDATE",
+        "reviewedBy" : null,
+        "reviewedAt" : null,
+        "aiMode" : "LIVE",
+        "relatedReport" : {
+          "id" : 2,
+          "originalText" : "가람관 1층 103호 무선 인터넷 연결이 반복해서 끊어지고 다시 연결됩니다.",
+          "locationText" : "가람관 1층 103호",
+          "status" : "RECEIVED",
+          "incidentId" : null,
+          "occurredOn" : null
+        }
+      } ],
+      "threshold" : 0.82
+    },
+    "incidentAssignedAutomatically" : false,
+    "status" : "PASS"
+  }, {
+    "id" : "P02",
+    "expectedCandidate" : true,
+    "left" : {
+      "text" : "가람관 1층 103호에서 와이파이가 2분마다 끊겨 온라인 수업이 중단됩니다.",
+      "category" : "IT",
+      "subcategory" : "WIFI",
+      "building" : "가람관",
+      "floor" : "1",
+      "locationText" : "가람관 1층 103호",
+      "symptom" : "와이파이가 2분마다 끊김",
+      "dayOffset" : 0
+    },
+    "right" : {
+      "text" : "가람관 103호에서 무선망이 잠깐 연결됐다가 또 끊기는 현상이 오전 내내 반복돼요.",
+      "category" : "IT",
+      "subcategory" : "WIFI",
+      "building" : "가람관",
+      "floor" : "1",
+      "locationText" : "가람관 1층 103호",
+      "symptom" : "무선망 연결과 단절이 반복됨",
+      "dayOffset" : 1
+    },
+    "diagnostic" : {
+      "typeMatch" : true,
+      "buildingMatch" : true,
+      "floorMatch" : true,
+      "roomMatch" : true,
+      "timeMatch" : true,
+      "normalizedPlace" : {
+        "rightBuilding" : "가람관",
+        "leftBuilding" : "가람관",
+        "leftFloor" : "1",
+        "leftRoom" : "103",
+        "rightRoom" : "103",
+        "rightFloor" : "1"
+      },
+      "rawCosine" : 0.6964573833049279,
+      "threshold" : 0.82,
+      "thresholdPass" : false,
+      "windowDays" : 30,
+      "connectivitySupportThreshold" : 0.7,
+      "leftConnectivityFailure" : true,
+      "rightConnectivityFailure" : true,
+      "baselineCandidate" : false,
+      "candidate" : false,
+      "baselineExcludedBy" : [ "EMBEDDING_THRESHOLD" ],
+      "excludedBy" : [ "EMBEDDING_THRESHOLD" ],
+      "decisionBasis" : "EXCLUDED"
+    },
+    "actualCandidate" : false,
+    "embeddingsAvailable" : true,
+    "source" : {
+      "left" : "CACHED_LIVE_PROVIDER_RESULT",
+      "right" : "NEW_LIVE_PROVIDER_RESULT"
+    },
+    "persistedCandidates" : {
+      "connectivitySupportThreshold" : 0.7,
+      "reportId" : 1,
+      "windowDays" : 30,
+      "embeddingMode" : "LIVE",
+      "thresholdValidated" : false,
+      "items" : [ ],
+      "threshold" : 0.82
+    },
+    "incidentAssignedAutomatically" : false,
+    "status" : "FAIL"
+  }, {
+    "id" : "P03",
+    "expectedCandidate" : true,
+    "left" : {
+      "text" : "누리관 지하 2층 021호 창고의 천장 급수관 이음새에서 물이 계속 샙니다.",
+      "category" : "FACILITY",
+      "subcategory" : "LEAK",
+      "building" : "누리관",
+      "floor" : "B2",
+      "locationText" : "누리관 지하 2층 021호",
+      "symptom" : "천장 급수관 이음새 누수",
+      "dayOffset" : 0
+    },
+    "right" : {
+      "text" : "누리관 지하 2층 021호 천장에 있는 수도관 연결 부분에서 물방울이 계속 떨어집니다.",
+      "category" : "FACILITY",
+      "subcategory" : "LEAK",
+      "building" : "누리관",
+      "floor" : "B2",
+      "locationText" : "누리관 지하 2층 021호",
+      "symptom" : "천장 수도관 연결 부분 누수",
+      "dayOffset" : 0
+    },
+    "diagnostic" : {
+      "typeMatch" : true,
+      "buildingMatch" : true,
+      "floorMatch" : true,
+      "roomMatch" : true,
+      "timeMatch" : true,
+      "normalizedPlace" : {
+        "rightBuilding" : "누리관",
+        "leftBuilding" : "누리관",
+        "leftFloor" : "b2",
+        "leftRoom" : "021",
+        "rightRoom" : "021",
+        "rightFloor" : "b2"
+      },
+      "rawCosine" : 0.787971447472181,
+      "threshold" : 0.82,
+      "thresholdPass" : false,
+      "windowDays" : 30,
+      "connectivitySupportThreshold" : 0.7,
+      "leftConnectivityFailure" : false,
+      "rightConnectivityFailure" : false,
+      "baselineCandidate" : false,
+      "candidate" : false,
+      "baselineExcludedBy" : [ "EMBEDDING_THRESHOLD" ],
+      "excludedBy" : [ "EMBEDDING_THRESHOLD" ],
+      "decisionBasis" : "EXCLUDED"
+    },
+    "actualCandidate" : false,
+    "embeddingsAvailable" : true,
+    "source" : {
+      "left" : "NEW_LIVE_PROVIDER_RESULT",
+      "right" : "NEW_LIVE_PROVIDER_RESULT"
+    },
+    "persistedCandidates" : {
+      "connectivitySupportThreshold" : 0.7,
+      "reportId" : 1,
+      "windowDays" : 30,
+      "embeddingMode" : "LIVE",
+      "thresholdValidated" : false,
+      "items" : [ ],
+      "threshold" : 0.82
+    },
+    "incidentAssignedAutomatically" : false,
+    "status" : "FAIL"
+  }, {
+    "id" : "P04",
+    "expectedCandidate" : true,
+    "left" : {
+      "text" : "명진관 3층 계단의 센서등이 사람이 지나가도 켜지지 않습니다.",
+      "category" : "FACILITY",
+      "subcategory" : "ELECTRIC",
+      "building" : "명진관",
+      "floor" : "3",
+      "locationText" : "명진관 3층 계단",
+      "symptom" : "계단 센서등이 켜지지 않음",
+      "dayOffset" : 0
+    },
+    "right" : {
+      "text" : "명진관 3층 계단을 걸어가도 움직임 감지 조명에 불이 들어오지 않아요.",
+      "category" : "FACILITY",
+      "subcategory" : "ELECTRIC",
+      "building" : "명진관",
+      "floor" : "3",
+      "locationText" : "명진관 3층 계단",
+      "symptom" : "계단 움직임 감지 조명 불량",
+      "dayOffset" : 0
+    },
+    "diagnostic" : {
+      "typeMatch" : true,
+      "buildingMatch" : true,
+      "floorMatch" : true,
+      "roomMatch" : true,
+      "timeMatch" : true,
+      "normalizedPlace" : {
+        "rightBuilding" : "명진관",
+        "leftBuilding" : "명진관",
+        "leftFloor" : "3",
+        "leftRoom" : "",
+        "rightRoom" : "",
+        "rightFloor" : "3"
+      },
+      "rawCosine" : 0.8300962606275433,
+      "threshold" : 0.82,
+      "thresholdPass" : true,
+      "windowDays" : 30,
+      "connectivitySupportThreshold" : 0.7,
+      "leftConnectivityFailure" : false,
+      "rightConnectivityFailure" : false,
+      "baselineCandidate" : true,
+      "candidate" : true,
+      "baselineExcludedBy" : [ ],
+      "excludedBy" : [ ],
+      "decisionBasis" : "EMBEDDING_THRESHOLD"
+    },
+    "actualCandidate" : true,
+    "embeddingsAvailable" : true,
+    "source" : {
+      "left" : "NEW_LIVE_PROVIDER_RESULT",
+      "right" : "NEW_LIVE_PROVIDER_RESULT"
+    },
+    "persistedCandidates" : {
+      "connectivitySupportThreshold" : 0.7,
+      "reportId" : 1,
+      "windowDays" : 30,
+      "embeddingMode" : "LIVE",
+      "thresholdValidated" : false,
+      "items" : [ {
+        "pairId" : 1,
+        "relatedReportId" : 2,
+        "similarityScore" : 0.8301,
+        "reasonText" : "유형·건물 일치, 접수 시각 30일 이내. 실제 Embedding 코사인 비교. 호실 일부 미확인. 발생일 미확인; 접수일은 발생일이 아님. 동일 사건 확정 전 관리자 검토 필요.",
+        "decision" : "CANDIDATE",
+        "reviewedBy" : null,
+        "reviewedAt" : null,
+        "aiMode" : "LIVE",
+        "relatedReport" : {
+          "id" : 2,
+          "originalText" : "명진관 3층 계단을 걸어가도 움직임 감지 조명에 불이 들어오지 않아요.",
+          "locationText" : "명진관 3층 계단",
+          "status" : "RECEIVED",
+          "incidentId" : null,
+          "occurredOn" : null
+        }
+      } ],
+      "threshold" : 0.82
+    },
+    "incidentAssignedAutomatically" : false,
+    "status" : "PASS"
+  }, {
+    "id" : "P05",
+    "expectedCandidate" : true,
+    "left" : {
+      "text" : "누리관 지하 2층 021호 창고의 천장 급수관 이음새에서 물이 계속 샙니다.",
+      "category" : "FACILITY",
+      "subcategory" : "LEAK",
+      "building" : "누리관",
+      "floor" : "B2",
+      "locationText" : "누리관 지하 2층 021호",
+      "symptom" : "천장 급수관 이음새 누수",
+      "dayOffset" : 0
+    },
+    "right" : {
+      "text" : "누리관 B2층 021호 창고 천장 급수관의 접합부에서 새는 물을 양동이로 받고 있습니다.",
+      "category" : "FACILITY",
+      "subcategory" : "LEAK",
+      "building" : "누리관",
+      "floor" : "B2",
+      "locationText" : "누리관 지하 2층 021호",
+      "symptom" : "창고 천장 급수관 접합부에서 물이 샘",
+      "dayOffset" : 2
+    },
+    "diagnostic" : {
+      "typeMatch" : true,
+      "buildingMatch" : true,
+      "floorMatch" : true,
+      "roomMatch" : true,
+      "timeMatch" : true,
+      "normalizedPlace" : {
+        "rightBuilding" : "누리관",
+        "leftBuilding" : "누리관",
+        "leftFloor" : "b2",
+        "leftRoom" : "021",
+        "rightRoom" : "021",
+        "rightFloor" : "b2"
+      },
+      "rawCosine" : 0.8676612476572434,
+      "threshold" : 0.82,
+      "thresholdPass" : true,
+      "windowDays" : 30,
+      "connectivitySupportThreshold" : 0.7,
+      "leftConnectivityFailure" : false,
+      "rightConnectivityFailure" : false,
+      "baselineCandidate" : true,
+      "candidate" : true,
+      "baselineExcludedBy" : [ ],
+      "excludedBy" : [ ],
+      "decisionBasis" : "EMBEDDING_THRESHOLD"
+    },
+    "actualCandidate" : true,
+    "embeddingsAvailable" : true,
+    "source" : {
+      "left" : "CACHED_LIVE_PROVIDER_RESULT",
+      "right" : "NEW_LIVE_PROVIDER_RESULT"
+    },
+    "persistedCandidates" : {
+      "connectivitySupportThreshold" : 0.7,
+      "reportId" : 1,
+      "windowDays" : 30,
+      "embeddingMode" : "LIVE",
+      "thresholdValidated" : false,
+      "items" : [ {
+        "pairId" : 1,
+        "relatedReportId" : 2,
+        "similarityScore" : 0.8677,
+        "reasonText" : "유형·건물 일치, 접수 시각 30일 이내. 실제 Embedding 코사인 비교. 호실 일치. 발생일 미확인; 접수일은 발생일이 아님. 동일 사건 확정 전 관리자 검토 필요.",
+        "decision" : "CANDIDATE",
+        "reviewedBy" : null,
+        "reviewedAt" : null,
+        "aiMode" : "LIVE",
+        "relatedReport" : {
+          "id" : 2,
+          "originalText" : "누리관 B2층 021호 창고 천장 급수관의 접합부에서 새는 물을 양동이로 받고 있습니다.",
+          "locationText" : "누리관 지하 2층 021호",
+          "status" : "RECEIVED",
+          "incidentId" : null,
+          "occurredOn" : null
+        }
+      } ],
+      "threshold" : 0.82
+    },
+    "incidentAssignedAutomatically" : false,
+    "status" : "PASS"
+  }, {
+    "id" : "P06",
+    "expectedCandidate" : false,
+    "left" : {
+      "text" : "가람관 1층 103호에서 와이파이가 2분마다 끊겨 온라인 수업이 중단됩니다.",
+      "category" : "IT",
+      "subcategory" : "WIFI",
+      "building" : "가람관",
+      "floor" : "1",
+      "locationText" : "가람관 1층 103호",
+      "symptom" : "와이파이가 2분마다 끊김",
+      "dayOffset" : 0
+    },
+    "right" : {
+      "text" : "가람관 1층 104호에서 와이파이가 2분마다 끊겨 온라인 수업이 중단됩니다.",
+      "category" : "IT",
+      "subcategory" : "WIFI",
+      "building" : "가람관",
+      "floor" : "1",
+      "locationText" : "가람관 1층 104호",
+      "symptom" : "와이파이가 2분마다 끊김",
+      "dayOffset" : 0
+    },
+    "diagnostic" : {
+      "typeMatch" : true,
+      "buildingMatch" : true,
+      "floorMatch" : true,
+      "roomMatch" : false,
+      "timeMatch" : true,
+      "normalizedPlace" : {
+        "rightBuilding" : "가람관",
+        "leftBuilding" : "가람관",
+        "leftFloor" : "1",
+        "leftRoom" : "103",
+        "rightRoom" : "104",
+        "rightFloor" : "1"
+      },
+      "rawCosine" : 0.9894724839526238,
+      "threshold" : 0.82,
+      "thresholdPass" : true,
+      "windowDays" : 30,
+      "connectivitySupportThreshold" : 0.7,
+      "leftConnectivityFailure" : true,
+      "rightConnectivityFailure" : true,
+      "baselineCandidate" : false,
+      "candidate" : false,
+      "baselineExcludedBy" : [ "ROOM" ],
+      "excludedBy" : [ "ROOM" ],
+      "decisionBasis" : "EXCLUDED"
+    },
+    "actualCandidate" : false,
+    "embeddingsAvailable" : true,
+    "source" : {
+      "left" : "CACHED_LIVE_PROVIDER_RESULT",
+      "right" : "NEW_LIVE_PROVIDER_RESULT"
+    },
+    "persistedCandidates" : {
+      "connectivitySupportThreshold" : 0.7,
+      "reportId" : 1,
+      "windowDays" : 30,
+      "embeddingMode" : "LIVE",
+      "thresholdValidated" : false,
+      "items" : [ ],
+      "threshold" : 0.82
+    },
+    "incidentAssignedAutomatically" : false,
+    "status" : "PASS"
+  }, {
+    "id" : "P07",
+    "expectedCandidate" : false,
+    "left" : {
+      "text" : "가람관 1층 103호에서 와이파이가 2분마다 끊겨 온라인 수업이 중단됩니다.",
+      "category" : "IT",
+      "subcategory" : "WIFI",
+      "building" : "가람관",
+      "floor" : "1",
+      "locationText" : "가람관 1층 103호",
+      "symptom" : "와이파이가 2분마다 끊김",
+      "dayOffset" : 0
+    },
+    "right" : {
+      "text" : "가람관 1층 103호 와이파이 접속 이름 안내판이 떨어져 다시 붙여 주세요.",
+      "category" : "IT",
+      "subcategory" : "WIFI",
+      "building" : "가람관",
+      "floor" : "1",
+      "locationText" : "가람관 1층 103호",
+      "symptom" : "와이파이 접속 이름 안내판 탈락",
+      "dayOffset" : 0
+    },
+    "diagnostic" : {
+      "typeMatch" : true,
+      "buildingMatch" : true,
+      "floorMatch" : true,
+      "roomMatch" : true,
+      "timeMatch" : true,
+      "normalizedPlace" : {
+        "rightBuilding" : "가람관",
+        "leftBuilding" : "가람관",
+        "leftFloor" : "1",
+        "leftRoom" : "103",
+        "rightRoom" : "103",
+        "rightFloor" : "1"
+      },
+      "rawCosine" : 0.7945340660570455,
+      "threshold" : 0.82,
+      "thresholdPass" : false,
+      "windowDays" : 30,
+      "connectivitySupportThreshold" : 0.7,
+      "leftConnectivityFailure" : true,
+      "rightConnectivityFailure" : false,
+      "baselineCandidate" : false,
+      "candidate" : false,
+      "baselineExcludedBy" : [ "EMBEDDING_THRESHOLD" ],
+      "excludedBy" : [ "EMBEDDING_THRESHOLD" ],
+      "decisionBasis" : "EXCLUDED"
+    },
+    "actualCandidate" : false,
+    "embeddingsAvailable" : true,
+    "source" : {
+      "left" : "CACHED_LIVE_PROVIDER_RESULT",
+      "right" : "NEW_LIVE_PROVIDER_RESULT"
+    },
+    "persistedCandidates" : {
+      "connectivitySupportThreshold" : 0.7,
+      "reportId" : 1,
+      "windowDays" : 30,
+      "embeddingMode" : "LIVE",
+      "thresholdValidated" : false,
+      "items" : [ ],
+      "threshold" : 0.82
+    },
+    "incidentAssignedAutomatically" : false,
+    "status" : "PASS"
+  }, {
+    "id" : "P08",
+    "expectedCandidate" : false,
+    "left" : {
+      "text" : "가람관 1층 103호에서 와이파이가 2분마다 끊겨 온라인 수업이 중단됩니다.",
+      "category" : "IT",
+      "subcategory" : "WIFI",
+      "building" : "가람관",
+      "floor" : "1",
+      "locationText" : "가람관 1층 103호",
+      "symptom" : "와이파이가 2분마다 끊김",
+      "dayOffset" : 0
+    },
+    "right" : {
+      "text" : "가람관 1층 103호 와이파이 비밀번호가 공개 채팅방에 유출돼 교체를 요청합니다.",
+      "category" : "IT",
+      "subcategory" : "WIFI",
+      "building" : "가람관",
+      "floor" : "1",
+      "locationText" : "가람관 1층 103호",
+      "symptom" : "와이파이 비밀번호 유출",
+      "dayOffset" : 0
+    },
+    "diagnostic" : {
+      "typeMatch" : true,
+      "buildingMatch" : true,
+      "floorMatch" : true,
+      "roomMatch" : true,
+      "timeMatch" : true,
+      "normalizedPlace" : {
+        "rightBuilding" : "가람관",
+        "leftBuilding" : "가람관",
+        "leftFloor" : "1",
+        "leftRoom" : "103",
+        "rightRoom" : "103",
+        "rightFloor" : "1"
+      },
+      "rawCosine" : 0.7073538789732803,
+      "threshold" : 0.82,
+      "thresholdPass" : false,
+      "windowDays" : 30,
+      "connectivitySupportThreshold" : 0.7,
+      "leftConnectivityFailure" : true,
+      "rightConnectivityFailure" : false,
+      "baselineCandidate" : false,
+      "candidate" : false,
+      "baselineExcludedBy" : [ "EMBEDDING_THRESHOLD" ],
+      "excludedBy" : [ "EMBEDDING_THRESHOLD" ],
+      "decisionBasis" : "EXCLUDED"
+    },
+    "actualCandidate" : false,
+    "embeddingsAvailable" : true,
+    "source" : {
+      "left" : "CACHED_LIVE_PROVIDER_RESULT",
+      "right" : "NEW_LIVE_PROVIDER_RESULT"
+    },
+    "persistedCandidates" : {
+      "connectivitySupportThreshold" : 0.7,
+      "reportId" : 1,
+      "windowDays" : 30,
+      "embeddingMode" : "LIVE",
+      "thresholdValidated" : false,
+      "items" : [ ],
+      "threshold" : 0.82
+    },
+    "incidentAssignedAutomatically" : false,
+    "status" : "PASS"
+  }, {
+    "id" : "P09",
+    "expectedCandidate" : false,
+    "left" : {
+      "text" : "가람관 1층 103호에서 와이파이가 2분마다 끊겨 온라인 수업이 중단됩니다.",
+      "category" : "IT",
+      "subcategory" : "WIFI",
+      "building" : "가람관",
+      "floor" : "1",
+      "locationText" : "가람관 1층 103호",
+      "symptom" : "와이파이가 2분마다 끊김",
+      "dayOffset" : 0
+    },
+    "right" : {
+      "text" : "가람관 1층 103호 와이파이는 끊기지 않고 정상입니다. 공유기 거치대가 벽에서 떨어졌으니 고정해 주세요.",
+      "category" : "IT",
+      "subcategory" : "WIFI",
+      "building" : "가람관",
+      "floor" : "1",
+      "locationText" : "가람관 1층 103호",
+      "symptom" : "무선 연결은 정상이며 공유기 거치대가 떨어짐",
+      "dayOffset" : 0
+    },
+    "diagnostic" : {
+      "typeMatch" : true,
+      "buildingMatch" : true,
+      "floorMatch" : true,
+      "roomMatch" : true,
+      "timeMatch" : true,
+      "normalizedPlace" : {
+        "rightBuilding" : "가람관",
+        "leftBuilding" : "가람관",
+        "leftFloor" : "1",
+        "leftRoom" : "103",
+        "rightRoom" : "103",
+        "rightFloor" : "1"
+      },
+      "rawCosine" : 0.7588786130433097,
+      "threshold" : 0.82,
+      "thresholdPass" : false,
+      "windowDays" : 30,
+      "connectivitySupportThreshold" : 0.7,
+      "leftConnectivityFailure" : true,
+      "rightConnectivityFailure" : false,
+      "baselineCandidate" : false,
+      "candidate" : false,
+      "baselineExcludedBy" : [ "EMBEDDING_THRESHOLD" ],
+      "excludedBy" : [ "EMBEDDING_THRESHOLD" ],
+      "decisionBasis" : "EXCLUDED"
+    },
+    "actualCandidate" : false,
+    "embeddingsAvailable" : true,
+    "source" : {
+      "left" : "CACHED_LIVE_PROVIDER_RESULT",
+      "right" : "NEW_LIVE_PROVIDER_RESULT"
+    },
+    "persistedCandidates" : {
+      "connectivitySupportThreshold" : 0.7,
+      "reportId" : 1,
+      "windowDays" : 30,
+      "embeddingMode" : "LIVE",
+      "thresholdValidated" : false,
+      "items" : [ ],
+      "threshold" : 0.82
+    },
+    "incidentAssignedAutomatically" : false,
+    "status" : "PASS"
+  }, {
+    "id" : "P10",
+    "expectedCandidate" : false,
+    "left" : {
+      "text" : "누리관 지하 2층 021호 창고의 천장 급수관 이음새에서 물이 계속 샙니다.",
+      "category" : "FACILITY",
+      "subcategory" : "LEAK",
+      "building" : "누리관",
+      "floor" : "B2",
+      "locationText" : "누리관 지하 2층 021호",
+      "symptom" : "천장 급수관 이음새 누수",
+      "dayOffset" : 0
+    },
+    "right" : {
+      "text" : "누리관 지하 2층 021호 창고 바닥 배수구에서 역류한 물이 올라옵니다. 천장 배관과는 별개입니다.",
+      "category" : "FACILITY",
+      "subcategory" : "LEAK",
+      "building" : "누리관",
+      "floor" : "B2",
+      "locationText" : "누리관 지하 2층 021호",
+      "symptom" : "바닥 배수구 역류",
+      "dayOffset" : 0
+    },
+    "diagnostic" : {
+      "typeMatch" : true,
+      "buildingMatch" : true,
+      "floorMatch" : true,
+      "roomMatch" : true,
+      "timeMatch" : true,
+      "normalizedPlace" : {
+        "rightBuilding" : "누리관",
+        "leftBuilding" : "누리관",
+        "leftFloor" : "b2",
+        "leftRoom" : "021",
+        "rightRoom" : "021",
+        "rightFloor" : "b2"
+      },
+      "rawCosine" : 0.8043016843327719,
+      "threshold" : 0.82,
+      "thresholdPass" : false,
+      "windowDays" : 30,
+      "connectivitySupportThreshold" : 0.7,
+      "leftConnectivityFailure" : false,
+      "rightConnectivityFailure" : false,
+      "baselineCandidate" : false,
+      "candidate" : false,
+      "baselineExcludedBy" : [ "EMBEDDING_THRESHOLD" ],
+      "excludedBy" : [ "EMBEDDING_THRESHOLD" ],
+      "decisionBasis" : "EXCLUDED"
+    },
+    "actualCandidate" : false,
+    "embeddingsAvailable" : true,
+    "source" : {
+      "left" : "CACHED_LIVE_PROVIDER_RESULT",
+      "right" : "NEW_LIVE_PROVIDER_RESULT"
+    },
+    "persistedCandidates" : {
+      "connectivitySupportThreshold" : 0.7,
+      "reportId" : 1,
+      "windowDays" : 30,
+      "embeddingMode" : "LIVE",
+      "thresholdValidated" : false,
+      "items" : [ ],
+      "threshold" : 0.82
+    },
+    "incidentAssignedAutomatically" : false,
+    "status" : "PASS"
+  } ],
+  "integrationAndExceptions" : [ {
+    "name" : "finalConfiguration",
+    "status" : "PASS",
+    "source" : "HTTP",
+    "detail" : {
+      "embeddingMode" : "LIVE",
+      "aiMode" : "LIVE",
+      "databaseMode" : "MYSQL",
+      "officialSubmission" : false
+    }
+  }, {
+    "name" : "report1SavedWithActualFloor",
+    "status" : "PASS",
+    "source" : "NEW_LIVE_PROVIDER_RESULT",
+    "detail" : {
+      "id" : 1,
+      "actualAnalysis" : {
+        "intent" : "REPORT",
+        "report" : {
+          "category" : "IT",
+          "subcategory" : "WIFI",
+          "locationText" : "가람관 1층 103호",
+          "building" : "가람관",
+          "floor" : "1",
+          "symptom" : "와이파이가 2분마다 끊겨 온라인 수업이 중단됨",
+          "occurredAtText" : null,
+          "followUpQuestion" : null,
+          "missingFields" : [ ],
+          "emergencyHint" : false
+        },
+        "aiMode" : "LIVE"
+      },
+      "confirmedPayload" : {
+        "clientRequestId" : "43fb5309-bd1d-423f-a176-488d0e6c03d3",
+        "originalText" : "가람관 1층 103호에서 와이파이가 2분마다 끊겨 온라인 수업이 중단됩니다.",
+        "category" : "IT",
+        "subcategory" : "WIFI",
+        "building" : "가람관",
+        "floor" : "1",
+        "locationText" : "가람관 1층 103호",
+        "symptom" : "와이파이가 2분마다 끊김"
+      },
+      "db" : {
+        "id" : 1,
+        "status" : "RECEIVED",
+        "floor" : "1",
+        "incidentId" : null,
+        "resolutionText" : null,
+        "embeddingModel" : "text-embedding-3-small",
+        "embeddingDimensions" : 1536
+      },
+      "note" : "Fixed fixture location/type/symptom are explicit user confirmation; floor is unmodified actual postprocessed AI output."
+    }
+  }, {
+    "name" : "report2SavedWithActualFloor",
+    "status" : "PASS",
+    "source" : "NEW_LIVE_PROVIDER_RESULT",
+    "detail" : {
+      "id" : 2,
+      "actualAnalysis" : {
+        "intent" : "REPORT",
+        "report" : {
+          "category" : "IT",
+          "subcategory" : "WIFI",
+          "locationText" : "가람관 1층 103호",
+          "building" : "가람관",
+          "floor" : "1",
+          "symptom" : "무선 인터넷 연결이 반복해서 끊어졌다가 다시 연결됨",
+          "occurredAtText" : null,
+          "followUpQuestion" : null,
+          "missingFields" : [ ],
+          "emergencyHint" : false
+        },
+        "aiMode" : "LIVE"
+      },
+      "confirmedPayload" : {
+        "clientRequestId" : "b9c93a60-ac57-4cfc-b977-eaf712f7d101",
+        "originalText" : "가람관 1층 103호 무선 인터넷 연결이 반복해서 끊어지고 다시 연결됩니다.",
+        "category" : "IT",
+        "subcategory" : "WIFI",
+        "building" : "가람관",
+        "floor" : "1",
+        "locationText" : "가람관 1층 103호",
+        "symptom" : "무선 인터넷 연결이 반복해서 끊김"
+      },
+      "db" : {
+        "id" : 2,
+        "status" : "RECEIVED",
+        "floor" : "1",
+        "incidentId" : null,
+        "resolutionText" : null,
+        "embeddingModel" : "text-embedding-3-small",
+        "embeddingDimensions" : 1536
+      },
+      "note" : "Fixed fixture location/type/symptom are explicit user confirmation; floor is unmodified actual postprocessed AI output."
+    }
+  }, {
+    "name" : "noAutomaticIncidentBeforeReview",
+    "status" : "PASS",
+    "source" : "MYSQL",
+    "detail" : {
+      "reportIds" : [ 1, 2 ]
+    }
+  }, {
+    "name" : "liveCandidatePersisted",
+    "status" : "PASS",
+    "source" : "LIVE_MYSQL",
+    "detail" : {
+      "candidates" : {
+        "connectivitySupportThreshold" : 0.7,
+        "reportId" : 1,
+        "windowDays" : 30,
+        "embeddingMode" : "LIVE",
+        "thresholdValidated" : false,
+        "items" : [ {
+          "pairId" : 1,
+          "relatedReportId" : 2,
+          "similarityScore" : 0.8016,
+          "reasonText" : "유형·건물 일치, 접수 시각 30일 이내. 실제 Embedding 코사인 0.8016; 연결 장애 증상 일치 보조 기준 0.70 적용(기본 0.82). 호실 일치. 발생일 미확인; 접수일은 발생일이 아님. 동일 사건 확정 전 관리자 검토 필요.",
+          "decision" : "CANDIDATE",
+          "reviewedBy" : null,
+          "reviewedAt" : null,
+          "aiMode" : "LIVE",
+          "relatedReport" : {
+            "id" : 2,
+            "originalText" : "가람관 1층 103호 무선 인터넷 연결이 반복해서 끊어지고 다시 연결됩니다.",
+            "locationText" : "가람관 1층 103호",
+            "status" : "RECEIVED",
+            "incidentId" : null,
+            "occurredOn" : null
+          }
+        } ],
+        "threshold" : 0.82
+      },
+      "diagnostic" : {
+        "typeMatch" : true,
+        "buildingMatch" : true,
+        "floorMatch" : true,
+        "roomMatch" : true,
+        "timeMatch" : true,
+        "normalizedPlace" : {
+          "rightBuilding" : "가람관",
+          "leftBuilding" : "가람관",
+          "leftFloor" : "1",
+          "leftRoom" : "103",
+          "rightRoom" : "103",
+          "rightFloor" : "1"
+        },
+        "rawCosine" : 0.8016152479021813,
+        "threshold" : 0.82,
+        "thresholdPass" : false,
+        "windowDays" : 30,
+        "connectivitySupportThreshold" : 0.7,
+        "leftConnectivityFailure" : true,
+        "rightConnectivityFailure" : true,
+        "baselineCandidate" : false,
+        "candidate" : true,
+        "baselineExcludedBy" : [ "EMBEDDING_THRESHOLD" ],
+        "excludedBy" : [ ],
+        "decisionBasis" : "CONNECTIVITY_SYMPTOM_SUPPORT"
+      }
+    }
+  }, {
+    "name" : "conditionalSupportBranchInMysql",
+    "status" : "PASS",
+    "source" : "LIVE_MYSQL",
+    "detail" : {
+      "diagnostic" : {
+        "typeMatch" : true,
+        "buildingMatch" : true,
+        "floorMatch" : true,
+        "roomMatch" : true,
+        "timeMatch" : true,
+        "normalizedPlace" : {
+          "rightBuilding" : "가람관",
+          "leftBuilding" : "가람관",
+          "leftFloor" : "1",
+          "leftRoom" : "103",
+          "rightRoom" : "103",
+          "rightFloor" : "1"
+        },
+        "rawCosine" : 0.8016152479021813,
+        "threshold" : 0.82,
+        "thresholdPass" : false,
+        "windowDays" : 30,
+        "connectivitySupportThreshold" : 0.7,
+        "leftConnectivityFailure" : true,
+        "rightConnectivityFailure" : true,
+        "baselineCandidate" : false,
+        "candidate" : true,
+        "baselineExcludedBy" : [ "EMBEDDING_THRESHOLD" ],
+        "excludedBy" : [ ],
+        "decisionBasis" : "CONNECTIVITY_SYMPTOM_SUPPORT"
+      },
+      "note" : "No invented score; base-threshold candidate does not verify conditional branch."
+    }
+  }, {
+    "name" : "studentCannotBypassAdministratorReview",
+    "status" : "PASS",
+    "source" : "HTTP_MYSQL",
+    "detail" : {
+      "httpStatus" : 403,
+      "decisionAfterAttempt" : "CANDIDATE"
+    }
+  }, {
+    "name" : "administratorSameIncidentDecision",
+    "status" : "PASS",
+    "source" : "HTTP_MYSQL",
+    "detail" : {
+      "httpStatus" : 200,
+      "result" : {
+        "id" : 1,
+        "leftReportId" : 1,
+        "rightReportId" : 2,
+        "similarityScore" : 0.8016,
+        "reasonText" : "유형·건물 일치, 접수 시각 30일 이내. 실제 Embedding 코사인 0.8016; 연결 장애 증상 일치 보조 기준 0.70 적용(기본 0.82). 호실 일치. 발생일 미확인; 접수일은 발생일이 아님. 동일 사건 확정 전 관리자 검토 필요.",
+        "decision" : "SAME_INCIDENT",
+        "reviewedBy" : 3,
+        "reviewedAt" : "2026-10-14T03:25:38+09:00",
+        "createdAt" : "2026-10-14T03:25:38.682815+09:00",
+        "incidentId" : 1
+      }
+    }
+  }, {
+    "name" : "studentResult1",
+    "status" : "PASS",
+    "source" : "HTTP_MYSQL",
+    "detail" : {
+      "progressHttpStatus" : 200,
+      "resolvedHttpStatus" : 200,
+      "studentResult" : {
+        "id" : 1,
+        "studentId" : 1,
+        "originalText" : "가람관 1층 103호에서 와이파이가 2분마다 끊겨 온라인 수업이 중단됩니다.",
+        "category" : "IT",
+        "subcategory" : "WIFI",
+        "locationText" : "가람관 1층 103호",
+        "building" : "가람관",
+        "floor" : "1",
+        "symptom" : "와이파이가 2분마다 끊김",
+        "occurredAtText" : null,
+        "routingRuleId" : 1,
+        "assignedDepartmentId" : 1,
+        "routeStatus" : "MATCHED",
+        "status" : "RESOLVED",
+        "emergencyHint" : false,
+        "resolutionText" : "[합성 신규 검증] 무선망 연결 점검과 재접속 확인 완료",
+        "embeddingModel" : "text-embedding-3-small",
+        "createdAt" : "2026-10-14T03:25:30.033389+09:00",
+        "updatedAt" : "2026-10-14T03:25:39+09:00",
+        "occurredOn" : null,
+        "incidentId" : 1,
+        "assignedDepartment" : {
+          "id" : 1,
+          "name" : "정보전산원",
+          "contactPhone" : "02-940-7043",
+          "sourceUrl" : "https://www.skuniv.ac.kr/campus-network",
+          "verified" : true
+        }
+      },
+      "db" : {
+        "id" : 1,
+        "status" : "RESOLVED",
+        "floor" : "1",
+        "incidentId" : 1,
+        "resolutionText" : "[합성 신규 검증] 무선망 연결 점검과 재접속 확인 완료",
+        "embeddingModel" : "text-embedding-3-small",
+        "embeddingDimensions" : 1536
+      }
+    }
+  }, {
+    "name" : "studentResult2",
+    "status" : "PASS",
+    "source" : "HTTP_MYSQL",
+    "detail" : {
+      "progressHttpStatus" : 200,
+      "resolvedHttpStatus" : 200,
+      "studentResult" : {
+        "id" : 2,
+        "studentId" : 1,
+        "originalText" : "가람관 1층 103호 무선 인터넷 연결이 반복해서 끊어지고 다시 연결됩니다.",
+        "category" : "IT",
+        "subcategory" : "WIFI",
+        "locationText" : "가람관 1층 103호",
+        "building" : "가람관",
+        "floor" : "1",
+        "symptom" : "무선 인터넷 연결이 반복해서 끊김",
+        "occurredAtText" : null,
+        "routingRuleId" : 1,
+        "assignedDepartmentId" : 1,
+        "routeStatus" : "MATCHED",
+        "status" : "RESOLVED",
+        "emergencyHint" : false,
+        "resolutionText" : "[합성 신규 검증] 무선망 연결 점검과 재접속 확인 완료",
+        "embeddingModel" : "text-embedding-3-small",
+        "createdAt" : "2026-10-14T03:25:37.335689+09:00",
+        "updatedAt" : "2026-10-14T03:25:39+09:00",
+        "occurredOn" : null,
+        "incidentId" : 1,
+        "assignedDepartment" : {
+          "id" : 1,
+          "name" : "정보전산원",
+          "contactPhone" : "02-940-7043",
+          "sourceUrl" : "https://www.skuniv.ac.kr/campus-network",
+          "verified" : true
+        }
+      },
+      "db" : {
+        "id" : 2,
+        "status" : "RESOLVED",
+        "floor" : "1",
+        "incidentId" : 1,
+        "resolutionText" : "[합성 신규 검증] 무선망 연결 점검과 재접속 확인 완료",
+        "embeddingModel" : "text-embedding-3-small",
+        "embeddingDimensions" : 1536
+      }
+    }
+  }, {
+    "name" : "storedVectorReindexWithoutNewCalls",
+    "status" : "PASS",
+    "source" : "MYSQL_STORED_LIVE_EMBEDDINGS",
+    "detail" : {
+      "callsBefore" : 4,
+      "callsAfter" : 4
+    }
+  }, {
+    "name" : "reindexPreservesAdminDecision",
+    "status" : "PASS",
+    "source" : "MYSQL",
+    "detail" : {
+      "before" : {
+        "id" : 1,
+        "leftReportId" : 1,
+        "rightReportId" : 2,
+        "similarityScore" : 0.8016,
+        "reasonText" : "유형·건물 일치, 접수 시각 30일 이내. 실제 Embedding 코사인 0.8016; 연결 장애 증상 일치 보조 기준 0.70 적용(기본 0.82). 호실 일치. 발생일 미확인; 접수일은 발생일이 아님. 동일 사건 확정 전 관리자 검토 필요.",
+        "decision" : "SAME_INCIDENT",
+        "reviewedBy" : 3,
+        "reviewedAt" : "2026-10-14T03:25:38+09:00",
+        "createdAt" : "2026-10-14T03:25:38.682815+09:00"
+      },
+      "after" : {
+        "id" : 1,
+        "leftReportId" : 1,
+        "rightReportId" : 2,
+        "similarityScore" : 0.8016,
+        "reasonText" : "유형·건물 일치, 접수 시각 30일 이내. 실제 Embedding 코사인 0.8016; 연결 장애 증상 일치 보조 기준 0.70 적용(기본 0.82). 호실 일치. 발생일 미확인; 접수일은 발생일이 아님. 동일 사건 확정 전 관리자 검토 필요.",
+        "decision" : "SAME_INCIDENT",
+        "reviewedBy" : 3,
+        "reviewedAt" : "2026-10-14T03:25:38+09:00",
+        "createdAt" : "2026-10-14T03:25:38.682815+09:00"
+      }
+    }
+  }, {
+    "name" : "upstream429MapsToHttp503WithoutWrite",
+    "status" : "PASS",
+    "source" : "CONTROLLED_LOCAL_HTTP_PROVIDER_NO_PAID_CALL",
+    "detail" : {
+      "httpStatus" : 503,
+      "body" : {
+        "message" : "AI 분석을 사용할 수 없습니다. 잠시 후 재시도하거나 수동 신고를 이용하세요.",
+        "code" : "AI_UNAVAILABLE",
+        "fieldErrors" : { }
+      },
+      "reportsBefore" : 2,
+      "reportsAfter" : 2,
+      "elapsedMs" : 205,
+      "localUpstreamRequests" : 1,
+      "configuredClientTimeoutSeconds" : 1,
+      "upstreamDelayMs" : 0
+    }
+  }, {
+    "name" : "upstreamTimeoutMapsToHttp503WithoutWrite",
+    "status" : "PASS",
+    "source" : "CONTROLLED_LOCAL_HTTP_PROVIDER_NO_PAID_CALL",
+    "detail" : {
+      "httpStatus" : 503,
+      "body" : {
+        "message" : "AI 분석을 사용할 수 없습니다. 잠시 후 재시도하거나 수동 신고를 이용하세요.",
+        "code" : "AI_UNAVAILABLE",
+        "fieldErrors" : { }
+      },
+      "reportsBefore" : 2,
+      "reportsAfter" : 2,
+      "elapsedMs" : 1056,
+      "localUpstreamRequests" : 1,
+      "configuredClientTimeoutSeconds" : 1,
+      "upstreamDelayMs" : 2000
+    }
+  }, {
+    "name" : "embeddingFailurePreservesAcceptedReport",
+    "status" : "PASS",
+    "source" : "CONTROLLED_LOCAL_HTTP_PROVIDER_MYSQL",
+    "detail" : {
+      "httpStatus" : 201,
+      "db" : {
+        "id" : 3,
+        "status" : "RECEIVED",
+        "floor" : "1",
+        "incidentId" : null,
+        "resolutionText" : null,
+        "embeddingModel" : null,
+        "embeddingDimensions" : 0
+      },
+      "candidates" : {
+        "connectivitySupportThreshold" : 0.7,
+        "reportId" : 3,
+        "windowDays" : 30,
+        "embeddingMode" : "LIVE",
+        "thresholdValidated" : false,
+        "items" : [ {
+          "pairId" : 5,
+          "relatedReportId" : 2,
+          "similarityScore" : null,
+          "reasonText" : "유형·건물 일치, 접수 시각 30일 이내. 규칙 기반 후보(RULE_ONLY); 실제 Embedding 점수 없음. 호실 일치. 발생일 미확인; 접수일은 발생일이 아님. 동일 사건 확정 전 관리자 검토 필요.",
+          "decision" : "CANDIDATE",
+          "reviewedBy" : null,
+          "reviewedAt" : null,
+          "aiMode" : "RULE_ONLY",
+          "relatedReport" : {
+            "id" : 2,
+            "originalText" : "가람관 1층 103호 무선 인터넷 연결이 반복해서 끊어지고 다시 연결됩니다.",
+            "locationText" : "가람관 1층 103호",
+            "status" : "RESOLVED",
+            "incidentId" : 1,
+            "occurredOn" : null
+          }
+        }, {
+          "pairId" : 4,
+          "relatedReportId" : 1,
+          "similarityScore" : null,
+          "reasonText" : "유형·건물 일치, 접수 시각 30일 이내. 규칙 기반 후보(RULE_ONLY); 실제 Embedding 점수 없음. 호실 일치. 발생일 미확인; 접수일은 발생일이 아님. 동일 사건 확정 전 관리자 검토 필요.",
+          "decision" : "CANDIDATE",
+          "reviewedBy" : null,
+          "reviewedAt" : null,
+          "aiMode" : "RULE_ONLY",
+          "relatedReport" : {
+            "id" : 1,
+            "originalText" : "가람관 1층 103호에서 와이파이가 2분마다 끊겨 온라인 수업이 중단됩니다.",
+            "locationText" : "가람관 1층 103호",
+            "status" : "RESOLVED",
+            "incidentId" : 1,
+            "occurredOn" : null
+          }
+        } ],
+        "threshold" : 0.82
+      },
+      "localUpstreamRequests" : 1
+    }
+  }, {
+    "name" : "embeddingFailureExplicitRuleOnlyCandidate",
+    "status" : "PASS",
+    "source" : "CONTROLLED_LOCAL_HTTP_PROVIDER_MYSQL",
+    "detail" : {
+      "candidates" : {
+        "connectivitySupportThreshold" : 0.7,
+        "reportId" : 3,
+        "windowDays" : 30,
+        "embeddingMode" : "LIVE",
+        "thresholdValidated" : false,
+        "items" : [ {
+          "pairId" : 5,
+          "relatedReportId" : 2,
+          "similarityScore" : null,
+          "reasonText" : "유형·건물 일치, 접수 시각 30일 이내. 규칙 기반 후보(RULE_ONLY); 실제 Embedding 점수 없음. 호실 일치. 발생일 미확인; 접수일은 발생일이 아님. 동일 사건 확정 전 관리자 검토 필요.",
+          "decision" : "CANDIDATE",
+          "reviewedBy" : null,
+          "reviewedAt" : null,
+          "aiMode" : "RULE_ONLY",
+          "relatedReport" : {
+            "id" : 2,
+            "originalText" : "가람관 1층 103호 무선 인터넷 연결이 반복해서 끊어지고 다시 연결됩니다.",
+            "locationText" : "가람관 1층 103호",
+            "status" : "RESOLVED",
+            "incidentId" : 1,
+            "occurredOn" : null
+          }
+        }, {
+          "pairId" : 4,
+          "relatedReportId" : 1,
+          "similarityScore" : null,
+          "reasonText" : "유형·건물 일치, 접수 시각 30일 이내. 규칙 기반 후보(RULE_ONLY); 실제 Embedding 점수 없음. 호실 일치. 발생일 미확인; 접수일은 발생일이 아님. 동일 사건 확정 전 관리자 검토 필요.",
+          "decision" : "CANDIDATE",
+          "reviewedBy" : null,
+          "reviewedAt" : null,
+          "aiMode" : "RULE_ONLY",
+          "relatedReport" : {
+            "id" : 1,
+            "originalText" : "가람관 1층 103호에서 와이파이가 2분마다 끊겨 온라인 수업이 중단됩니다.",
+            "locationText" : "가람관 1층 103호",
+            "status" : "RESOLVED",
+            "incidentId" : 1,
+            "occurredOn" : null
+          }
+        } ],
+        "threshold" : 0.82
+      }
+    }
+  }, {
+    "name" : "existingDuplicateConcurrencyAndTimeoutCoverage",
+    "status" : "SKIPPED_ALREADY_COVERED",
+    "source" : "Existing MySQL ApiIntegrationTest duplicate/concurrent tests and AiServiceTest controlled upstream timeout tests; no redundant paid calls."
+  } ],
+  "providerMeasurement" : {
+    "mode" : "LIVE",
+    "model" : "gpt-6-luna",
+    "embeddingModel" : "text-embedding-3-small",
+    "analysisAttempts" : 15,
+    "embeddingAttempts" : 13,
+    "externalCallsAttempted" : 28,
+    "analysisCacheHits" : 0,
+    "embeddingCacheHits" : 9,
+    "newCallFailures" : 0,
+    "maximumCumulativeExternalCalls" : 35,
+    "maximumAnalysisCalls" : 15,
+    "maximumEmbeddingCalls" : 20,
+    "persistedAttemptsIncludingPreviousRuns" : 28,
+    "newCallsUsage" : {
+      "/chat/completions" : {
+        "responsesWithUsage" : 15,
+        "inputTokens" : 12540,
+        "outputTokens" : 1322,
+        "totalTokens" : 13862
+      },
+      "/embeddings" : {
+        "responsesWithUsage" : 13,
+        "inputTokens" : 1112,
+        "outputTokens" : 0,
+        "totalTokens" : 1112
+      }
+    },
+    "persistedUsage" : {
+      "analysis" : {
+        "inputTokens" : 12540,
+        "outputTokens" : 1322,
+        "totalTokens" : 13862
+      },
+      "embedding" : {
+        "inputTokens" : 1112,
+        "outputTokens" : 0,
+        "totalTokens" : 1112
+      }
+    },
+    "circuitOpen" : false,
+    "automaticRetries" : 0,
+    "cacheDirectory" : ".runtime/ai-quality-cache/fresh-v1",
+    "usageNote" : "Token counts from actual provider response usage only; cached reuse and controlled faults make no paid calls. No invoice or currency estimate."
+  },
+  "fixtureAndProductionSourcesUnchanged" : true,
+  "status" : "MEASUREMENT_COMPLETED",
+  "finishedAt" : "2026-10-14T03:26:21.630157300+09:00",
+  "sentenceMetrics" : {
+    "count" : 15,
+    "allFieldsCorrect" : 14,
+    "unverified" : 0,
+    "accuracy" : 0.9333333333333333,
+    "fieldCorrect" : {
+      "intent" : 15,
+      "category" : 15,
+      "subcategory" : 15,
+      "building" : 15,
+      "floor" : 15,
+      "emergencyHint" : 14,
+      "symptomPresence" : 15,
+      "locationPresence" : 15,
+      "liveMode" : 15
+    }
+  },
+  "pairMetrics" : {
+    "count" : 10,
+    "tp" : 3,
+    "fp" : 0,
+    "tn" : 5,
+    "fn" : 2,
+    "unverified" : 0,
+    "precision" : 1.0,
+    "recall" : 0.6,
+    "baseThreshold" : 0.82,
+    "connectivitySupportThreshold" : 0.7,
+    "windowDays" : 30
+  }
+}

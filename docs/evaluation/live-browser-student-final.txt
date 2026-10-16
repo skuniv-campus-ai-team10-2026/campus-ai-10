@@ -1,0 +1,63 @@
+Browser tab: 1, Title: "SKOPE · 함께 바꾸는 캠퍼스", URL: "http://127.0.0.1:5173/reports/1".
+1 AXWebArea SKOPE · 함께 바꾸는 캠퍼스, URL: 127.0.0.1:5173/reports/1
+	2 container root
+		3 container
+			4 link Description: SKOPE ., Value: 127.0.0.1:5173/
+			5 text 캠퍼스 워크스페이스 학생 공간 WORKSPACE
+			6 link Description: 캠퍼스 도우미, Value: 127.0.0.1:5173/
+			7 link Description: 내 신고, Value: 127.0.0.1:5173/reports
+			8 text 작은 제보, 더 나은 캠퍼스 불편을 이야기해 주세요.
+			9 text 변화의 시작을 함께할게요. 교내 공모전 · 독립 실험
+		10 container
+			11 text SKOPE  / 우리의 캠퍼스 시 시연 학생 1 학생
+			12 button 로그아웃
+		13 text DEMO WORKSPACE 시연용 시스템이며 학교 공식 민원 접수가 아닙니다. LIVE · 실제 AI
+		14 container
+			15 link Description: 신고 목록으로, Value: 127.0.0.1:5173/reports
+			16 text REPORT · SK-000001
+			17 heading 와이파이가 계속 끊김, Value: 1
+				18 text 와이파이가 계속 끊김
+			19 text 무선 인터넷 · 북악관 502호 처리 완료
+			20 heading 신고 내용, Value: 2
+				21 text 신고 내용
+			22 text 10. 12. 오후 05:34
+			23 text 북악관 502호에서 와이파이가 계속 끊겨요.
+			24 definition list
+				25 container 발생 장소
+					26 text 발생 장소
+				27 text 북악관 502호
+				28 container 건물 / 층
+					29 text 건물 / 층
+				30 container
+					31 text 북악관  /  5층
+				32 container 발생 시점 설명
+					33 text 발생 시점 설명
+				34 text 미확인
+				35 container 확인된 발생일
+					36 text 확인된 발생일
+				37 text 미확인 · 접수일은 발생일이 아닙니다
+				38 container 분류
+					39 text 분류
+				40 container
+					41 text IT  /  WIFI
+				42 container 연결 사건
+					43 text 연결 사건
+				44 text 사건 #1
+			45 heading 처리 결과, Value: 2
+				46 text 처리 결과
+			47 text 처리 완료
+			48 text [합성 LIVE 브라우저 검증] 북악관 502호 무선망 연결 점검 및 재연결 확인을 완료했습니다.
+			49 container
+				50 text ASSIGNED DEPARTMENT
+				51 heading 담당 부서, Value: 3
+					52 text 담당 부서
+				53 text 검증 규칙 배정
+				54 heading 정보전산원, Value: 2
+					55 text 정보전산원
+				56 text 02-940-7043 공식 출처 확인 자료
+				57 link Description: 출처 보기, Value: skuniv.ac.kr/campus-network
+				58 text 시연용 담당 배정이며 학교로 전송되지 않습니다.
+		59 container
+			60 text SKOPE · See the problem. Shape the campus. DB  MYSQL  · Embedding  LIVE
+
+The focused UI element is 1 AXWebArea SKOPE · 함께 바꾸는 캠퍼스, URL: 127.0.0.1:5173/reports/1

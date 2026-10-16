@@ -1,0 +1,1 @@
+{"id": 1, "floor": "5", "status": "RECEIVED", "building": "북악관", "category": "IT", "database": "skope_ai_quality", "subcategory": "WIFI", "originalText": "북악관 502호에서 와이파이가 계속 끊겨요.", "embeddingModel": "text-embedding-3-small", "vectorDimensions": 1536}

@@ -1,0 +1,65 @@
+{
+  "scope": "11 targeted deterministic fault probes using synthetic provider facts and a mocked storage boundary; not LIVE and not a representative failure rate. Product code unchanged.",
+  "suite": "HybridBoundaryAuditTest",
+  "tests": 11,
+  "failures": 11,
+  "timestamp": "2026-10-15T22:45:07.150Z",
+  "testSourceSha256": "5fd46f783af6ed9845602f62ad90c0bca2f7350b72f4ccded868114eac5f52cb",
+  "rows": [
+    {
+      "name": "modelRecognizedDangerSurvivesReportSaving()",
+      "status": "FAIL",
+      "failure": "org.opentest4j.AssertionFailedError: Trusted intake model warning should not disappear at storage boundary ==> expected: <true> but was: <false>"
+    },
+    {
+      "name": "usefulBuildingCorrectionDoesNotPrematurelyEndSymptomInterview()",
+      "status": "FAIL",
+      "failure": "org.opentest4j.AssertionFailedError: expected: <CONTINUE> but was: <MANUAL_REVIEW>"
+    },
+    {
+      "name": "vagueWifiPasswordReferenceDoesNotCountAsFailureMode()",
+      "status": "FAIL",
+      "failure": "org.opentest4j.AssertionFailedError: expected: <CONTINUE> but was: <COMPLETE>"
+    },
+    {
+      "name": "[1] symptom = \"와이파이에 접속할 수 없음\"",
+      "status": "FAIL",
+      "failure": "org.opentest4j.AssertionFailedError: expected: <COMPLETE> but was: <CONTINUE>"
+    },
+    {
+      "name": "[2] symptom = \"와이파이 접속이 안 됨\"",
+      "status": "FAIL",
+      "failure": "org.opentest4j.AssertionFailedError: expected: <COMPLETE> but was: <CONTINUE>"
+    },
+    {
+      "name": "[3] symptom = \"무선망에 접속하지 못함\"",
+      "status": "FAIL",
+      "failure": "org.opentest4j.AssertionFailedError: expected: <COMPLETE> but was: <CONTINUE>"
+    },
+    {
+      "name": "invalidFloorStringCannotMakeBuildingOnlyLocationSufficient()",
+      "status": "FAIL",
+      "failure": "org.opentest4j.AssertionFailedError: expected: <CONTINUE> but was: <COMPLETE>"
+    },
+    {
+      "name": "[1] symptom = \"멀티탭에 플러그가 고정되지 않음\"",
+      "status": "FAIL",
+      "failure": "org.opentest4j.AssertionFailedError: expected: <COMPLETE> but was: <CONTINUE>"
+    },
+    {
+      "name": "[2] symptom = \"분전함 덮개가 닫히지 않음\"",
+      "status": "FAIL",
+      "failure": "org.opentest4j.AssertionFailedError: expected: <COMPLETE> but was: <CONTINUE>"
+    },
+    {
+      "name": "[3] symptom = \"배전반 덮개가 파손됨\"",
+      "status": "FAIL",
+      "failure": "org.opentest4j.AssertionFailedError: expected: <COMPLETE> but was: <CONTINUE>"
+    },
+    {
+      "name": "groundedSubstringMustNotReverseExplicitScopeNegation()",
+      "status": "FAIL",
+      "failure": "org.opentest4j.AssertionFailedError: expected: <CONTINUE> but was: <COMPLETE>"
+    }
+  ]
+}

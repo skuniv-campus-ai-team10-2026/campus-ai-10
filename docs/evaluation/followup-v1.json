@@ -1,0 +1,569 @@
+{
+  "schemaVersion": 1,
+  "id": "followup-v1",
+  "frozenDate": "2026-10-14",
+  "labelsByCodex": true,
+  "notHumanIndependent": true,
+  "developmentSeparation": "NEW_QUALITY inputs authored before provider outputs; developer may inspect expectations to agree required behavior. Not blind human independent evaluation. Local regression examples and old fresh-v1 are DEVELOPMENT_REUSE, never mixed into new-quality accuracy.",
+  "constraints": [
+    "Never change labels after provider output.",
+    "No personal data; synthetic places and reports.",
+    "No automatic paid retries; persisted ATTEMPTED/FAILED entries are terminal.",
+    "Keep base similarity threshold .82 and conditional WIFI .70."
+  ],
+  "plannedAnalysisCalls": 16,
+  "plannedUniqueEmbeddingCalls": 3,
+  "maximumAnalysisCalls": 20,
+  "maximumEmbeddingCalls": 4,
+  "maximumUsd": 1,
+  "measurement": "Expected strings match after removing whitespace. Preserve means exact equality with the prior final/seed field. Quality failures do not prevent collection of other independently fixed cases.",
+  "groups": [
+    {
+      "id": "N01",
+      "cohort": "NEW_QUALITY",
+      "purpose": "최초 신고와 복합 답변, 시간만 정정",
+      "steps": [
+        {
+          "id": "N01a",
+          "text": "강의 듣는 중 무선 인터넷이 자꾸 중단돼요.",
+          "preferredIntent": "REPORT",
+          "expected": {
+            "equals": {
+              "/intent": "REPORT",
+              "/report/category": "IT",
+              "/report/subcategory": "WIFI"
+            },
+            "missingContains": [
+              "LOCATION"
+            ],
+            "question": true
+          }
+        },
+        {
+          "id": "N01b",
+          "text": "강의 듣는 중 무선 인터넷이 자꾸 중단돼요.",
+          "preferredIntent": "REPORT",
+          "expected": {
+            "equals": {
+              "/report/building": "해솔관",
+              "/report/floor": "4",
+              "/report/category": "IT",
+              "/report/subcategory": "WIFI"
+            },
+            "contains": {
+              "/report/locationText": [
+                "406"
+              ],
+              "/report/occurredAtText": [
+                "오늘",
+                "아침"
+              ],
+              "/report/symptom": [
+                "3분"
+              ]
+            },
+            "question": false
+          },
+          "answer": "해솔관 406호이고, 오늘 아침부터 3분마다 연결이 끊겨요.",
+          "field": "LOCATION",
+          "fromPrevious": true
+        },
+        {
+          "id": "N01c",
+          "text": "강의 듣는 중 무선 인터넷이 자꾸 중단돼요.",
+          "preferredIntent": "REPORT",
+          "expected": {
+            "preserve": [
+              "category",
+              "subcategory",
+              "building",
+              "floor",
+              "locationText",
+              "symptom"
+            ],
+            "contains": {
+              "/report/occurredAtText": [
+                "어제",
+                "저녁"
+              ]
+            },
+            "excludes": {
+              "/report/occurredAtText": [
+                "오늘"
+              ]
+            },
+            "question": false
+          },
+          "answer": "시간만 정정할게요. 오늘 아침이 아니라 어제 저녁부터예요.",
+          "field": "OCCURRED_AT",
+          "fromPrevious": true
+        }
+      ]
+    },
+    {
+      "id": "N02",
+      "cohort": "NEW_QUALITY",
+      "purpose": "건물 변경 시 기존 층·호실 제거",
+      "seed": {
+        "category": "IT",
+        "subcategory": "WIFI",
+        "locationText": "해솔관 4층 406호",
+        "building": "해솔관",
+        "floor": "4",
+        "symptom": "무선 인터넷이 3분마다 끊김",
+        "occurredAtText": "어제 저녁부터",
+        "missingFields": [],
+        "followUpQuestion": null,
+        "emergencyHint": false
+      },
+      "steps": [
+        {
+          "id": "N02a",
+          "text": "해솔관 406호에서 어제 저녁부터 무선 인터넷이 3분마다 끊겨요.",
+          "preferredIntent": "REPORT",
+          "expected": {
+            "equals": {
+              "/report/building": "다온관",
+              "/report/floor": null
+            },
+            "excludes": {
+              "/report/locationText": [
+                "해솔관",
+                "406",
+                "4층"
+              ]
+            },
+            "preserve": [
+              "category",
+              "subcategory",
+              "symptom",
+              "occurredAtText"
+            ]
+          },
+          "answer": "건물이 해솔관이 아니라 다온관이에요. 층과 호실은 잘 모르겠어요.",
+          "field": "LOCATION"
+        }
+      ]
+    },
+    {
+      "id": "N03",
+      "cohort": "NEW_QUALITY",
+      "purpose": "명시된 층과 호실의 충돌을 임의 확정하지 않음",
+      "seed": {
+        "category": "IT",
+        "subcategory": "WIFI",
+        "locationText": "해솔관 4층 406호",
+        "building": "해솔관",
+        "floor": "4",
+        "symptom": "무선 인터넷이 3분마다 끊김",
+        "occurredAtText": "어제 저녁부터",
+        "missingFields": [],
+        "followUpQuestion": null,
+        "emergencyHint": false
+      },
+      "steps": [
+        {
+          "id": "N03a",
+          "text": "해솔관 406호에서 어제 저녁부터 무선 인터넷이 3분마다 끊겨요.",
+          "preferredIntent": "REPORT",
+          "expected": {
+            "unresolvedLocation": true,
+            "preserve": [
+              "category",
+              "subcategory",
+              "symptom",
+              "occurredAtText"
+            ],
+            "question": true
+          },
+          "answer": "해솔관 2층 507호였던 것 같아요.",
+          "field": "LOCATION"
+        }
+      ]
+    },
+    {
+      "id": "N04",
+      "cohort": "NEW_QUALITY",
+      "purpose": "명시적 장소 전체 삭제 시 다른 정보 보존",
+      "seed": {
+        "category": "IT",
+        "subcategory": "WIFI",
+        "locationText": "해솔관 4층 406호",
+        "building": "해솔관",
+        "floor": "4",
+        "symptom": "무선 인터넷이 3분마다 끊김",
+        "occurredAtText": "어제 저녁부터",
+        "missingFields": [],
+        "followUpQuestion": null,
+        "emergencyHint": false
+      },
+      "steps": [
+        {
+          "id": "N04a",
+          "text": "해솔관 406호에서 어제 저녁부터 무선 인터넷이 3분마다 끊겨요.",
+          "preferredIntent": "REPORT",
+          "expected": {
+            "equals": {
+              "/report/locationText": null,
+              "/report/building": null,
+              "/report/floor": null
+            },
+            "preserve": [
+              "category",
+              "subcategory",
+              "symptom",
+              "occurredAtText"
+            ],
+            "missingContains": [
+              "LOCATION"
+            ],
+            "question": true
+          },
+          "answer": "장소를 잘못 적었어요. 건물과 층, 호실 정보는 모두 지워 주세요. 정확한 위치는 모르겠습니다.",
+          "field": "LOCATION"
+        }
+      ]
+    },
+    {
+      "id": "N05",
+      "cohort": "NEW_QUALITY",
+      "purpose": "증상만 정정하고 위치·시간 보존",
+      "seed": {
+        "category": "IT",
+        "subcategory": "WIFI",
+        "locationText": "해솔관 4층 406호",
+        "building": "해솔관",
+        "floor": "4",
+        "symptom": "무선 인터넷이 3분마다 끊김",
+        "occurredAtText": "어제 저녁부터",
+        "missingFields": [],
+        "followUpQuestion": null,
+        "emergencyHint": false
+      },
+      "steps": [
+        {
+          "id": "N05a",
+          "text": "해솔관 406호에서 어제 저녁부터 무선 인터넷이 3분마다 끊겨요.",
+          "preferredIntent": "REPORT",
+          "expected": {
+            "preserve": [
+              "category",
+              "subcategory",
+              "building",
+              "floor",
+              "locationText",
+              "occurredAtText"
+            ],
+            "contains": {
+              "/report/symptom": [
+                "느"
+              ]
+            },
+            "question": false
+          },
+          "answer": "증상만 정정할게요. 연결이 끊기는 건 아니고 인터넷 속도가 매우 느려요.",
+          "field": "SYMPTOM"
+        }
+      ]
+    },
+    {
+      "id": "N06",
+      "cohort": "NEW_QUALITY",
+      "purpose": "대상·증상 명시 정정 시 유형 일관성",
+      "seed": {
+        "category": "IT",
+        "subcategory": "WIFI",
+        "locationText": "해솔관 4층 406호",
+        "building": "해솔관",
+        "floor": "4",
+        "symptom": "무선 인터넷이 3분마다 끊김",
+        "occurredAtText": "어제 저녁부터",
+        "missingFields": [],
+        "followUpQuestion": null,
+        "emergencyHint": false
+      },
+      "steps": [
+        {
+          "id": "N06a",
+          "text": "해솔관 406호에서 어제 저녁부터 무선 인터넷이 3분마다 끊겨요.",
+          "preferredIntent": "REPORT",
+          "expected": {
+            "equals": {
+              "/report/category": "FACILITY",
+              "/report/subcategory": "ELECTRIC"
+            },
+            "preserve": [
+              "building",
+              "floor",
+              "locationText",
+              "occurredAtText"
+            ],
+            "contains": {
+              "/report/symptom": [
+                "전등"
+              ]
+            },
+            "question": false
+          },
+          "answer": "와이파이 문제가 아니라 전등이 켜지지 않는 문제로 정정합니다. 장소와 시작 시점은 그대로예요.",
+          "field": "CATEGORY"
+        }
+      ]
+    },
+    {
+      "id": "N07",
+      "cohort": "NEW_QUALITY",
+      "purpose": "모호한 답변, 질문 유지, 반복·횟수 제한",
+      "steps": [
+        {
+          "id": "N07a",
+          "text": "강의 중에 와이파이 접속이 계속 끊겨서 신고하려고 해요.",
+          "preferredIntent": "REPORT",
+          "expected": {
+            "equals": {
+              "/intent": "REPORT",
+              "/report/subcategory": "WIFI"
+            },
+            "missingContains": [
+              "LOCATION"
+            ],
+            "question": true
+          }
+        },
+        {
+          "id": "N07b",
+          "text": "강의 중에 와이파이 접속이 계속 끊겨서 신고하려고 해요.",
+          "preferredIntent": "REPORT",
+          "expected": {
+            "equals": {
+              "/report/building": null,
+              "/report/locationText": null
+            },
+            "missingContains": [
+              "LOCATION"
+            ],
+            "question": true,
+            "preserve": [
+              "category",
+              "subcategory",
+              "symptom"
+            ]
+          },
+          "answer": "거기요.",
+          "field": "LOCATION",
+          "fromPrevious": true
+        },
+        {
+          "id": "N07c",
+          "text": "강의 중에 와이파이 접속이 계속 끊겨서 신고하려고 해요.",
+          "preferredIntent": "REPORT",
+          "expected": {
+            "equals": {
+              "/report/building": null,
+              "/report/locationText": null
+            },
+            "missingContains": [
+              "LOCATION"
+            ],
+            "question": false,
+            "preserve": [
+              "category",
+              "subcategory",
+              "symptom"
+            ]
+          },
+          "answer": "건물 이름은 잘 모르겠어요.",
+          "field": "LOCATION",
+          "fromPrevious": true
+        }
+      ]
+    },
+    {
+      "id": "N08",
+      "cohort": "NEW_QUALITY",
+      "purpose": "명확한 일반 문의",
+      "steps": [
+        {
+          "id": "N08a",
+          "text": "교내 무선망 접속 설정은 어느 부서에 물어보면 되나요?",
+          "preferredIntent": "AUTO",
+          "expected": {
+            "equals": {
+              "/intent": "QUESTION",
+              "/report/category": "IT",
+              "/report/subcategory": "WIFI"
+            },
+            "question": false
+          }
+        }
+      ]
+    },
+    {
+      "id": "N09",
+      "cohort": "NEW_QUALITY",
+      "purpose": "실제 위험 긍정",
+      "steps": [
+        {
+          "id": "N09a",
+          "text": "도담관 312호 콘센트에서 스파크가 계속 튀고 있습니다.",
+          "preferredIntent": "REPORT",
+          "expected": {
+            "equals": {
+              "/report/emergencyHint": true,
+              "/report/subcategory": "ELECTRIC",
+              "/report/building": "도담관",
+              "/report/floor": "3"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "id": "N10",
+      "cohort": "NEW_QUALITY",
+      "purpose": "위험 징후 일괄 부정",
+      "steps": [
+        {
+          "id": "N10a",
+          "text": "도담관 312호 조명이 켜지지 않지만 불꽃이나 연기, 타는 냄새는 전혀 없습니다.",
+          "preferredIntent": "REPORT",
+          "expected": {
+            "equals": {
+              "/report/emergencyHint": false,
+              "/report/subcategory": "ELECTRIC",
+              "/report/building": "도담관",
+              "/report/floor": "3"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "id": "N11",
+      "cohort": "NEW_QUALITY",
+      "purpose": "일부 위험 부정에도 남아 있는 위험 유지",
+      "steps": [
+        {
+          "id": "N11a",
+          "text": "도담관 312호 콘센트에서 불꽃은 없지만 타는 냄새가 계속 나요.",
+          "preferredIntent": "REPORT",
+          "expected": {
+            "equals": {
+              "/report/emergencyHint": true,
+              "/report/subcategory": "ELECTRIC",
+              "/report/building": "도담관",
+              "/report/floor": "3"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "id": "N12",
+      "cohort": "NEW_QUALITY",
+      "purpose": "유효 정보를 보완해도 총 답변 3회 상한에서 종료",
+      "seed": {
+        "category": "OTHER",
+        "subcategory": "UNKNOWN",
+        "locationText": null,
+        "building": null,
+        "floor": null,
+        "symptom": null,
+        "occurredAtText": null,
+        "missingFields": [
+          "LOCATION",
+          "SYMPTOM"
+        ],
+        "followUpQuestion": "어느 건물인가요?",
+        "emergencyHint": false
+      },
+      "seedState": {
+        "turns": 2,
+        "noProgress": 0,
+        "askedFields": [
+          "LOCATION",
+          "SYMPTOM"
+        ],
+        "status": "CONTINUE",
+        "nextField": "LOCATION"
+      },
+      "steps": [
+        {
+          "id": "N12a",
+          "text": "신고할 문제가 있는데 설명하기가 어렵네요.",
+          "preferredIntent": "REPORT",
+          "answer": "위치는 다온관 207호입니다.",
+          "field": "LOCATION",
+          "expected": {
+            "equals": {
+              "/report/building": "다온관",
+              "/report/floor": "2"
+            },
+            "missingContains": [
+              "SYMPTOM"
+            ],
+            "question": false,
+            "maxTurns": 3
+          }
+        }
+      ]
+    }
+  ],
+  "pairs": [
+    {
+      "id": "NP01",
+      "left": {
+        "text": "해솔관 4층 406호 무선 인터넷이 몇 분마다 끊겨 다시 연결해야 해요.",
+        "category": "IT",
+        "subcategory": "WIFI",
+        "building": "해솔관",
+        "floor": "4",
+        "locationText": "해솔관 4층 406호",
+        "symptom": "무선 인터넷 연결이 반복해서 끊김",
+        "dayOffset": 0
+      },
+      "right": {
+        "text": "해솔관 406호에서 무선망이 자꾸 끊겨 재접속하는 일이 반복됩니다.",
+        "category": "IT",
+        "subcategory": "WIFI",
+        "building": "해솔관",
+        "floor": "4",
+        "locationText": "해솔관 4층 406호",
+        "symptom": "무선망 연결 단절과 재접속 반복",
+        "dayOffset": 0
+      },
+      "expectedCandidate": true,
+      "reason": "같은 강의실 반복 무선 연결 단절"
+    },
+    {
+      "id": "NP02",
+      "left": {
+        "text": "해솔관 4층 406호 무선 인터넷이 몇 분마다 끊겨 다시 연결해야 해요.",
+        "category": "IT",
+        "subcategory": "WIFI",
+        "building": "해솔관",
+        "floor": "4",
+        "locationText": "해솔관 4층 406호",
+        "symptom": "무선 인터넷 연결이 반복해서 끊김",
+        "dayOffset": 0
+      },
+      "right": {
+        "text": "해솔관 406호 와이파이는 잘 되는데 접속 비밀번호 안내 스티커가 떨어져 있습니다.",
+        "category": "IT",
+        "subcategory": "WIFI",
+        "building": "해솔관",
+        "floor": "4",
+        "locationText": "해솔관 4층 406호",
+        "symptom": "와이파이 비밀번호 안내 스티커 탈락",
+        "dayOffset": 0
+      },
+      "expectedCandidate": false,
+      "reason": "연결 장애와 별개의 안내 스티커 문제, 연결 정상 명시"
+    }
+  ],
+  "developmentReuse": {
+    "source": "fresh-v1-results.json",
+    "fixture": "fresh-v1.json",
+    "scope": "Reuse original measured raw cosine and exclusions for ten pairs; no new embeddings and no threshold tuning. Emergency S13 is covered by deterministic local regression, excluded from new LIVE quality count."
+  }
+}

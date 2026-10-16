@@ -1,0 +1,126 @@
+{
+  "source": "holdout-v1-live-results.json",
+  "sourceSha256": "5c493c4475671e889fed4fd9be7d2bab610c68c1306ce4036600cf3a1d4d1ce5",
+  "fixtureSha256": "7ea381d2fedb7a2ab0f21237457acc5ad51dd049a6ba4086aa13566e9f3a923a",
+  "evaluatedAt": "2026-10-11T23:03:51.869693300+09:00",
+  "labelProvenance": "Implementation agent authored synthetic labels before running this holdout; author previously implemented the system and saw the earlier regression set. Not human-reviewed or independent generalization evidence.",
+  "liveSentenceCounts": {
+    "planned": 30,
+    "processed": 30,
+    "errors": 0,
+    "allFieldsCorrect": 26,
+    "requiredSymptomPresence": {
+      "requiredCount": 18,
+      "correctCount": 18,
+      "errorCount": 0,
+      "notRequiredCount": 12
+    },
+    "requiredLocationPresence": {
+      "requiredCount": 16,
+      "correctCount": 16,
+      "errorCount": 0,
+      "notRequiredCount": 14
+    },
+    "emergencyPositiveCount": 2,
+    "emergencyTruePositive": 2,
+    "emergencyFalseNegative": 0,
+    "emergencyFalsePositive": 0
+  },
+  "demoSentenceCounts": {
+    "allFieldsCorrect": 9,
+    "requiredSymptomPresence": {
+      "requiredCount": 18,
+      "correctCount": 9,
+      "errorCount": 0,
+      "notRequiredCount": 12
+    },
+    "requiredLocationPresence": {
+      "requiredCount": 16,
+      "correctCount": 16,
+      "errorCount": 0,
+      "notRequiredCount": 14
+    },
+    "emergencyPositiveCount": 2,
+    "emergencyTruePositive": 1
+  },
+  "livePairCounts": {
+    "planned": 20,
+    "processed": 20,
+    "runtimeErrorCount": 0,
+    "unverifiedFallbackCount": 0,
+    "reportedRuleOnlyCandidateCount": 0,
+    "pairsWithTwoStoredVectors": 20,
+    "storedVectors": 40,
+    "truePositive": 2,
+    "falsePositive": 0,
+    "trueNegative": 11,
+    "falseNegative": 7,
+    "precisionNumerator": 2,
+    "precisionDenominator": 2,
+    "recallNumerator": 2,
+    "recallDenominator": 9,
+    "truePositiveIds": [
+      "P07",
+      "P09"
+    ],
+    "falseNegativeIds": [
+      "P01",
+      "P02",
+      "P03",
+      "P04",
+      "P05",
+      "P06",
+      "P08"
+    ],
+    "candidateModes": [
+      {
+        "id": "P07",
+        "candidateMode": "LIVE",
+        "score": 0.8576
+      },
+      {
+        "id": "P09",
+        "candidateMode": "LIVE",
+        "score": 0.863
+      }
+    ]
+  },
+  "failedSentenceIds": [
+    "S20",
+    "S23",
+    "S27",
+    "S29"
+  ],
+  "sentenceTiming": {
+    "count": 30,
+    "minimumMs": 1541,
+    "medianMs": 2406.5,
+    "p95NearestRankMs": 4415,
+    "maximumMs": 4416,
+    "interpretation": "Whole case elapsed time; pairs include isolated H2 setup and two embeddings, not single-provider-request latency"
+  },
+  "pairTiming": {
+    "count": 20,
+    "minimumMs": 416,
+    "medianMs": 490.5,
+    "p95NearestRankMs": 1282,
+    "maximumMs": 5591,
+    "interpretation": "Whole case elapsed time; pairs include isolated H2 setup and two embeddings, not single-provider-request latency"
+  },
+  "providerUsage": {
+    "/chat/completions": {
+      "responsesWithUsage": 30,
+      "inputTokens": 17718,
+      "outputTokens": 2574,
+      "totalTokens": 20292
+    },
+    "/embeddings": {
+      "responsesWithUsage": 40,
+      "inputTokens": 3145,
+      "outputTokens": 0,
+      "totalTokens": 3145
+    }
+  },
+  "costInterpretation": "Provider response usage telemetry only; actual invoice and monetary cost not verified here",
+  "incidentScope": "6/6 isolated H2 service invariant scenarios; no AI interpretation or MySQL quality measurement"
+}

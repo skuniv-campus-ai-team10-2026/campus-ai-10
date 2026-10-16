@@ -1,0 +1,26 @@
+{
+  "at": "2026-10-11T14:26:04.0560899+09:00",
+  "kind": "Authenticated model metadata only; no inference calls",
+  "results": [
+    {
+      "model": "gpt-6-luna",
+      "httpStatus": 403,
+      "modelConfirmed": false,
+      "errorCode": null
+    },
+    {
+      "model": "text-embedding-3-small",
+      "httpStatus": 403,
+      "modelConfirmed": false,
+      "errorCode": null
+    }
+  ],
+  "diagnostic": {
+    "endpoint": "/models/gpt-6-luna",
+    "httpStatus": 403,
+    "missingScope": "api.model.read",
+    "source": "Redacted JSON error inspected in a follow-up GET",
+    "inferenceRequestsExecuted": 0,
+    "additionalInferenceCheck": "NOT_EXECUTED_AUTO_APPROVAL_REVIEW_USAGE_LIMIT"
+  }
+}

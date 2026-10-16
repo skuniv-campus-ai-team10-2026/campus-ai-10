@@ -1,0 +1,8 @@
+{
+  "at": "2026-10-13T16:01:32.8046543+09:00",
+  "frontendStopped": true,
+  "backendStopped": true,
+  "mysqlShutdown": "PASS: workspace data directory checked by Stop-MySQL.ps1",
+  "dataDeleted": false,
+  "additionalAiCalls": 0
+}

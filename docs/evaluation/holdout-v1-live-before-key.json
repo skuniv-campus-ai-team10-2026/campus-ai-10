@@ -1,0 +1,121 @@
+{
+  "fixtureId" : "holdout-v1",
+  "fixtureSha256" : "7ea381d2fedb7a2ab0f21237457acc5ad51dd049a6ba4086aa13566e9f3a923a",
+  "evaluatedAt" : "2026-10-11T14:09:34.411720300+09:00",
+  "requestedMode" : "LIVE",
+  "labelProvenance" : "Implementation agent authored synthetic labels before running this holdout; author previously implemented the system and saw the earlier regression set. Not human-reviewed or independent generalization evidence.",
+  "database" : "isolated H2 in-memory fixtures; no MySQL or school DB touched",
+  "status" : "AI_SKIPPED_MISSING_CONFIGURATION",
+  "sentences" : {
+    "status" : "SKIPPED",
+    "reason" : "AI key or model configuration missing",
+    "externalCalls" : 0
+  },
+  "pairs" : {
+    "status" : "SKIPPED",
+    "reason" : "AI key or model configuration missing",
+    "externalCalls" : 0
+  },
+  "incidents" : {
+    "status" : "MEASURED_H2_SERVICE_INVARIANTS",
+    "count" : 6,
+    "passCount" : 6,
+    "rows" : [ {
+      "id" : "I01",
+      "reason" : "관리자가 같은 사건으로 확인한 3건은 사건1건이며 모든 신고 완료 후에만 종료",
+      "expected" : {
+        "reportCount" : 3,
+        "incidentCount" : 1,
+        "statusAfterTwoResolved" : "OPEN",
+        "statusAfterAllResolved" : "RESOLVED"
+      },
+      "actual" : {
+        "reportCount" : 3,
+        "incidentCount" : 1,
+        "statusAfterTwoResolved" : "OPEN",
+        "statusAfterAllResolved" : "RESOLVED"
+      },
+      "status" : "PASS",
+      "failedChecks" : [ ]
+    }, {
+      "id" : "I02",
+      "reason" : "각자 열린 사건에 이미 연결된 신고를 자동으로 병합하면 안 됨",
+      "expected" : {
+        "errorCode" : "INCIDENT_CONFLICT",
+        "incidentCount" : 2
+      },
+      "actual" : {
+        "errorCode" : "INCIDENT_CONFLICT",
+        "incidentCount" : 2
+      },
+      "status" : "PASS",
+      "failedChecks" : [ ]
+    }, {
+      "id" : "I03",
+      "reason" : "3일 전 종료 후 어제 새로 발생한 같은 장소 장애는 새 사건으로 유지하며 재발 확인",
+      "expected" : {
+        "recurrenceDecision" : "CONFIRMED",
+        "timeBasis" : "CONFIRMED_OCCURRENCE",
+        "separateIncident" : true
+      },
+      "actual" : {
+        "recurrenceDecision" : "CONFIRMED",
+        "timeBasis" : "CONFIRMED_OCCURRENCE",
+        "separateIncident" : true,
+        "occurredOn" : "2026-10-10"
+      },
+      "status" : "PASS",
+      "failedChecks" : [ ]
+    }, {
+      "id" : "I04",
+      "reason" : "발생일을 모르는 신규 접수는 검토 후에도 발생일 확정으로 바뀌면 안 됨",
+      "expected" : {
+        "recurrenceDecision" : "CONFIRMED",
+        "timeBasis" : "REPORTED_AT_ONLY",
+        "occurredOn" : null
+      },
+      "actual" : {
+        "recurrenceDecision" : "CONFIRMED",
+        "timeBasis" : "REPORTED_AT_ONLY",
+        "separateIncident" : true,
+        "occurredOn" : null
+      },
+      "status" : "PASS",
+      "failedChecks" : [ ]
+    }, {
+      "id" : "I05",
+      "reason" : "DATE 정밀도로 이전 사건 종료 당일의 선후를 입증하지 못한다는 문서화된 현재 정책",
+      "expected" : {
+        "errorCode" : "INVALID_RECURRENCE_REFERENCE",
+        "recurrenceDecision" : "NOT_EVALUATED"
+      },
+      "actual" : {
+        "errorCode" : "INVALID_RECURRENCE_REFERENCE",
+        "recurrenceDecision" : "NOT_EVALUATED"
+      },
+      "status" : "PASS",
+      "failedChecks" : [ ]
+    }, {
+      "id" : "I06",
+      "reason" : "기존 별도 사건 결정을 수동 연결 경로로 우회하면 안 됨",
+      "expected" : {
+        "errorCode" : "INCIDENT_CONFLICT",
+        "unlinkedReport" : true,
+        "pairDecision" : "RELATED_DISTINCT"
+      },
+      "actual" : {
+        "errorCode" : "INCIDENT_CONFLICT",
+        "unlinkedReport" : true,
+        "pairDecision" : "RELATED_DISTINCT"
+      },
+      "status" : "PASS",
+      "failedChecks" : [ ]
+    } ]
+  },
+  "providerMeasurement" : {
+    "status" : "SKIPPED",
+    "calls" : 0
+  },
+  "billing" : "Provider token counts are usage telemetry. Monetary billing is not verified; no prices are hardcoded.",
+  "qualityGate" : "This JUnit test verifies fixture integrity and produces metrics. BUILD SUCCESSFUL does not mean every expected field or candidate was correct."
+}

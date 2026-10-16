@@ -1,0 +1,15 @@
+{
+  "dateKst": "2026-10-13",
+  "status": "PASS",
+  "documentsChecked": 9,
+  "localLinksCheckedBeforeCleanupLinkAdded": 79,
+  "missingLocalLinks": [],
+  "holdoutFixtureUnchanged": true,
+  "originalLiveResultsUnchanged": true,
+  "browserEvidenceJsonValid": true,
+  "publicFilesScannedForExactLocalSecretValues": 115,
+  "filesContainingExactSecretValues": [],
+  "qualityDocumentCrossCheck": "Three quality reports checked against LIVE, replay and regression JSON; no material discrepancy found",
+  "screenshotVisualCheck": "Student resolution text and MYSQL / Embedding LIVE footer visible in live-student-result-detail.png",
+  "additionalAiCalls": 0
+}

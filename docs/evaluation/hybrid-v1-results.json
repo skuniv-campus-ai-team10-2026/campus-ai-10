@@ -1,0 +1,877 @@
+{
+  "fixtureSha256" : "f24afd17e6cf2b784ae6cb6bc2cff7d42fb5138220df9b1f6120f7b2d7718c60",
+  "evaluatedAt" : "2026-10-16T07:14:13.575282300+09:00",
+  "promptVersion" : "hybrid-intake-v1",
+  "policyVersion" : "hybrid-check-v1",
+  "model" : "gpt-6-luna",
+  "labelLimitation" : "Codex-authored synthetic DEVELOPMENT regressions, fixed before LIVE. Not independently human-reviewed and not an independent accuracy estimate.",
+  "scope" : "Production AiService only; no DEMO, embeddings, browser or DB writes. Local API integration tested separately.",
+  "preflight" : {
+    "pricingSource" : "https://developers.openai.com/api/docs/models/gpt-6-luna",
+    "conservativeMaximumUsd" : 0.090432,
+    "maxCalls" : 9,
+    "plannedCalls" : 9,
+    "pricingDate" : "2026-10-16",
+    "budgetUsd" : 0.1,
+    "automaticRetries" : 0
+  },
+  "rows" : [ {
+    "id" : "H1-1",
+    "expected" : {
+      "expectedStatus" : "CONTINUE",
+      "allowedReasons" : [ "LOCATION_DETAIL", "SYMPTOM_DETAIL" ]
+    },
+    "input" : {
+      "text" : "은주2관에서 와이파이가 안되는 거 같습니다.",
+      "hybrid" : true,
+      "preferredIntent" : "AUTO"
+    },
+    "rawModelOutput" : {
+      "intent" : "REPORT",
+      "report" : {
+        "category" : "IT",
+        "subcategory" : "WIFI",
+        "locationText" : "은주2관",
+        "building" : "은주2관",
+        "floor" : null,
+        "symptom" : "와이파이가 안 되는 것 같습니다",
+        "occurredAtText" : null,
+        "followUpQuestion" : "은주2관의 어느 공간에서 와이파이가 안 되나요?",
+        "missingFields" : [ "LOCATION" ],
+        "emergencyHint" : false
+      },
+      "assessment" : {
+        "reason" : "LOCATION_DETAIL",
+        "evidence" : "은주2관에서",
+        "rationale" : "건물은 확인되지만 영향을 받는 공간이 특정되지 않았습니다.",
+        "question" : "은주2관의 어느 공간에서 와이파이가 안 되나요?",
+        "known" : {
+          "locationEvidence" : null,
+          "scopeEvidence" : null,
+          "symptomEvidence" : null,
+          "targetEvidence" : null,
+          "workflowEvidence" : null
+        }
+      }
+    },
+    "actual" : {
+      "intent" : "REPORT",
+      "report" : {
+        "category" : "IT",
+        "subcategory" : "WIFI",
+        "locationText" : "은주2관",
+        "building" : "은주2관",
+        "floor" : null,
+        "symptom" : "와이파이가 안 되는 것 같습니다",
+        "occurredAtText" : null,
+        "followUpQuestion" : "어느 층이나 공간에서 발생하나요? 건물 전체에서 생기는 문제라면 그렇게 알려주세요.",
+        "missingFields" : [ ],
+        "emergencyHint" : false
+      },
+      "clarification" : {
+        "reason" : "LOCATION_DETAIL",
+        "neededReasons" : [ "LOCATION_DETAIL", "SYMPTOM_DETAIL" ],
+        "message" : "담당자가 확인할 장소를 정하기 위해 필요해요.",
+        "source" : "AI_AND_RULES"
+      },
+      "followUpState" : {
+        "turns" : 0,
+        "noProgress" : 0,
+        "askedFields" : [ ],
+        "reviewFields" : [ ],
+        "status" : "CONTINUE",
+        "nextField" : "LOCATION",
+        "nextReason" : "LOCATION_DETAIL",
+        "askedReasons" : [ ],
+        "unavailableReasons" : [ ],
+        "knownEvidence" : { },
+        "neededReasons" : [ "LOCATION_DETAIL", "SYMPTOM_DETAIL" ],
+        "urgentReview" : false
+      },
+      "aiMode" : "LIVE"
+    },
+    "failedChecks" : [ ],
+    "status" : "PASS",
+    "source" : "NEW_LIVE",
+    "cacheKey" : "f8d372bd0fc2fd56313e058b05f7cb28499623febe884a06171ddce3bca4720a"
+  }, {
+    "id" : "H1-2",
+    "expected" : {
+      "answer" : "은주2관 403호에서 어제부터 연결은 되는데 인터넷이 안 돼요.",
+      "expectedStatus" : "COMPLETE",
+      "equals" : {
+        "/report/building" : "은주2관",
+        "/report/floor" : "4"
+      },
+      "contains" : {
+        "/report/occurredAtText" : "어제"
+      }
+    },
+    "input" : {
+      "text" : "은주2관에서 와이파이가 안되는 거 같습니다.",
+      "hybrid" : true,
+      "preferredIntent" : "AUTO",
+      "followUp" : {
+        "answer" : "은주2관 403호에서 어제부터 연결은 되는데 인터넷이 안 돼요.",
+        "previousReport" : {
+          "category" : "IT",
+          "subcategory" : "WIFI",
+          "locationText" : "은주2관",
+          "building" : "은주2관",
+          "floor" : null,
+          "symptom" : "와이파이가 안 되는 것 같습니다",
+          "occurredAtText" : null,
+          "followUpQuestion" : "어느 층이나 공간에서 발생하나요? 건물 전체에서 생기는 문제라면 그렇게 알려주세요.",
+          "missingFields" : [ ],
+          "emergencyHint" : false
+        },
+        "field" : "LOCATION",
+        "state" : {
+          "turns" : 0,
+          "noProgress" : 0,
+          "askedFields" : [ ],
+          "reviewFields" : [ ],
+          "status" : "CONTINUE",
+          "nextField" : "LOCATION",
+          "nextReason" : "LOCATION_DETAIL",
+          "askedReasons" : [ ],
+          "unavailableReasons" : [ ],
+          "knownEvidence" : { },
+          "neededReasons" : [ "LOCATION_DETAIL", "SYMPTOM_DETAIL" ],
+          "urgentReview" : false
+        }
+      }
+    },
+    "rawModelOutput" : {
+      "intent" : "REPORT",
+      "report" : {
+        "category" : "IT",
+        "subcategory" : "WIFI",
+        "locationText" : "은주2관 403호",
+        "building" : "은주2관",
+        "floor" : "4",
+        "symptom" : "와이파이에 연결은 되지만 인터넷이 안 됨",
+        "occurredAtText" : "어제부터",
+        "followUpQuestion" : null,
+        "missingFields" : [ ],
+        "emergencyHint" : false
+      },
+      "assessment" : {
+        "reason" : "NONE",
+        "evidence" : null,
+        "rationale" : null,
+        "question" : null,
+        "known" : {
+          "locationEvidence" : "은주2관 403호",
+          "scopeEvidence" : null,
+          "symptomEvidence" : "연결은 되는데 인터넷이 안 돼요",
+          "targetEvidence" : null,
+          "workflowEvidence" : null
+        }
+      },
+      "updates" : {
+        "LOCATION" : {
+          "action" : "SET",
+          "evidence" : "은주2관 403호"
+        },
+        "SYMPTOM" : {
+          "action" : "SET",
+          "evidence" : "연결은 되는데 인터넷이 안 돼요"
+        },
+        "OCCURRED_AT" : {
+          "action" : "SET",
+          "evidence" : "어제부터"
+        },
+        "CATEGORY" : {
+          "action" : "KEEP",
+          "evidence" : null
+        }
+      }
+    },
+    "actual" : {
+      "intent" : "REPORT",
+      "report" : {
+        "category" : "IT",
+        "subcategory" : "WIFI",
+        "locationText" : "은주2관 403호",
+        "building" : "은주2관",
+        "floor" : "4",
+        "symptom" : "와이파이에 연결은 되지만 인터넷이 안 됨",
+        "occurredAtText" : "어제부터",
+        "followUpQuestion" : null,
+        "missingFields" : [ ],
+        "emergencyHint" : false
+      },
+      "clarification" : {
+        "reason" : null,
+        "neededReasons" : [ ],
+        "message" : null,
+        "source" : "SERVER_RULES"
+      },
+      "followUpState" : {
+        "turns" : 1,
+        "noProgress" : 0,
+        "askedFields" : [ "LOCATION" ],
+        "reviewFields" : [ ],
+        "status" : "COMPLETE",
+        "nextField" : null,
+        "nextReason" : null,
+        "askedReasons" : [ "LOCATION_DETAIL" ],
+        "unavailableReasons" : [ ],
+        "knownEvidence" : {
+          "locationEvidence" : "은주2관 403호",
+          "symptomEvidence" : "연결은 되는데 인터넷이 안 돼요"
+        },
+        "neededReasons" : [ ],
+        "urgentReview" : false
+      },
+      "aiMode" : "LIVE"
+    },
+    "failedChecks" : [ ],
+    "status" : "PASS",
+    "source" : "NEW_LIVE",
+    "cacheKey" : "c4c47e2b7cdc2b27cea61b2880cebe7e8ae495a0d99789b7f3fb311546aa45d1"
+  }, {
+    "id" : "H2-1",
+    "expected" : {
+      "expectedStatus" : "COMPLETE",
+      "equals" : {
+        "/report/subcategory" : "LEAK"
+      }
+    },
+    "input" : {
+      "text" : "은주2관 403호 천장에서 물이 떨어져요.",
+      "hybrid" : true,
+      "preferredIntent" : "AUTO"
+    },
+    "rawModelOutput" : {
+      "intent" : "REPORT",
+      "report" : {
+        "category" : "FACILITY",
+        "subcategory" : "LEAK",
+        "locationText" : "은주2관 403호",
+        "building" : "은주2관",
+        "floor" : "4",
+        "symptom" : "천장에서 물이 떨어짐",
+        "occurredAtText" : null,
+        "followUpQuestion" : null,
+        "missingFields" : [ ],
+        "emergencyHint" : false
+      },
+      "assessment" : {
+        "reason" : "NONE",
+        "evidence" : null,
+        "rationale" : null,
+        "question" : null,
+        "known" : {
+          "locationEvidence" : "은주2관 403호",
+          "scopeEvidence" : null,
+          "symptomEvidence" : "천장에서 물이 떨어져요",
+          "targetEvidence" : "천장",
+          "workflowEvidence" : null
+        }
+      }
+    },
+    "actual" : {
+      "intent" : "REPORT",
+      "report" : {
+        "category" : "FACILITY",
+        "subcategory" : "LEAK",
+        "locationText" : "은주2관 403호",
+        "building" : "은주2관",
+        "floor" : "4",
+        "symptom" : "천장에서 물이 떨어짐",
+        "occurredAtText" : null,
+        "followUpQuestion" : null,
+        "missingFields" : [ ],
+        "emergencyHint" : false
+      },
+      "clarification" : {
+        "reason" : null,
+        "neededReasons" : [ ],
+        "message" : null,
+        "source" : "SERVER_RULES"
+      },
+      "followUpState" : {
+        "turns" : 0,
+        "noProgress" : 0,
+        "askedFields" : [ ],
+        "reviewFields" : [ ],
+        "status" : "COMPLETE",
+        "nextField" : null,
+        "nextReason" : null,
+        "askedReasons" : [ ],
+        "unavailableReasons" : [ ],
+        "knownEvidence" : {
+          "locationEvidence" : "은주2관 403호",
+          "symptomEvidence" : "천장에서 물이 떨어져요",
+          "targetEvidence" : "천장"
+        },
+        "neededReasons" : [ ],
+        "urgentReview" : false
+      },
+      "aiMode" : "LIVE"
+    },
+    "failedChecks" : [ ],
+    "status" : "PASS",
+    "source" : "NEW_LIVE",
+    "cacheKey" : "fe016a0422759d93b1f5de20ed708e5a18b41d0af014d00a2dd3d75b7641d8c7"
+  }, {
+    "id" : "H3-1",
+    "expected" : {
+      "expectedStatus" : "CONTINUE",
+      "allowedReasons" : [ "ISSUE_UNCLEAR" ]
+    },
+    "input" : {
+      "text" : "강의실이 너무 불편해요.",
+      "hybrid" : true,
+      "preferredIntent" : "AUTO"
+    },
+    "rawModelOutput" : {
+      "intent" : "UNKNOWN",
+      "report" : {
+        "category" : "OTHER",
+        "subcategory" : "UNKNOWN",
+        "locationText" : null,
+        "building" : null,
+        "floor" : null,
+        "symptom" : null,
+        "occurredAtText" : null,
+        "followUpQuestion" : "강의실에서 어떤 점이 불편하신가요?",
+        "missingFields" : [ "SYMPTOM" ],
+        "emergencyHint" : false
+      },
+      "assessment" : {
+        "reason" : "ISSUE_UNCLEAR",
+        "evidence" : "강의실이 너무 불편해요.",
+        "rationale" : "불편한 구체적인 문제가 무엇인지 확인해야 조치할 수 있습니다.",
+        "question" : "강의실에서 어떤 점이 불편하신가요?",
+        "known" : {
+          "locationEvidence" : null,
+          "scopeEvidence" : null,
+          "symptomEvidence" : null,
+          "targetEvidence" : null,
+          "workflowEvidence" : null
+        }
+      }
+    },
+    "actual" : {
+      "intent" : "UNKNOWN",
+      "report" : {
+        "category" : "OTHER",
+        "subcategory" : "UNKNOWN",
+        "locationText" : null,
+        "building" : null,
+        "floor" : null,
+        "symptom" : null,
+        "occurredAtText" : null,
+        "followUpQuestion" : "어떤 점이 불편한가요? 냉난방, 책상·의자, 소음처럼 실제 문제를 알려주세요.",
+        "missingFields" : [ "SYMPTOM", "LOCATION" ],
+        "emergencyHint" : false
+      },
+      "clarification" : {
+        "reason" : "ISSUE_UNCLEAR",
+        "neededReasons" : [ "ISSUE_UNCLEAR", "CONFLICT", "LOCATION_REQUIRED" ],
+        "message" : "담당자가 어떤 문제를 처리해야 하는지 알아야 해요.",
+        "source" : "AI_AND_RULES"
+      },
+      "followUpState" : {
+        "turns" : 0,
+        "noProgress" : 0,
+        "askedFields" : [ ],
+        "reviewFields" : [ "SYMPTOM" ],
+        "status" : "CONTINUE",
+        "nextField" : "SYMPTOM",
+        "nextReason" : "ISSUE_UNCLEAR",
+        "askedReasons" : [ ],
+        "unavailableReasons" : [ ],
+        "knownEvidence" : { },
+        "neededReasons" : [ "ISSUE_UNCLEAR", "CONFLICT", "LOCATION_REQUIRED" ],
+        "urgentReview" : false
+      },
+      "aiMode" : "LIVE"
+    },
+    "failedChecks" : [ ],
+    "status" : "PASS",
+    "source" : "NEW_LIVE",
+    "cacheKey" : "d749d90a171fd7a86bc1b8d3e61bb9a830d49e91602d9e77944418c3c9bcb8c7"
+  }, {
+    "id" : "H3-2",
+    "expected" : {
+      "answer" : "지금은 더 설명하기 어렵고 잘 모르겠어요.",
+      "expectedStatus" : "MANUAL_REVIEW"
+    },
+    "input" : {
+      "text" : "강의실이 너무 불편해요.",
+      "hybrid" : true,
+      "preferredIntent" : "AUTO",
+      "followUp" : {
+        "answer" : "지금은 더 설명하기 어렵고 잘 모르겠어요.",
+        "previousReport" : {
+          "category" : "OTHER",
+          "subcategory" : "UNKNOWN",
+          "locationText" : null,
+          "building" : null,
+          "floor" : null,
+          "symptom" : null,
+          "occurredAtText" : null,
+          "followUpQuestion" : "어떤 점이 불편한가요? 냉난방, 책상·의자, 소음처럼 실제 문제를 알려주세요.",
+          "missingFields" : [ "SYMPTOM", "LOCATION" ],
+          "emergencyHint" : false
+        },
+        "field" : "SYMPTOM",
+        "state" : {
+          "turns" : 0,
+          "noProgress" : 0,
+          "askedFields" : [ ],
+          "reviewFields" : [ "SYMPTOM" ],
+          "status" : "CONTINUE",
+          "nextField" : "SYMPTOM",
+          "nextReason" : "ISSUE_UNCLEAR",
+          "askedReasons" : [ ],
+          "unavailableReasons" : [ ],
+          "knownEvidence" : { },
+          "neededReasons" : [ "ISSUE_UNCLEAR", "CONFLICT", "LOCATION_REQUIRED" ],
+          "urgentReview" : false
+        }
+      }
+    },
+    "rawModelOutput" : {
+      "intent" : "UNKNOWN",
+      "report" : {
+        "category" : "OTHER",
+        "subcategory" : "UNKNOWN",
+        "locationText" : null,
+        "building" : null,
+        "floor" : null,
+        "symptom" : null,
+        "occurredAtText" : null,
+        "followUpQuestion" : null,
+        "missingFields" : [ "SYMPTOM" ],
+        "emergencyHint" : false
+      },
+      "assessment" : {
+        "reason" : "ISSUE_UNCLEAR",
+        "evidence" : "강의실이 너무 불편해요.",
+        "rationale" : "어떤 문제가 있는지 구체적으로 확인되지 않았고, 학생이 더 설명하기 어렵다고 했습니다.",
+        "question" : null,
+        "known" : {
+          "locationEvidence" : null,
+          "scopeEvidence" : null,
+          "symptomEvidence" : null,
+          "targetEvidence" : null,
+          "workflowEvidence" : null
+        }
+      },
+      "updates" : {
+        "LOCATION" : {
+          "action" : "KEEP",
+          "evidence" : null
+        },
+        "SYMPTOM" : {
+          "action" : "KEEP",
+          "evidence" : null
+        },
+        "OCCURRED_AT" : {
+          "action" : "KEEP",
+          "evidence" : null
+        },
+        "CATEGORY" : {
+          "action" : "KEEP",
+          "evidence" : null
+        }
+      }
+    },
+    "actual" : {
+      "intent" : "UNKNOWN",
+      "report" : {
+        "category" : "OTHER",
+        "subcategory" : "UNKNOWN",
+        "locationText" : null,
+        "building" : null,
+        "floor" : null,
+        "symptom" : null,
+        "occurredAtText" : null,
+        "followUpQuestion" : null,
+        "missingFields" : [ "SYMPTOM", "LOCATION" ],
+        "emergencyHint" : false
+      },
+      "clarification" : {
+        "reason" : null,
+        "neededReasons" : [ "ISSUE_UNCLEAR", "CONFLICT", "LOCATION_REQUIRED" ],
+        "message" : null,
+        "source" : "SERVER_RULES"
+      },
+      "followUpState" : {
+        "turns" : 1,
+        "noProgress" : 1,
+        "askedFields" : [ "SYMPTOM" ],
+        "reviewFields" : [ "SYMPTOM" ],
+        "status" : "MANUAL_REVIEW",
+        "nextField" : null,
+        "nextReason" : null,
+        "askedReasons" : [ "ISSUE_UNCLEAR" ],
+        "unavailableReasons" : [ "ISSUE_UNCLEAR" ],
+        "knownEvidence" : { },
+        "neededReasons" : [ "ISSUE_UNCLEAR", "CONFLICT", "LOCATION_REQUIRED" ],
+        "urgentReview" : false
+      },
+      "aiMode" : "LIVE"
+    },
+    "failedChecks" : [ ],
+    "status" : "PASS",
+    "source" : "NEW_LIVE",
+    "cacheKey" : "7543ea0e26d155097f29a00c9373a1e12ef9d9dcb72bebc1de16c4ff78596e38"
+  }, {
+    "id" : "H4-1",
+    "expected" : {
+      "expectedStatus" : "COMPLETE",
+      "equals" : {
+        "/report/category" : "ACADEMIC"
+      }
+    },
+    "input" : {
+      "text" : "휴학 신청을 제출했는데 처리 상태가 계속 대기로 표시돼요.",
+      "hybrid" : true,
+      "preferredIntent" : "AUTO"
+    },
+    "rawModelOutput" : {
+      "intent" : "REPORT",
+      "report" : {
+        "category" : "ACADEMIC",
+        "subcategory" : "STUDENT_RECORD",
+        "locationText" : null,
+        "building" : null,
+        "floor" : null,
+        "symptom" : "휴학 신청 처리 상태가 계속 대기로 표시됨",
+        "occurredAtText" : null,
+        "followUpQuestion" : null,
+        "missingFields" : [ ],
+        "emergencyHint" : false
+      },
+      "assessment" : {
+        "reason" : "NONE",
+        "evidence" : null,
+        "rationale" : null,
+        "question" : null,
+        "known" : {
+          "locationEvidence" : null,
+          "scopeEvidence" : null,
+          "symptomEvidence" : "처리 상태가 계속 대기로 표시돼요",
+          "targetEvidence" : "휴학 신청",
+          "workflowEvidence" : "휴학 신청을 제출했는데"
+        }
+      }
+    },
+    "actual" : {
+      "intent" : "REPORT",
+      "report" : {
+        "category" : "ACADEMIC",
+        "subcategory" : "STUDENT_RECORD",
+        "locationText" : null,
+        "building" : null,
+        "floor" : null,
+        "symptom" : "휴학 신청 처리 상태가 계속 대기로 표시됨",
+        "occurredAtText" : null,
+        "followUpQuestion" : null,
+        "missingFields" : [ ],
+        "emergencyHint" : false
+      },
+      "clarification" : {
+        "reason" : null,
+        "neededReasons" : [ ],
+        "message" : null,
+        "source" : "SERVER_RULES"
+      },
+      "followUpState" : {
+        "turns" : 0,
+        "noProgress" : 0,
+        "askedFields" : [ ],
+        "reviewFields" : [ ],
+        "status" : "COMPLETE",
+        "nextField" : null,
+        "nextReason" : null,
+        "askedReasons" : [ ],
+        "unavailableReasons" : [ ],
+        "knownEvidence" : {
+          "symptomEvidence" : "처리 상태가 계속 대기로 표시돼요",
+          "targetEvidence" : "휴학 신청",
+          "workflowEvidence" : "휴학 신청을 제출했는데"
+        },
+        "neededReasons" : [ ],
+        "urgentReview" : false
+      },
+      "aiMode" : "LIVE"
+    },
+    "failedChecks" : [ ],
+    "status" : "PASS",
+    "source" : "NEW_LIVE",
+    "cacheKey" : "de505cdd79758fb0c55525aa08625e7ffff6740413903ceb7c87679fc23f5dfc"
+  }, {
+    "id" : "H5-1",
+    "expected" : {
+      "expectedStatus" : "CONTINUE",
+      "allowedReasons" : [ "ISSUE_UNCLEAR", "TARGET_UNCLEAR" ]
+    },
+    "input" : {
+      "text" : "북악관 502호 전기 시설에 문제가 있어요.",
+      "hybrid" : true,
+      "preferredIntent" : "AUTO"
+    },
+    "rawModelOutput" : {
+      "intent" : "UNKNOWN",
+      "report" : {
+        "category" : "FACILITY",
+        "subcategory" : "ELECTRIC",
+        "locationText" : "북악관 502호",
+        "building" : "북악관",
+        "floor" : "5",
+        "symptom" : null,
+        "occurredAtText" : null,
+        "followUpQuestion" : "북악관 502호의 전기 시설에서 어떤 문제가 있나요?",
+        "missingFields" : [ "SYMPTOM" ],
+        "emergencyHint" : false
+      },
+      "assessment" : {
+        "reason" : "ISSUE_UNCLEAR",
+        "evidence" : "전기 시설에 문제가 있어요",
+        "rationale" : "구체적인 고장 증상이 없어 확인이 필요합니다.",
+        "question" : "북악관 502호의 전기 시설에서 어떤 문제가 있나요?",
+        "known" : {
+          "locationEvidence" : "북악관 502호",
+          "scopeEvidence" : null,
+          "symptomEvidence" : null,
+          "targetEvidence" : null,
+          "workflowEvidence" : null
+        }
+      }
+    },
+    "actual" : {
+      "intent" : "UNKNOWN",
+      "report" : {
+        "category" : "FACILITY",
+        "subcategory" : "ELECTRIC",
+        "locationText" : "북악관 502호",
+        "building" : "북악관",
+        "floor" : "5",
+        "symptom" : null,
+        "occurredAtText" : null,
+        "followUpQuestion" : "어떤 점이 불편한가요? 냉난방, 책상·의자, 소음처럼 실제 문제를 알려주세요.",
+        "missingFields" : [ "SYMPTOM" ],
+        "emergencyHint" : false
+      },
+      "clarification" : {
+        "reason" : "ISSUE_UNCLEAR",
+        "neededReasons" : [ "ISSUE_UNCLEAR", "CONFLICT", "TARGET_UNCLEAR" ],
+        "message" : "담당자가 어떤 문제를 처리해야 하는지 알아야 해요.",
+        "source" : "AI_AND_RULES"
+      },
+      "followUpState" : {
+        "turns" : 0,
+        "noProgress" : 0,
+        "askedFields" : [ ],
+        "reviewFields" : [ "SYMPTOM" ],
+        "status" : "CONTINUE",
+        "nextField" : "SYMPTOM",
+        "nextReason" : "ISSUE_UNCLEAR",
+        "askedReasons" : [ ],
+        "unavailableReasons" : [ ],
+        "knownEvidence" : {
+          "locationEvidence" : "북악관 502호"
+        },
+        "neededReasons" : [ "ISSUE_UNCLEAR", "CONFLICT", "TARGET_UNCLEAR" ],
+        "urgentReview" : false
+      },
+      "aiMode" : "LIVE"
+    },
+    "failedChecks" : [ ],
+    "status" : "PASS",
+    "source" : "NEW_LIVE",
+    "cacheKey" : "d3b115320fe2baabdeb1ff8f61635f47ff92e87b1a303044d8ecf603fcfb819b"
+  }, {
+    "id" : "H6-1",
+    "expected" : {
+      "expectedStatus" : "COMPLETE",
+      "equals" : {
+        "/report/emergencyHint" : true,
+        "/followUpState/urgentReview" : true
+      }
+    },
+    "input" : {
+      "text" : "은주2관 어딘가에서 타는 냄새가 나요. 정확한 층은 모르겠어요.",
+      "hybrid" : true,
+      "preferredIntent" : "AUTO"
+    },
+    "rawModelOutput" : {
+      "intent" : "REPORT",
+      "report" : {
+        "category" : "OTHER",
+        "subcategory" : "UNKNOWN",
+        "locationText" : "은주2관 어딘가",
+        "building" : "은주2관",
+        "floor" : null,
+        "symptom" : "타는 냄새가 남",
+        "occurredAtText" : null,
+        "followUpQuestion" : null,
+        "missingFields" : [ ],
+        "emergencyHint" : true
+      },
+      "assessment" : {
+        "reason" : "NONE",
+        "evidence" : null,
+        "rationale" : null,
+        "question" : null,
+        "known" : {
+          "locationEvidence" : "은주2관 어딘가",
+          "scopeEvidence" : null,
+          "symptomEvidence" : "타는 냄새가 나요",
+          "targetEvidence" : null,
+          "workflowEvidence" : null
+        }
+      }
+    },
+    "actual" : {
+      "intent" : "REPORT",
+      "report" : {
+        "category" : "OTHER",
+        "subcategory" : "UNKNOWN",
+        "locationText" : "은주2관 어딘가",
+        "building" : "은주2관",
+        "floor" : null,
+        "symptom" : "타는 냄새가 남",
+        "occurredAtText" : null,
+        "followUpQuestion" : null,
+        "missingFields" : [ ],
+        "emergencyHint" : true
+      },
+      "clarification" : {
+        "reason" : null,
+        "neededReasons" : [ "LOCATION_DETAIL" ],
+        "message" : null,
+        "source" : "SERVER_RULES"
+      },
+      "followUpState" : {
+        "turns" : 0,
+        "noProgress" : 0,
+        "askedFields" : [ ],
+        "reviewFields" : [ ],
+        "status" : "COMPLETE",
+        "nextField" : null,
+        "nextReason" : null,
+        "askedReasons" : [ ],
+        "unavailableReasons" : [ ],
+        "knownEvidence" : {
+          "locationEvidence" : "은주2관 어딘가",
+          "symptomEvidence" : "타는 냄새가 나요"
+        },
+        "neededReasons" : [ "LOCATION_DETAIL" ],
+        "urgentReview" : true
+      },
+      "aiMode" : "LIVE"
+    },
+    "failedChecks" : [ ],
+    "status" : "PASS",
+    "source" : "NEW_LIVE",
+    "cacheKey" : "387f62232defbfa1da4cec772ae0b8b56e4fb22d6b6df160d0c4b32ca8e66afa"
+  }, {
+    "id" : "H7-1",
+    "expected" : {
+      "expectedStatus" : "COMPLETE",
+      "equals" : {
+        "/report/category" : "OTHER"
+      }
+    },
+    "input" : {
+      "text" : "북악관 502호 의자 다리가 흔들려요.",
+      "hybrid" : true,
+      "preferredIntent" : "AUTO"
+    },
+    "rawModelOutput" : {
+      "intent" : "REPORT",
+      "report" : {
+        "category" : "OTHER",
+        "subcategory" : "UNKNOWN",
+        "locationText" : "북악관 502호",
+        "building" : "북악관",
+        "floor" : "5",
+        "symptom" : "의자 다리가 흔들려요",
+        "occurredAtText" : null,
+        "followUpQuestion" : null,
+        "missingFields" : [ ],
+        "emergencyHint" : false
+      },
+      "assessment" : {
+        "reason" : "NONE",
+        "evidence" : null,
+        "rationale" : null,
+        "question" : null,
+        "known" : {
+          "locationEvidence" : "북악관 502호",
+          "scopeEvidence" : null,
+          "symptomEvidence" : "의자 다리가 흔들려요",
+          "targetEvidence" : "의자",
+          "workflowEvidence" : null
+        }
+      }
+    },
+    "actual" : {
+      "intent" : "REPORT",
+      "report" : {
+        "category" : "OTHER",
+        "subcategory" : "UNKNOWN",
+        "locationText" : "북악관 502호",
+        "building" : "북악관",
+        "floor" : "5",
+        "symptom" : "의자 다리가 흔들려요",
+        "occurredAtText" : null,
+        "followUpQuestion" : null,
+        "missingFields" : [ ],
+        "emergencyHint" : false
+      },
+      "clarification" : {
+        "reason" : null,
+        "neededReasons" : [ ],
+        "message" : null,
+        "source" : "SERVER_RULES"
+      },
+      "followUpState" : {
+        "turns" : 0,
+        "noProgress" : 0,
+        "askedFields" : [ ],
+        "reviewFields" : [ ],
+        "status" : "COMPLETE",
+        "nextField" : null,
+        "nextReason" : null,
+        "askedReasons" : [ ],
+        "unavailableReasons" : [ ],
+        "knownEvidence" : {
+          "locationEvidence" : "북악관 502호",
+          "symptomEvidence" : "의자 다리가 흔들려요",
+          "targetEvidence" : "의자"
+        },
+        "neededReasons" : [ ],
+        "urgentReview" : false
+      },
+      "aiMode" : "LIVE"
+    },
+    "failedChecks" : [ ],
+    "status" : "PASS",
+    "source" : "NEW_LIVE",
+    "cacheKey" : "61d05a92a0d49c5bea886046cfdfef1b2cca880277235c6a46656f323f2e5076"
+  } ],
+  "measurement" : {
+    "automaticRetries" : 0,
+    "outputTokens" : 1525,
+    "cumulativeAttempts" : 9,
+    "estimatedNewCostUsd" : 0.0022791000000000005,
+    "newCalls" : 9,
+    "inputTokens" : 15166,
+    "cacheHits" : 0,
+    "embeddingCalls" : 0
+  },
+  "summary" : {
+    "fail" : 0,
+    "unverified" : 0,
+    "pass" : 9
+  }
+}

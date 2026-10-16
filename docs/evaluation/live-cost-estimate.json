@@ -1,0 +1,19 @@
+{
+  "at": "2026-10-11T23:07:16.1889561+09:00",
+  "currency": "USD",
+  "kind": "Illustrative Standard base-rate calculation, not a bill",
+  "chatInputTokens": 17718,
+  "chatOutputTokens": 2574,
+  "embeddingInputTokens": 3145,
+  "chatInputRatePerMillion": 0.1,
+  "chatOutputRatePerMillion": 0.5,
+  "embeddingInputRatePerMillion": 0.02,
+  "estimatedChatBaseCost": 0.0030588000000000004,
+  "estimatedEmbeddingBaseCost": 6.29E-05,
+  "estimatedTotalBaseCost": 0.0031217000000000003,
+  "assumptions": "All input at uncached Standard base rate; cache writes/reads, service tier, regional premium, taxes and FX excluded. Not a spending-cap or invoice verification.",
+  "sources": [
+    "https://developers.openai.com/api/docs/models/gpt-6-luna",
+    "https://developers.openai.com/api/docs/models/text-embedding-3-small"
+  ]
+}
