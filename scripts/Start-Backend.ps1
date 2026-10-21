@@ -1,10 +1,11 @@
-param([switch]$H2)
+param([switch]$H2,[switch]$DemoRouting)
 $ErrorActionPreference='Stop'
 $projectRoot=Split-Path $PSScriptRoot -Parent
 $secretsPath=Join-Path $projectRoot '.runtime/local-secrets.json'
 if(!(Test-Path $secretsPath)){throw 'Run scripts/Initialize-Local.ps1 first, or configure the environment as described in README.'}
 $secrets=Get-Content $secretsPath -Raw | ConvertFrom-Json
 $env:DEMO_PASSWORD=$secrets.demoPassword
+if($DemoRouting){$env:DEMO_ROUTING_ENABLED='true'}
 if($H2){$env:SPRING_PROFILES_ACTIVE='demo';$env:DB_URL='jdbc:h2:file:./data/skope;MODE=MySQL;DATABASE_TO_LOWER=TRUE;DEFAULT_NULL_ORDERING=HIGH';$env:DB_USERNAME='sa';$env:DB_PASSWORD=''}else{
     $mysqlPort=3307
     $configPath=Join-Path $projectRoot '.runtime/local-config.json'

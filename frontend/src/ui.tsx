@@ -2,10 +2,14 @@ import { useEffect, useState } from 'react';
 import type { ReactNode } from 'react';
 import { AlertCircle, ArrowUpRight, Check, CircleHelp, LoaderCircle, ShieldCheck, TriangleAlert } from 'lucide-react';
 import { ApiError } from './api';
+import type {AssignmentInfo} from './types';
 export const typeLabels:Record<string,string>={WIFI:'무선 인터넷',LEAK:'누수',ELECTRIC:'전기',STUDENT_RECORD:'학적·행정',UNKNOWN:'기타 / 직접 확인'};
 export const statusLabels:Record<string,string>={RECEIVED:'접수 완료',IN_PROGRESS:'처리 중',RESOLVED:'처리 완료',OPEN:'진행 중',MATCHED:'검증 규칙 배정',NEEDS_REVIEW:'관리자 확인 필요',MANUAL:'관리자 배정',CANDIDATE:'검토 대기',SAME_INCIDENT:'동일 사건',RELATED_DISTINCT:'관련된 별도 사건',REJECTED:'반려',CONFIRMED:'재발 확인',NOT_EVALUATED:'미검토'};
 export function Badge({value,children}:{value?:string;children?:ReactNode}){return <span className={`badge badge-${value?.toLowerCase()??'neutral'}`}>{children??statusLabels[value??'']??value}</span>;}
 export function ModeBadge({mode}:{mode?:string}){return <Badge value={mode==='LIVE'?'matched':'demo'}>{mode==='LIVE'?'LIVE · 실제 AI':mode==='RULE_ONLY'?'RULE ONLY · 규칙 후보':mode?`${mode} · 시연 모드`:'모드 확인 중'}</Badge>;}
+export const isDemoAssignment=(assignment?:AssignmentInfo|null)=>assignment?.assignmentBasis==='DEMO'||assignment?.demoOnly===true;
+export function RoutingBadge({status,assignment}:{status:string;assignment?:AssignmentInfo|null}){return isDemoAssignment(assignment)?<Badge value="demo">시연용 가정 배정</Badge>:<Badge value={status}/>;}
+export function AssignmentSource({assignment}:{assignment?:AssignmentInfo & {verified?:boolean;sourceUrl?:string|null}|null}){return isDemoAssignment(assignment)?<p className="field-hint">시연용 가정 배정 · 실제 담당 업무 미확인</p>:<Source sourceUrl={assignment?.sourceUrl} verified={assignment?.verified}/>;}
 export function ErrorBox({error}:{error:unknown}){
   if(!error)return null;
   const err=error instanceof Error?error:new Error(String(error));

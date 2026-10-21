@@ -20,7 +20,7 @@ public class SecurityConfig {
         http.csrf(c->c.csrfTokenRepository(csrf))
             .securityContext(c->c.securityContextRepository(contexts))
             .authorizeHttpRequests(a->a.requestMatchers("/api/auth/csrf","/api/auth/login","/api/meta","/error").permitAll()
-                .requestMatchers("/api/admin/**").hasRole("ADMIN")
+                .requestMatchers("/api/admin/**").hasAnyRole("ADMIN","DEPT_ADMIN")
                 .requestMatchers("/api/reports/**","/api/assistant/**").hasRole("STUDENT")
                 .anyRequest().authenticated())
             .exceptionHandling(e->e.authenticationEntryPoint((req,res,ex)->{res.setStatus(401);res.setContentType("application/json;charset=UTF-8");res.getWriter().write("{\"code\":\"UNAUTHENTICATED\",\"message\":\"로그인이 필요합니다.\",\"fieldErrors\":{}}");})

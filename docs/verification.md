@@ -1,5 +1,32 @@
 # SKOPE 구현·실행 검증 결과
 
+## 2026-10-21 부서별 관리자 공유 브랜치 재검증
+
+`b64185c60f7e1409e3ff1bae97c1179a35c2ca46` 기준 `feature/department-workflow`에서 부서별 관리자 변경분만 분리한 소스를 직접 검증했다. AI 프롬프트/정책은 기존 `hybrid-intake-v1` / `hybrid-check-v2`이며, 조장 로컬의 이후 AI 변경·평가 결과는 이번 브랜치에 포함하지 않았다.
+
+| 검증 | 결과 | 범위 |
+|---|---|---|
+| 백엔드 관련 6개 클래스 | 101 PASS / 0 FAIL / 0 SKIP | 기존 HTTP 접수 20, 부서 HTTP 8, 부서 단위 11, 사건 10, 배정 6, 유사 후보 46 |
+| backend bootJar | PASS | 이 브랜치 소스로 생성 |
+| 프런트엔드 5개 파일 | 57 PASS / 0 FAIL | Vitest, 부서 권한 화면·기존 접수 흐름 포함 |
+| 프런트 TypeScript/Vite 빌드 | PASS | 잠금 파일이 동일한 기존 의존성 재사용 |
+| 데이터/외부 호출 | 격리 H2, DEMO/RULE_ONLY | 실제 MySQL·기존 시연 DB 변경 없음. 신규 유료 API 호출 0회 |
+| 비밀정보 검사 | 검출 0건 | 공유 파일과 기존 Git 기록에 대해 실제 로컬 비밀값 일치, 흔한 키 형태, 제외 대상 경로 검사. 모든 잠재적 비밀정보 부재를 보장하는 전문 감사는 아님 |
+
+주요 확인 사항은 부서 밖 신고/유사 후보/사건 접근 차단, 이관 요청과 총괄 재배정, 이관 후 이전 부서 접근 차단, 비활성 부서/계정 차단, 동일 사건 부서 일관성, 시연 배정 근거 구분이다. 아래 과거 검증 기록과 이번 H2 재검증을 구별한다. 새 브라우저 클릭·MySQL·LIVE AI 검증 및 사진 첨부 구현은 이번 공유 범위가 아니다.
+
+재현 명령(각 디렉터리에서 실행):
+
+```powershell
+# backend — TEST_DB_URL 등을 지정하지 않으면 격리 H2 사용
+.\gradlew.bat test --tests edu.skope.DepartmentWorkflowIntegrationTest --tests edu.skope.ApiIntegrationTest --tests edu.skope.service.DepartmentWorkflowTest --tests edu.skope.service.RoutingServiceTest --tests edu.skope.service.IncidentServiceTest --tests edu.skope.service.SimilarityServiceTest bootJar
+# frontend
+npm.cmd test
+npm.cmd run build
+```
+
+---
+
 최종 검증일: **2026-10-16 KST**. 사용자가 제공한 `SKOPE_CODEX_IMPLEMENTATION_SPEC.md`를 기준으로 로컬 프로젝트를 구현했다. 실제 학교 접수·외부 배포·Notion 수정·공식 저장소 변경은 수행하지 않았다.
 
 ## 2026-10-16 발견 결함 수정 — hybrid-check-v2

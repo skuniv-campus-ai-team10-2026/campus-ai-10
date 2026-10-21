@@ -1,6 +1,14 @@
 # SKOPE 로컬 실험 API 구현 계약
 
-기준일: 2026-10-16. `ApiController`, `AuthController`, `SecurityConfig`, 서비스 구현 및 `frontend/src/types.ts`를 읽어 정리했다. **현재 독립 실험 구현의 계약이며 팀의 최종 승인이나 공식 시스템 계약을 뜻하지 않는다.** 실제 실행 증거는 `verification.md`, AI 검증 범위는 `ai-evaluation.md`를 따른다.
+기준일: 2026-10-18. `ApiController`, `AuthController`, `SecurityConfig`, 서비스 구현 및 `frontend/src/types.ts`를 읽어 정리했다. **현재 독립 실험 구현의 계약이며 팀의 최종 승인이나 공식 시스템 계약을 뜻하지 않는다.** 실제 실행 증거는 `verification.md`, AI 검증 범위는 `ai-evaluation.md`를 따른다.
+
+## 부서별 접근·배정 확장
+
+- ADMIN은 전체, DEPT_ADMIN은 DB의 활성 소속 부서 신고만 조회·처리한다. 미배정·타 부서 신고는 404, 소속 없거나 비활성 부서는 403. 모든 변경은 기존 CSRF 유지.
+- `transferRequested=true` 필터와 재배정은 총괄 전용이다. 이관 요청은 현재 배정을 바꾸지 않으며 재배정/완료 시 대기가 해제된다. 관리자 응답에 `transferRequested`, `transferReason`을 추가한다.
+- 유사 후보는 양쪽 신고를 검사하고 사건은 구성원 전체가 허용 범위여야 한다. 타 부서의 과거 사건 참조는 부서 응답에서 숨긴다. 다중 신고 사건의 일부 부서 변경은 409 `INCIDENT_DEPARTMENT_CONFLICT`.
+- 배정 메타데이터에 `assignmentBasis`(VERIFIED/DEMO/기존 자료 UNVERIFIED), `demoOnly`, `warning` 추가. DEMO는 verified=false이고 연락처·출처를 노출하지 않는다. 신규 DEMO 배정은 `DEMO_ROUTING_ENABLED=true`에서만 허용한다. 공식 지식 답변의 근거로 DEMO 규칙을 사용하지 않는다.
+- 신규 이미지 API도 학생 소유권/부서 범위를 적용해야 한다.
 
 ## 공통 형식과 인증
 
@@ -31,26 +39,27 @@
 | Method / 경로 | 권한 | 입력·쿼리 | 성공 응답 |
 |---|---|---|---|
 | GET `/auth/csrf` | 공개 | 없음 | 200 `{token,headerName}` |
-| POST `/auth/login` | 공개 + CSRF | `{username,password}` | 200 `{id,role,displayName}` + 세션 |
-| GET `/auth/me` | 로그인 | 없음 | 200 `{id,role,displayName}` |
+| POST `/auth/login` | 공개 + CSRF | `{username,password}` | 200 `{id,role,displayName,departmentId,departmentName}` + 세션 |
+| GET `/auth/me` | 로그인 | 없음 | 200 `{id,role,displayName,departmentId,departmentName}` |
 | POST `/auth/logout` | 로그인 + CSRF | `{}` | 200 `{success:true}` |
-| GET `/meta` | 공개 | 없음 | 200 `{aiMode,embeddingMode,databaseMode,officialSubmission:false}` |
+| GET `/meta` | 공개 | 없음 | 200 `{aiMode,embeddingMode,databaseMode,officialSubmission:false,demoRoutingEnabled}` |
 | GET `/report-types` | 로그인 (학생·관리자) | 없음 | 200 `{items:RoutingRule[]}` |
 | POST `/assistant/intake` | STUDENT + CSRF | 최초 입력 / 추가 답변 / 재개 / 검토 접수 | 200 `NEEDS_INPUT`, `REVIEW_REQUIRED`, `ACCEPTED` |
 | POST `/assistant/analyze` | STUDENT + CSRF | 분석 요청 | 200 분석 결과, DB 신고 생성 없음 |
 | POST `/reports` | STUDENT + CSRF | 신고 생성 요청 | 201 `ReportDetail` |
 | GET `/reports` | STUDENT | `page=0,size=20,status?` | 본인 신고 페이지 |
 | GET `/reports/{id}` | STUDENT | 양의 ID | 본인 `ReportDetail` |
-| GET `/admin/reports` | ADMIN | `page=0,size=20,status?,routeStatus?` | 전체 신고 페이지 |
-| GET `/admin/reports/{id}` | ADMIN | ID | `ReportDetail` + `events` |
-| PATCH `/admin/reports/{id}/status` | ADMIN + CSRF | `{status,resolutionText?}` | 갱신된 관리자 신고 상세 |
-| PATCH `/admin/reports/{id}/routing` | ADMIN + CSRF | `{routingRuleId}` | 갱신된 관리자 신고 상세 |
-| GET `/admin/reports/{id}/similar` | ADMIN | ID | 유사 후보 응답 |
-| PATCH `/admin/similar-pairs/{id}/review` | ADMIN + CSRF | `{decision}` | 갱신된 pair Map + `incidentId` |
-| PATCH `/admin/reports/{id}/incident` | ADMIN + CSRF | `{incidentId}` | 연결된 사건 상세 |
-| GET `/admin/incidents/{id}` | ADMIN | ID | 사건 상세 |
-| PATCH `/admin/incidents/{id}/recurrence` | ADMIN + CSRF | `{previousIncidentId,decision}` | 갱신된 사건 상세 |
-| GET `/admin/repeated-candidates` | ADMIN | 없음 | `{items,generatedAt,aiMode:"RULE_ONLY"}` |
+| GET `/admin/reports` | ADMIN / DEPT_ADMIN | `page=0,size=20,status?,routeStatus?,transferRequested=false` | 총괄 전체 / 부서 소속 신고 페이지 |
+| GET `/admin/reports/{id}` | ADMIN / DEPT_ADMIN | ID | `ReportDetail` + `events` |
+| PATCH `/admin/reports/{id}/status` | ADMIN / DEPT_ADMIN + CSRF | `{status,resolutionText?}` | 갱신된 관리자 신고 상세 |
+| PATCH `/admin/reports/{id}/routing` | ADMIN + CSRF | `{routingRuleId,reason?}` | 갱신된 관리자 신고 상세 |
+| PATCH `/admin/reports/{id}/transfer-request` | DEPT_ADMIN + CSRF | `{reason}` 필수, 최대 1000자 | 갱신된 관리자 신고 상세 |
+| GET `/admin/reports/{id}/similar` | ADMIN / DEPT_ADMIN | ID | 유사 후보 응답 |
+| PATCH `/admin/similar-pairs/{id}/review` | ADMIN / DEPT_ADMIN + CSRF | `{decision}` | 갱신된 pair Map + `incidentId` |
+| PATCH `/admin/reports/{id}/incident` | ADMIN / DEPT_ADMIN + CSRF | `{incidentId}` | 연결된 사건 상세 |
+| GET `/admin/incidents/{id}` | ADMIN / DEPT_ADMIN | ID | 사건 상세 |
+| PATCH `/admin/incidents/{id}/recurrence` | ADMIN / DEPT_ADMIN + CSRF | `{previousIncidentId,decision}` | 갱신된 사건 상세 |
+| GET `/admin/repeated-candidates` | ADMIN / DEPT_ADMIN | 없음 | `{items,generatedAt,aiMode:"RULE_ONLY"}` |
 
 신고 목록은 ID 내림차순이다. `page`는 0~100000, `size`는 1~100이며 잘못된 범위·필터는 400이다. 유사 후보·반복 후보·유형 목록은 페이지네이션 없는 별도 응답이다.
 
@@ -58,7 +67,7 @@
 
 | 항목 | 값 |
 |---|---|
-| 역할 | `STUDENT`, `ADMIN` |
+| 역할 | `STUDENT`, `ADMIN`(총괄), `DEPT_ADMIN`(부서) |
 | 분류 조합 | `IT/WIFI`, `FACILITY/ELECTRIC`, `FACILITY/LEAK`, `ACADEMIC/STUDENT_RECORD`, `OTHER/UNKNOWN` |
 | 선호 의도 | `AUTO`, `REPORT`, `QUESTION` |
 | 분석 의도 | `REPORT`, `QUESTION`, `UNKNOWN` |
