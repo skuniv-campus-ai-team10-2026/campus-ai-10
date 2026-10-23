@@ -119,6 +119,16 @@ public class SimilarityService {
         report.remove("embeddingModel");
     }
 
+    @SuppressWarnings("unchecked")
+    public Map<String, Object> similar(long reportId, long actorId) {
+        var access = new DepartmentAccess(db);
+        access.requireReport(actorId, reportId);
+        var result = new LinkedHashMap<>(similar(reportId));
+        var rows = (List<Map<String, Object>>) result.get("items");
+        result.put("items", rows.stream().filter(row -> access.canReadReport(actorId, Db.id(row, "relatedReportId"))).toList());
+        return result;
+    }
+
     public Map<String, Object> similar(long reportId) {
         if (db.one("SELECT id FROM reports WHERE id=?", reportId) == null)
             throw new ApiException(404, "REPORT_NOT_FOUND", "신고를 찾을 수 없습니다.");

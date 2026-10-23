@@ -1,0 +1,524 @@
+{
+  "promptVersion" : "hybrid-intake-v2",
+  "policyVersion" : "hybrid-check-v3",
+  "sourceSha256" : "8a47159e54decbc14ab14b1552bd01766f040110d080eb8f862c68e93c29413d",
+  "calls" : 0,
+  "rows" : [ {
+    "id" : "P1-standard",
+    "source" : "CACHED_REAL_RESPONSE_NO_NEW_INFERENCE",
+    "actual" : {
+      "intent" : "REPORT",
+      "report" : {
+        "category" : "IT",
+        "subcategory" : "WIFI",
+        "locationText" : "다온관 312호",
+        "building" : "다온관",
+        "floor" : "3",
+        "symptom" : "와이파이가 자꾸 끊김",
+        "occurredAtText" : null,
+        "followUpQuestion" : null,
+        "missingFields" : [ ],
+        "emergencyHint" : false
+      },
+      "clarification" : {
+        "reason" : null,
+        "neededReasons" : [ ],
+        "message" : null,
+        "source" : "SERVER_RULES"
+      },
+      "followUpState" : {
+        "turns" : 0,
+        "noProgress" : 0,
+        "askedFields" : [ ],
+        "reviewFields" : [ ],
+        "status" : "COMPLETE",
+        "nextField" : null,
+        "nextReason" : null,
+        "askedReasons" : [ ],
+        "unavailableReasons" : [ ],
+        "knownEvidence" : {
+          "locationEvidence" : "다온관 312호",
+          "symptomEvidence" : "다온관 312호에서 와이파이가 자꾸 끊겨요",
+          "targetEvidence" : "와이파이"
+        },
+        "neededReasons" : [ ],
+        "urgentReview" : false
+      },
+      "aiMode" : "LIVE"
+    },
+    "semanticStatus" : "PASS"
+  }, {
+    "id" : "P1-variant",
+    "source" : "CACHED_REAL_RESPONSE_NO_NEW_INFERENCE",
+    "actual" : {
+      "intent" : "REPORT",
+      "report" : {
+        "category" : "IT",
+        "subcategory" : "WIFI",
+        "locationText" : "다온관 312호",
+        "building" : "다온관",
+        "floor" : "3",
+        "symptom" : "와이파이가 자꾸 끊김",
+        "occurredAtText" : null,
+        "followUpQuestion" : null,
+        "missingFields" : [ ],
+        "emergencyHint" : false
+      },
+      "clarification" : {
+        "reason" : null,
+        "neededReasons" : [ ],
+        "message" : null,
+        "source" : "SERVER_RULES"
+      },
+      "followUpState" : {
+        "turns" : 0,
+        "noProgress" : 0,
+        "askedFields" : [ ],
+        "reviewFields" : [ ],
+        "status" : "COMPLETE",
+        "nextField" : null,
+        "nextReason" : null,
+        "askedReasons" : [ ],
+        "unavailableReasons" : [ ],
+        "knownEvidence" : {
+          "locationEvidence" : "다온관 312호",
+          "symptomEvidence" : "다온관 312호 와이파이가 자꾸 끊긴다 아입니꺼",
+          "targetEvidence" : "와이파이"
+        },
+        "neededReasons" : [ ],
+        "urgentReview" : false
+      },
+      "aiMode" : "LIVE"
+    },
+    "semanticStatus" : "PASS"
+  }, {
+    "id" : "P2-standard",
+    "source" : "CACHED_REAL_RESPONSE_NO_NEW_INFERENCE",
+    "actual" : {
+      "intent" : "REPORT",
+      "report" : {
+        "category" : "IT",
+        "subcategory" : "WIFI",
+        "locationText" : "다온관 410호",
+        "building" : "다온관",
+        "floor" : "4",
+        "symptom" : "와이파이 연결은 되지만 인터넷 페이지가 열리지 않음",
+        "occurredAtText" : null,
+        "followUpQuestion" : null,
+        "missingFields" : [ ],
+        "emergencyHint" : false
+      },
+      "clarification" : {
+        "reason" : null,
+        "neededReasons" : [ ],
+        "message" : null,
+        "source" : "SERVER_RULES"
+      },
+      "followUpState" : {
+        "turns" : 0,
+        "noProgress" : 0,
+        "askedFields" : [ ],
+        "reviewFields" : [ ],
+        "status" : "COMPLETE",
+        "nextField" : null,
+        "nextReason" : null,
+        "askedReasons" : [ ],
+        "unavailableReasons" : [ ],
+        "knownEvidence" : {
+          "locationEvidence" : "다온관 410호",
+          "targetEvidence" : "와이파이",
+          "symptomEvidence" : "다온관 410호에서 와이파이 연결은 되는데 인터넷 페이지가 열리지 않아요"
+        },
+        "neededReasons" : [ ],
+        "urgentReview" : false
+      },
+      "aiMode" : "LIVE"
+    },
+    "semanticStatus" : "PASS"
+  }, {
+    "id" : "P2-variant",
+    "source" : "CACHED_REAL_RESPONSE_NO_NEW_INFERENCE",
+    "actual" : {
+      "intent" : "REPORT",
+      "report" : {
+        "category" : "IT",
+        "subcategory" : "WIFI",
+        "locationText" : "다온관 410호",
+        "building" : "다온관",
+        "floor" : "4",
+        "symptom" : "와이파이는 연결되지만 인터넷이 되지 않음",
+        "occurredAtText" : null,
+        "followUpQuestion" : null,
+        "missingFields" : [ ],
+        "emergencyHint" : false
+      },
+      "clarification" : {
+        "reason" : null,
+        "neededReasons" : [ ],
+        "message" : null,
+        "source" : "SERVER_RULES"
+      },
+      "followUpState" : {
+        "turns" : 0,
+        "noProgress" : 0,
+        "askedFields" : [ ],
+        "reviewFields" : [ ],
+        "status" : "COMPLETE",
+        "nextField" : null,
+        "nextReason" : null,
+        "askedReasons" : [ ],
+        "unavailableReasons" : [ ],
+        "knownEvidence" : {
+          "locationEvidence" : "다온관 410호",
+          "symptomEvidence" : "다온관 410호 와파 connected는 됨 근데 인터넷 먹통임",
+          "targetEvidence" : "와파"
+        },
+        "neededReasons" : [ ],
+        "urgentReview" : false
+      },
+      "aiMode" : "LIVE"
+    },
+    "semanticStatus" : "PASS"
+  }, {
+    "id" : "P3-standard",
+    "source" : "CACHED_REAL_RESPONSE_NO_NEW_INFERENCE",
+    "actual" : {
+      "intent" : "REPORT",
+      "report" : {
+        "category" : "FACILITY",
+        "subcategory" : "LEAK",
+        "locationText" : "새봄관 203호",
+        "building" : "새봄관",
+        "floor" : "2",
+        "symptom" : "천장에서 물이 떨어져요",
+        "occurredAtText" : null,
+        "followUpQuestion" : null,
+        "missingFields" : [ ],
+        "emergencyHint" : false
+      },
+      "clarification" : {
+        "reason" : null,
+        "neededReasons" : [ ],
+        "message" : null,
+        "source" : "SERVER_RULES"
+      },
+      "followUpState" : {
+        "turns" : 0,
+        "noProgress" : 0,
+        "askedFields" : [ ],
+        "reviewFields" : [ ],
+        "status" : "COMPLETE",
+        "nextField" : null,
+        "nextReason" : null,
+        "askedReasons" : [ ],
+        "unavailableReasons" : [ ],
+        "knownEvidence" : {
+          "locationEvidence" : "새봄관 203호",
+          "symptomEvidence" : "천장에서 물이 떨어져요",
+          "targetEvidence" : "천장"
+        },
+        "neededReasons" : [ ],
+        "urgentReview" : false
+      },
+      "aiMode" : "LIVE"
+    },
+    "semanticStatus" : "PASS"
+  }, {
+    "id" : "P3-variant",
+    "source" : "CACHED_REAL_RESPONSE_NO_NEW_INFERENCE",
+    "actual" : {
+      "intent" : "REPORT",
+      "report" : {
+        "category" : "FACILITY",
+        "subcategory" : "LEAK",
+        "locationText" : "새봄관 203호",
+        "building" : "새봄관",
+        "floor" : "2",
+        "symptom" : "천장에서 물이 떨어져요",
+        "occurredAtText" : null,
+        "followUpQuestion" : null,
+        "missingFields" : [ ],
+        "emergencyHint" : false
+      },
+      "clarification" : {
+        "reason" : null,
+        "neededReasons" : [ ],
+        "message" : null,
+        "source" : "SERVER_RULES"
+      },
+      "followUpState" : {
+        "turns" : 0,
+        "noProgress" : 0,
+        "askedFields" : [ ],
+        "reviewFields" : [ ],
+        "status" : "COMPLETE",
+        "nextField" : null,
+        "nextReason" : null,
+        "askedReasons" : [ ],
+        "unavailableReasons" : [ ],
+        "knownEvidence" : {
+          "locationEvidence" : "새봄관203호",
+          "symptomEvidence" : "천장에서물이떨어저요",
+          "targetEvidence" : "천장"
+        },
+        "neededReasons" : [ ],
+        "urgentReview" : false
+      },
+      "aiMode" : "LIVE"
+    },
+    "semanticStatus" : "PASS"
+  }, {
+    "id" : "P4-standard",
+    "source" : "CACHED_REAL_RESPONSE_NO_NEW_INFERENCE",
+    "actual" : {
+      "intent" : "REPORT",
+      "report" : {
+        "category" : "OTHER",
+        "subcategory" : "UNKNOWN",
+        "locationText" : "해든관 502호 강의실",
+        "building" : "해든관",
+        "floor" : "5",
+        "symptom" : "강의실이 너무 더워요",
+        "occurredAtText" : null,
+        "followUpQuestion" : null,
+        "missingFields" : [ ],
+        "emergencyHint" : false
+      },
+      "clarification" : {
+        "reason" : null,
+        "neededReasons" : [ ],
+        "message" : null,
+        "source" : "SERVER_RULES"
+      },
+      "followUpState" : {
+        "turns" : 0,
+        "noProgress" : 0,
+        "askedFields" : [ ],
+        "reviewFields" : [ ],
+        "status" : "COMPLETE",
+        "nextField" : null,
+        "nextReason" : null,
+        "askedReasons" : [ ],
+        "unavailableReasons" : [ ],
+        "knownEvidence" : {
+          "locationEvidence" : "해든관 502호 강의실",
+          "symptomEvidence" : "너무 더워요"
+        },
+        "neededReasons" : [ ],
+        "urgentReview" : false
+      },
+      "aiMode" : "LIVE"
+    },
+    "semanticStatus" : "PASS"
+  }, {
+    "id" : "P4-variant",
+    "source" : "CACHED_REAL_RESPONSE_NO_NEW_INFERENCE",
+    "actual" : {
+      "intent" : "UNKNOWN",
+      "report" : {
+        "category" : "OTHER",
+        "subcategory" : "UNKNOWN",
+        "locationText" : "해든관 502호",
+        "building" : "해든관",
+        "floor" : "5",
+        "symptom" : null,
+        "occurredAtText" : null,
+        "followUpQuestion" : "어떤 점이 불편한가요? 냉난방, 책상·의자, 소음처럼 실제 문제를 알려주세요.",
+        "missingFields" : [ "SYMPTOM" ],
+        "emergencyHint" : false
+      },
+      "clarification" : {
+        "reason" : "ISSUE_UNCLEAR",
+        "neededReasons" : [ "ISSUE_UNCLEAR", "CONFLICT" ],
+        "message" : "담당자가 어떤 문제를 처리해야 하는지 알아야 해요.",
+        "source" : "AI_AND_RULES"
+      },
+      "followUpState" : {
+        "turns" : 0,
+        "noProgress" : 0,
+        "askedFields" : [ ],
+        "reviewFields" : [ "SYMPTOM" ],
+        "status" : "CONTINUE",
+        "nextField" : "SYMPTOM",
+        "nextReason" : "ISSUE_UNCLEAR",
+        "askedReasons" : [ ],
+        "unavailableReasons" : [ ],
+        "knownEvidence" : {
+          "locationEvidence" : "해든관502호"
+        },
+        "neededReasons" : [ "ISSUE_UNCLEAR", "CONFLICT" ],
+        "urgentReview" : false
+      },
+      "aiMode" : "LIVE"
+    },
+    "semanticStatus" : "KNOWN_MODEL_FAILURE_REQUIRES_NEW_PROMPT_LIVE"
+  }, {
+    "id" : "P5-standard",
+    "source" : "CACHED_REAL_RESPONSE_NO_NEW_INFERENCE",
+    "actual" : {
+      "intent" : "REPORT",
+      "report" : {
+        "category" : "FACILITY",
+        "subcategory" : "ELECTRIC",
+        "locationText" : "새봄관 104호",
+        "building" : "새봄관",
+        "floor" : "1",
+        "symptom" : "콘센트에서 연기가 남",
+        "occurredAtText" : null,
+        "followUpQuestion" : null,
+        "missingFields" : [ ],
+        "emergencyHint" : true
+      },
+      "clarification" : {
+        "reason" : null,
+        "neededReasons" : [ ],
+        "message" : null,
+        "source" : "SERVER_RULES"
+      },
+      "followUpState" : {
+        "turns" : 0,
+        "noProgress" : 0,
+        "askedFields" : [ ],
+        "reviewFields" : [ ],
+        "status" : "COMPLETE",
+        "nextField" : null,
+        "nextReason" : null,
+        "askedReasons" : [ ],
+        "unavailableReasons" : [ ],
+        "knownEvidence" : {
+          "locationEvidence" : "새봄관 104호",
+          "symptomEvidence" : "콘센트에서 연기가 나요",
+          "targetEvidence" : "콘센트"
+        },
+        "neededReasons" : [ ],
+        "urgentReview" : false
+      },
+      "aiMode" : "LIVE"
+    },
+    "semanticStatus" : "PASS"
+  }, {
+    "id" : "P5-variant",
+    "source" : "CACHED_REAL_RESPONSE_NO_NEW_INFERENCE",
+    "actual" : {
+      "intent" : "REPORT",
+      "report" : {
+        "category" : "FACILITY",
+        "subcategory" : "ELECTRIC",
+        "locationText" : "새봄관 104호",
+        "building" : "새봄관",
+        "floor" : "1",
+        "symptom" : "콘센트에서 연기가 남",
+        "occurredAtText" : null,
+        "followUpQuestion" : null,
+        "missingFields" : [ ],
+        "emergencyHint" : true
+      },
+      "clarification" : {
+        "reason" : null,
+        "neededReasons" : [ ],
+        "message" : null,
+        "source" : "SERVER_RULES"
+      },
+      "followUpState" : {
+        "turns" : 0,
+        "noProgress" : 0,
+        "askedFields" : [ ],
+        "reviewFields" : [ ],
+        "status" : "COMPLETE",
+        "nextField" : null,
+        "nextReason" : null,
+        "askedReasons" : [ ],
+        "unavailableReasons" : [ ],
+        "knownEvidence" : {
+          "locationEvidence" : "새봄관 104호",
+          "symptomEvidence" : "연기 나는디",
+          "targetEvidence" : "콘센트서"
+        },
+        "neededReasons" : [ ],
+        "urgentReview" : false
+      },
+      "aiMode" : "LIVE"
+    },
+    "semanticStatus" : "PASS"
+  }, {
+    "id" : "P6-standard",
+    "source" : "CACHED_REAL_RESPONSE_NO_NEW_INFERENCE",
+    "actual" : {
+      "intent" : "UNKNOWN",
+      "report" : {
+        "category" : "OTHER",
+        "subcategory" : "UNKNOWN",
+        "locationText" : null,
+        "building" : null,
+        "floor" : null,
+        "symptom" : null,
+        "occurredAtText" : null,
+        "followUpQuestion" : "어떤 점이 불편한가요? 냉난방, 책상·의자, 소음처럼 실제 문제를 알려주세요.",
+        "missingFields" : [ "SYMPTOM", "LOCATION" ],
+        "emergencyHint" : false
+      },
+      "clarification" : {
+        "reason" : "ISSUE_UNCLEAR",
+        "neededReasons" : [ "ISSUE_UNCLEAR", "CONFLICT", "LOCATION_REQUIRED" ],
+        "message" : "담당자가 어떤 문제를 처리해야 하는지 알아야 해요.",
+        "source" : "AI_AND_RULES"
+      },
+      "followUpState" : {
+        "turns" : 0,
+        "noProgress" : 0,
+        "askedFields" : [ ],
+        "reviewFields" : [ "SYMPTOM" ],
+        "status" : "CONTINUE",
+        "nextField" : "SYMPTOM",
+        "nextReason" : "ISSUE_UNCLEAR",
+        "askedReasons" : [ ],
+        "unavailableReasons" : [ ],
+        "knownEvidence" : { },
+        "neededReasons" : [ "ISSUE_UNCLEAR", "CONFLICT", "LOCATION_REQUIRED" ],
+        "urgentReview" : false
+      },
+      "aiMode" : "LIVE"
+    },
+    "semanticStatus" : "PASS"
+  }, {
+    "id" : "P6-variant",
+    "source" : "CACHED_REAL_RESPONSE_NO_NEW_INFERENCE",
+    "actual" : {
+      "intent" : "UNKNOWN",
+      "report" : {
+        "category" : "OTHER",
+        "subcategory" : "UNKNOWN",
+        "locationText" : null,
+        "building" : null,
+        "floor" : null,
+        "symptom" : null,
+        "occurredAtText" : null,
+        "followUpQuestion" : "어떤 점이 불편한가요? 냉난방, 책상·의자, 소음처럼 실제 문제를 알려주세요.",
+        "missingFields" : [ "SYMPTOM", "LOCATION" ],
+        "emergencyHint" : false
+      },
+      "clarification" : {
+        "reason" : "ISSUE_UNCLEAR",
+        "neededReasons" : [ "ISSUE_UNCLEAR", "CONFLICT", "LOCATION_REQUIRED" ],
+        "message" : "담당자가 어떤 문제를 처리해야 하는지 알아야 해요.",
+        "source" : "AI_AND_RULES"
+      },
+      "followUpState" : {
+        "turns" : 0,
+        "noProgress" : 0,
+        "askedFields" : [ ],
+        "reviewFields" : [ "SYMPTOM" ],
+        "status" : "CONTINUE",
+        "nextField" : "SYMPTOM",
+        "nextReason" : "ISSUE_UNCLEAR",
+        "askedReasons" : [ ],
+        "unavailableReasons" : [ ],
+        "knownEvidence" : { },
+        "neededReasons" : [ "ISSUE_UNCLEAR", "CONFLICT", "LOCATION_REQUIRED" ],
+        "urgentReview" : false
+      },
+      "aiMode" : "LIVE"
+    },
+    "semanticStatus" : "PASS"
+  } ]
+}

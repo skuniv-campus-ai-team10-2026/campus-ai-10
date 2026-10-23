@@ -1,4 +1,4 @@
-param([ValidateRange(1024,65535)][int]$Port=8080)
+param([ValidateRange(1024,65535)][int]$Port=8080,[switch]$DemoRouting)
 $ErrorActionPreference='Stop'
 $projectRoot=Split-Path $PSScriptRoot -Parent
 $runtime=Join-Path $projectRoot '.runtime'
@@ -11,7 +11,7 @@ if($LASTEXITCODE -ne 0 -or [IO.Path]::GetFullPath($identity.Trim()).TrimEnd('\')
 $serverPort=& $mysql "--defaults-extra-file=$adminCnf" --batch --skip-column-names --execute='SELECT @@port'
 if($LASTEXITCODE -ne 0 -or [int]$serverPort.Trim() -ne [int]$config.mysqlPort){throw 'MySQL configuration port does not match the verified server.'}
 $allowed=@('AI_BASE_URL','AI_API_KEY','AI_MODEL','EMBEDDING_MODEL','AI_TIMEOUT_SECONDS','AI_MAX_COMPLETION_TOKENS','AI_REASONING_EFFORT')
-$names=$allowed+@('DB_URL','DB_USERNAME','DB_PASSWORD','DEMO_PASSWORD','SPRING_PROFILES_ACTIVE','PORT','COOKIE_SECURE','AI_MODE','EMBEDDING_MODE','JAVA_TOOL_OPTIONS')
+$names=$allowed+@('DB_URL','DB_USERNAME','DB_PASSWORD','DEMO_PASSWORD','SPRING_PROFILES_ACTIVE','PORT','COOKIE_SECURE','AI_MODE','EMBEDDING_MODE','JAVA_TOOL_OPTIONS','DEMO_ROUTING_ENABLED')
 $previous=@{};foreach($name in $names){$previous[$name]=[Environment]::GetEnvironmentVariable($name)}
 try {
     foreach($line in [IO.File]::ReadAllLines((Join-Path $runtime 'ai-verification.env'))){
@@ -33,6 +33,7 @@ GRANT ALL ON skope_ai_quality.* TO 'skope'@'localhost';
     $env:DB_USERNAME='skope';$env:DB_PASSWORD=$secrets.dbPassword;$env:DEMO_PASSWORD=$secrets.demoPassword
     $env:SPRING_PROFILES_ACTIVE='mysql';$env:PORT=$Port.ToString();$env:COOKIE_SECURE='false'
     $env:AI_MODE='LIVE';$env:EMBEDDING_MODE='LIVE'
+    if($DemoRouting){$env:DEMO_ROUTING_ENABLED='true'}
     $env:JAVA_TOOL_OPTIONS='-Djavax.net.ssl.trustStoreType=Windows-ROOT -Djavax.net.ssl.trustStore=NONE'
     $jar=Join-Path $projectRoot 'backend/build/libs/skope-0.1.0.jar'
     if(!(Test-Path -LiteralPath $jar)){throw 'Build the current backend jar before starting verification.'}

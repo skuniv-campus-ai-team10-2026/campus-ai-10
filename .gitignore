@@ -37,3 +37,7 @@ playwright-report/
 *.bak
 .DS_Store
 Thumbs.db
+
+# Per-developer editor state (do not add new local workspaces)
+.idea/
+*.iml

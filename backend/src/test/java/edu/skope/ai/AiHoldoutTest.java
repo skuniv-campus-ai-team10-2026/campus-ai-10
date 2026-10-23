@@ -256,7 +256,7 @@ class AiHoldoutTest {
         Fixture() {
             var source = new DriverManagerDataSource("jdbc:h2:mem:holdout_" + UUID.randomUUID()
                     + ";MODE=MySQL;DATABASE_TO_LOWER=TRUE;DB_CLOSE_DELAY=-1", "sa", "");
-            new ResourceDatabasePopulator(new ClassPathResource("db/migration/V1__core.sql"), new ClassPathResource("db/migration/V2__incidents.sql"), new ClassPathResource("db/migration/V3__intake_context.sql")).execute(source);
+            new ResourceDatabasePopulator(new ClassPathResource("db/migration/V1__core.sql"), new ClassPathResource("db/migration/V2__incidents.sql"), new ClassPathResource("db/migration/V3__intake_context.sql"), new ClassPathResource("db/migration/V4__department_workflow.sql")).execute(source);
             db = new Db(new JdbcTemplate(source)); incidents = new IncidentService(db);
             transaction = new TransactionTemplate(new DataSourceTransactionManager(source));
             transaction.setIsolationLevel(TransactionDefinition.ISOLATION_READ_COMMITTED);

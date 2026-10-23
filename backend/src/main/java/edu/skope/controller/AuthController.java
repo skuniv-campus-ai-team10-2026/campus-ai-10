@@ -28,5 +28,11 @@ public class AuthController {
     @GetMapping("/me") public Map<String,Object> me(Authentication auth){return view(user(auth));}
     @PostMapping("/logout") public Map<String,Object> logout(HttpServletRequest req,HttpServletResponse res){csrf.saveToken(null,req,res);if(req.getSession(false)!=null)req.getSession().invalidate();SecurityContextHolder.clearContext();return Map.of("success",true);}
     public Map<String,Object> user(Authentication auth){if(auth==null)throw new ApiException(401,"UNAUTHENTICATED","로그인이 필요합니다.");var u=db.one("SELECT * FROM users WHERE username=? AND active=TRUE",auth.getName());if(u==null)throw new ApiException(401,"UNAUTHENTICATED","로그인이 필요합니다.");return u;}
-    private Map<String,Object> view(Map<String,Object> u){return Map.of("id",u.get("id"),"role",u.get("role"),"displayName",u.get("displayName"));}
+    private Map<String,Object> view(Map<String,Object> u){
+        var result=new LinkedHashMap<String,Object>();
+        result.put("id",u.get("id"));result.put("role",u.get("role"));result.put("displayName",u.get("displayName"));
+        result.put("departmentId",u.get("departmentId"));
+        var department=u.get("departmentId")==null?null:db.one("SELECT name FROM departments WHERE id=?",u.get("departmentId"));
+        result.put("departmentName",department==null?null:department.get("name"));return result;
+    }
 }

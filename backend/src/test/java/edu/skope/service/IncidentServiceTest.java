@@ -125,8 +125,17 @@ class IncidentServiceTest {
 
     @Test void failedAuditRollsBackIncidentCreationMembershipAndPairReviewTogether() {
         long a = f.wifi(), b = f.wifi(), pair = f.pair(a, b);
+        // Authenticate a valid administrator, then inject a database-level audit failure.
+        // An invalid actor is now rejected before any mutation and cannot exercise rollback.
+        var auditFailureDb = new Db(f.db.jdbc) {
+            @Override public long insert(String sql, Object... args) {
+                if (sql.startsWith("INSERT INTO report_events")) { args=args.clone();args[1]=999999L; }
+                return super.insert(sql,args);
+            }
+        };
+        var service = new IncidentService(auditFailureDb);
         assertThrows(org.springframework.dao.DataIntegrityViolationException.class,
-                () -> f.tx(() -> f.incidents.reviewPair(pair, "SAME_INCIDENT", 999999)));
+                () -> f.tx(() -> service.reviewPair(pair, "SAME_INCIDENT", f.admin)));
         assertNull(f.report(a).get("incidentId")); assertNull(f.report(b).get("incidentId"));
         assertEquals(0, Db.id(f.db.one("SELECT COUNT(*) AS total FROM incidents"), "total"));
         assertEquals("CANDIDATE", f.db.one("SELECT decision FROM similar_pairs WHERE id=?", pair).get("decision"));

@@ -93,7 +93,19 @@ final class ClarificationPolicy {
     private static boolean changed(Map<String,Object> updates,String group){return updates.get(group) instanceof Map<?,?> m&&Set.of("SET","CLEAR","CLARIFY").contains(Objects.toString(m.get("action"),""));}
     private static boolean specificPlace(String place,String building){String s=compact(place);return !s.isBlank()&&!s.equals(compact(building))&&s.matches(".*(?:\\d+호|\\d+층|지하|로비|복도|강의실|화장실|정문|후문|운동장|주차장|정류장|농구장|축구장|테니스장|계단|출입구|세미나실|열람실|광장).*" );}
     private static boolean wide(String value){String s=compact(value);return s.matches(".*(?:건물전체|관전체|건물전역|모든층|전층|곳곳).*" )&&!s.matches(".*(?:전체|전역|모든층|전층|곳곳).{0,6}(?:아니|아닌|모르|인지).*" );}
-    private static boolean wifiDetail(String value){return Arrays.stream(value.split("[.!?;\\n]|지만|인데")).filter(s->!s.matches(".*(?:인지|모르|아마|일수도|아니라|아닌).*" )).anyMatch(s->s.matches(".*(?:끊|느리|느려|느림|불안정|신호약|신호없|목록에없|목록안|비밀번호오류|인증실패|로그인실패|접속할수없|접속이안|접속하지못|연결자체|연결실패|접속실패|접속불가|연결불가|연결이안|연결안|연결되지|연결은되|연결되는데|연결됐는데|연결되지만|연결은됐).*" ));}
+    private static boolean wifiDetail(String value){
+        return connectedWithoutInternet(value)||Arrays.stream(value.split("[.!?;\\n]|지만|인데")).filter(s->!s.matches(".*(?:인지|모르|아마|일수도|아니라|아닌).*" )).anyMatch(s->s.matches(".*(?:끊|느리|느려|느림|불안정|신호약|신호없|목록에없|목록안|비밀번호오류|인증실패|로그인실패|접속할수없|접속이안|접속하지못|연결자체|연결실패|접속실패|접속불가|연결불가|연결이안|연결안|연결되지|연결은되|연결되는데|연결됐는데|연결되지만|연결은됐).*" ));
+    }
+    // Require BOTH observations in the student's words; '먹통' alone is still ambiguous.
+    private static boolean connectedWithoutInternet(String value){
+        if(uncertainInternetPair(value))return false;
+        boolean connected=value.matches(".*(?:connected|연결(?:은|는|이)?(?:됨|됐|되어|돼)|접속(?:은|는|이)?(?:됨|됐|되어|돼)).*");
+        boolean noInternet=value.matches(".*(?:(?:인터넷|internet)(?:은|는|이|가)?(?:먹통|안됨|안돼|안되|불가|notworking|unavailable)|nointernet).*");
+        return connected&&noInternet;
+    }
+    private static boolean uncertainInternetPair(String value){
+        return value.matches(".*(?:인지|모르|아마|일수도|아니|아님|maybe|perhaps|unsure|unknown|notconnected|disconnected|unconnected|connected(?:는|가|이)?(?:아님|아니|안)|먹통(?:은|이|은건|인건)?(?:아님|아니)).*");
+    }
     private static String boundedWifiEvidence(String source){
         // Keep the actual evidence, even when it appears after a long introduction.
         for(String clause:source.split("[.!?;\\n]")){
@@ -108,7 +120,8 @@ final class ClarificationPolicy {
     // A cropped quote must not drop negation or uncertainty from its containing clause.
     private static boolean contextualEvidence(String source,String evidence){
         return Arrays.stream(source.split("[.!?;\\n]"))
-                .anyMatch(clause->clause.contains(evidence)&&!compact(clause).matches(".*(?:인지|모르|아마|아니라|아닌|일수도).*"));
+                .anyMatch(clause->clause.contains(evidence)&&!compact(clause).matches(".*(?:인지|모르|아마|아니라|아닌|일수도).*")
+                        &&(!connectedWithoutInternet(compact(evidence))||!uncertainInternetPair(compact(clause))));
     }
     private static boolean concreteTarget(String value){
         String s=compact(value);

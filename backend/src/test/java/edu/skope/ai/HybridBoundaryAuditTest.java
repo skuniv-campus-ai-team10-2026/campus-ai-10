@@ -29,9 +29,9 @@ class HybridBoundaryAuditTest {
     }
     @Test void usefulBuildingCorrectionDoesNotPrematurelyEndSymptomInterview(){
         var prior=report("WIFI","와이파이가 안됨","북악관 501호","5");
-        var next=report("WIFI","와이파이가 안됨","미래관",null);next.put("building","미래관");
+        var next=report("WIFI","와이파이가 안됨","유담관",null);next.put("building","유담관");
         var old=Map.<String,Object>of("nextReason","SYMPTOM_DETAIL","askedReasons",List.of());
-        var d=ClarificationPolicy.decide("REPORT","북악관 501호 와이파이가 안돼요","건물을 잘못 썼어요. 미래관이에요","SYMPTOM",prior,next,Map.of("turns",1,"noProgress",0,"reviewFields",List.of()),old,Map.of("LOCATION",Map.of("action","SET")),Map.of());
+        var d=ClarificationPolicy.decide("REPORT","북악관 501호 와이파이가 안돼요","건물을 잘못 썼어요. 유담관이에요","SYMPTOM",prior,next,Map.of("turns",1,"noProgress",0,"reviewFields",List.of()),old,Map.of("LOCATION",Map.of("action","SET")),Map.of());
         assertEquals("CONTINUE",d.state().get("status"));
     }
     @Test void modelRecognizedDangerSurvivesReportSaving(){

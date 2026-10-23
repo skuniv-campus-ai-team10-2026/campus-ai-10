@@ -1,6 +1,14 @@
 # SKOPE 로컬 실험 API 구현 계약
 
-기준일: 2026-10-16. `ApiController`, `AuthController`, `SecurityConfig`, 서비스 구현 및 `frontend/src/types.ts`를 읽어 정리했다. **현재 독립 실험 구현의 계약이며 팀의 최종 승인이나 공식 시스템 계약을 뜻하지 않는다.** 실제 실행 증거는 `verification.md`, AI 검증 범위는 `ai-evaluation.md`를 따른다.
+기준일: 2026-10-18. `ApiController`, `AuthController`, `SecurityConfig`, 서비스 구현 및 `frontend/src/types.ts`를 읽어 정리했다. **현재 독립 실험 구현의 계약이며 팀의 최종 승인이나 공식 시스템 계약을 뜻하지 않는다.** 실제 실행 증거는 `verification.md`, AI 검증 범위는 `ai-evaluation.md`를 따른다.
+
+## 부서별 접근·배정 확장
+
+- ADMIN은 전체, DEPT_ADMIN은 DB의 활성 소속 부서 신고만 조회·처리한다. 미배정·타 부서 신고는 404, 소속 없거나 비활성 부서는 403. 모든 변경은 기존 CSRF 유지.
+- `transferRequested=true` 필터와 재배정은 총괄 전용이다. 이관 요청은 현재 배정을 바꾸지 않으며 재배정/완료 시 대기가 해제된다. 관리자 응답에 `transferRequested`, `transferReason`을 추가한다.
+- 유사 후보는 양쪽 신고를 검사하고 사건은 구성원 전체가 허용 범위여야 한다. 타 부서의 과거 사건 참조는 부서 응답에서 숨긴다. 다중 신고 사건의 일부 부서 변경은 409 `INCIDENT_DEPARTMENT_CONFLICT`.
+- 배정 메타데이터에 `assignmentBasis`(VERIFIED/DEMO/기존 자료 UNVERIFIED), `demoOnly`, `warning` 추가. DEMO는 verified=false이고 연락처·출처를 노출하지 않는다. 신규 DEMO 배정은 `DEMO_ROUTING_ENABLED=true`에서만 허용한다. 공식 지식 답변의 근거로 DEMO 규칙을 사용하지 않는다.
+- 신규 이미지 API도 학생 소유권/부서 범위를 적용해야 한다.
 
 ## 공통 형식과 인증
 
@@ -31,26 +39,27 @@
 | Method / 경로 | 권한 | 입력·쿼리 | 성공 응답 |
 |---|---|---|---|
 | GET `/auth/csrf` | 공개 | 없음 | 200 `{token,headerName}` |
-| POST `/auth/login` | 공개 + CSRF | `{username,password}` | 200 `{id,role,displayName}` + 세션 |
-| GET `/auth/me` | 로그인 | 없음 | 200 `{id,role,displayName}` |
+| POST `/auth/login` | 공개 + CSRF | `{username,password}` | 200 `{id,role,displayName,departmentId,departmentName}` + 세션 |
+| GET `/auth/me` | 로그인 | 없음 | 200 `{id,role,displayName,departmentId,departmentName}` |
 | POST `/auth/logout` | 로그인 + CSRF | `{}` | 200 `{success:true}` |
-| GET `/meta` | 공개 | 없음 | 200 `{aiMode,embeddingMode,databaseMode,officialSubmission:false}` |
+| GET `/meta` | 공개 | 없음 | 200 `{aiMode,embeddingMode,databaseMode,officialSubmission:false,demoRoutingEnabled}` |
 | GET `/report-types` | 로그인 (학생·관리자) | 없음 | 200 `{items:RoutingRule[]}` |
 | POST `/assistant/intake` | STUDENT + CSRF | 최초 입력 / 추가 답변 / 재개 / 검토 접수 | 200 `NEEDS_INPUT`, `REVIEW_REQUIRED`, `ACCEPTED` |
 | POST `/assistant/analyze` | STUDENT + CSRF | 분석 요청 | 200 분석 결과, DB 신고 생성 없음 |
 | POST `/reports` | STUDENT + CSRF | 신고 생성 요청 | 201 `ReportDetail` |
 | GET `/reports` | STUDENT | `page=0,size=20,status?` | 본인 신고 페이지 |
 | GET `/reports/{id}` | STUDENT | 양의 ID | 본인 `ReportDetail` |
-| GET `/admin/reports` | ADMIN | `page=0,size=20,status?,routeStatus?` | 전체 신고 페이지 |
-| GET `/admin/reports/{id}` | ADMIN | ID | `ReportDetail` + `events` |
-| PATCH `/admin/reports/{id}/status` | ADMIN + CSRF | `{status,resolutionText?}` | 갱신된 관리자 신고 상세 |
-| PATCH `/admin/reports/{id}/routing` | ADMIN + CSRF | `{routingRuleId}` | 갱신된 관리자 신고 상세 |
-| GET `/admin/reports/{id}/similar` | ADMIN | ID | 유사 후보 응답 |
-| PATCH `/admin/similar-pairs/{id}/review` | ADMIN + CSRF | `{decision}` | 갱신된 pair Map + `incidentId` |
-| PATCH `/admin/reports/{id}/incident` | ADMIN + CSRF | `{incidentId}` | 연결된 사건 상세 |
-| GET `/admin/incidents/{id}` | ADMIN | ID | 사건 상세 |
-| PATCH `/admin/incidents/{id}/recurrence` | ADMIN + CSRF | `{previousIncidentId,decision}` | 갱신된 사건 상세 |
-| GET `/admin/repeated-candidates` | ADMIN | 없음 | `{items,generatedAt,aiMode:"RULE_ONLY"}` |
+| GET `/admin/reports` | ADMIN / DEPT_ADMIN | `page=0,size=20,status?,routeStatus?,transferRequested=false` | 총괄 전체 / 부서 소속 신고 페이지 |
+| GET `/admin/reports/{id}` | ADMIN / DEPT_ADMIN | ID | `ReportDetail` + `events` |
+| PATCH `/admin/reports/{id}/status` | ADMIN / DEPT_ADMIN + CSRF | `{status,resolutionText?}` | 갱신된 관리자 신고 상세 |
+| PATCH `/admin/reports/{id}/routing` | ADMIN + CSRF | `{routingRuleId,reason?}` | 갱신된 관리자 신고 상세 |
+| PATCH `/admin/reports/{id}/transfer-request` | DEPT_ADMIN + CSRF | `{reason}` 필수, 최대 1000자 | 갱신된 관리자 신고 상세 |
+| GET `/admin/reports/{id}/similar` | ADMIN / DEPT_ADMIN | ID | 유사 후보 응답 |
+| PATCH `/admin/similar-pairs/{id}/review` | ADMIN / DEPT_ADMIN + CSRF | `{decision}` | 갱신된 pair Map + `incidentId` |
+| PATCH `/admin/reports/{id}/incident` | ADMIN / DEPT_ADMIN + CSRF | `{incidentId}` | 연결된 사건 상세 |
+| GET `/admin/incidents/{id}` | ADMIN / DEPT_ADMIN | ID | 사건 상세 |
+| PATCH `/admin/incidents/{id}/recurrence` | ADMIN / DEPT_ADMIN + CSRF | `{previousIncidentId,decision}` | 갱신된 사건 상세 |
+| GET `/admin/repeated-candidates` | ADMIN / DEPT_ADMIN | 없음 | `{items,generatedAt,aiMode:"RULE_ONLY"}` |
 
 신고 목록은 ID 내림차순이다. `page`는 0~100000, `size`는 1~100이며 잘못된 범위·필터는 400이다. 유사 후보·반복 후보·유형 목록은 페이지네이션 없는 별도 응답이다.
 
@@ -58,7 +67,7 @@
 
 | 항목 | 값 |
 |---|---|
-| 역할 | `STUDENT`, `ADMIN` |
+| 역할 | `STUDENT`, `ADMIN`(총괄), `DEPT_ADMIN`(부서) |
 | 분류 조합 | `IT/WIFI`, `FACILITY/ELECTRIC`, `FACILITY/LEAK`, `ACADEMIC/STUDENT_RECORD`, `OTHER/UNKNOWN` |
 | 선호 의도 | `AUTO`, `REPORT`, `QUESTION` |
 | 분석 의도 | `REPORT`, `QUESTION`, `UNKNOWN` |
@@ -227,3 +236,24 @@ incidentStatus?, previousIncidentId?, recurrenceDecision, reasonText, timeBasis
 | 503 | `DATABASE_UNAVAILABLE` | DB 처리 실패 |
 
 프런트엔드 `NETWORK_ERROR`는 HTTP 응답 없이 네트워크 호출이 실패했을 때 생성하는 클라이언트 오류다. 프리뷰 프록시의 `HOST_REJECTED`, `ORIGIN_REJECTED`, `PATH_REJECTED`, `UPSTREAM_UNAVAILABLE`, `UPSTREAM_TIMEOUT` 등은 애플리케이션 REST 오류와 구분한다.
+
+## 사진 첨부 API (V5/V6)
+
+신고가 저장된 뒤 받은 ID를 사용한다. 신고 생성 계약은 그대로이며 사진이 실패해도 기존 신고를 재생성하지 않는다. 사진 AI 분석은 없다. 로그인 세션이 필요하고 POST/DELETE에는 기존 CSRF 헤더를 붙인다.
+
+| 메서드 | 경로 | 성공 / 권한 |
+|---|---|---|
+| POST | `/api/reports/{id}/attachments` | 201 / 학생 본인 신고 |
+| GET | `/api/reports/{id}/attachments` | 200 `{items,maxCount}` / 학생 본인 신고 |
+| GET | `/api/reports/{id}/attachments/{attachmentId}/content` | 200 이미지 바이트 / 학생 본인 신고 |
+| DELETE | `/api/reports/{id}/attachments/{attachmentId}` | 204 / 본인 사진, 완료 후에도 가능 |
+| GET | `/api/admin/reports/{id}/attachments` | 200 목록 / 총괄 또는 현재 배정 부서 |
+| GET | `/api/admin/reports/{id}/attachments/{attachmentId}/content` | 200 이미지 / 총괄 또는 현재 배정 부서 |
+
+- 업로드: `multipart/form-data`의 `file` 필드에 정확히 1개. 브라우저 `FormData` 사용 시 Content-Type을 직접 지정하지 않는다. 기존 JSON용 공통 요청 함수를 그대로 쓰면 안 된다.
+- JPEG/PNG만 허용(내용 검사), 파일당 5MB·요청 6MB·신고당 3장·최대 4,000만 화소. 완료된 신고에는 추가할 수 없다. EXIF/GPS/원본 파일명은 보존하지 않으며 JPEG 방향을 픽셀에 반영한다.
+- 첨부 정보: `id`, `reportId`, `contentType`, `sizeBytes`, `width`, `height`, `createdAt`, `contentPath`. 저장 키·원본 파일명은 반환하지 않는다. `contentPath`를 같은 출처의 이미지 주소로 사용한다. 관리자에게는 관리자 경로가 반환된다.
+- 이미지 응답은 private/no-store. 다른 학생이나 이관 후 이전 부서는 404로 접근이 차단된다. 일반 역할·CSRF 오류는 기존 403 규칙을 따른다.
+- 주요 오류: 400 `ATTACHMENT_ONE_PER_REQUEST`/`ATTACHMENT_INVALID_IMAGE`/`ATTACHMENT_TOO_MANY_PIXELS`, 413 `ATTACHMENT_TOO_LARGE`, 415 `ATTACHMENT_UNSUPPORTED_TYPE`, 409 `ATTACHMENT_LIMIT_EXCEEDED`/`ATTACHMENT_REPORT_CLOSED`, 503 `ATTACHMENT_STORAGE_FAILED`.
+- 삭제 204는 첨부 접근 차단과 DB 삭제가 확정됐다는 뜻이다. 디스크 삭제 실패 시 V6 장부에 남겨 재처리하며 신고 내용·처리 결과는 유지한다. 실제 파일 정리 시점과 제한은 [운영 메모](report-attachments.md)를 따른다.
+- API 통신 단절 시 업로드 결과가 불명확할 수 있으므로 목록을 다시 확인한 뒤 재시도를 안내한다. 사진 업로드 자체의 멱등성 키는 현재 없다.

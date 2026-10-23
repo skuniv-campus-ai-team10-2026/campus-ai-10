@@ -6,8 +6,8 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 @Component
 public class SeedData implements CommandLineRunner {
-    private final Db db; private final PasswordEncoder encoder; private final String password;
-    public SeedData(Db db,PasswordEncoder encoder,@Value("${DEMO_PASSWORD:}") String password){this.db=db;this.encoder=encoder;this.password=password;}
+    private final Db db; private final PasswordEncoder encoder; private final String password; private final boolean demoRouting;
+    public SeedData(Db db,PasswordEncoder encoder,@Value("${DEMO_PASSWORD:}") String password,@Value("${app.routing.demo-enabled:false}") boolean demoRouting){this.db=db;this.encoder=encoder;this.password=password;this.demoRouting=demoRouting;}
     @Override public void run(String...args){
         if(!password.isBlank()){
             if(password.length()<12)throw new IllegalStateException("DEMO_PASSWORD must have at least 12 characters");
@@ -16,7 +16,19 @@ public class SeedData implements CommandLineRunner {
                     db.insert("INSERT INTO users(username,password_hash,display_name,role) VALUES(?,?,?,?)",username,encoder.encode(password),username.equals("admin")?"시연 관리자":"시연 학생 "+username.substring(7),username.equals("admin")?"ADMIN":"STUDENT");
             }
         }
-        if(db.one("SELECT id FROM departments LIMIT 1")!=null)return;
+        if(db.one("SELECT id FROM departments LIMIT 1")==null)seedDirectory();
+        // Upgrade only the original unverified sample. Never relabel a verified/custom route
+        // or re-enable a demo rule that an administrator has subsequently disabled.
+        db.update("UPDATE routing_rules SET demo_only=TRUE,active=TRUE WHERE category='FACILITY' AND subcategory='LEAK' AND work_name='누수 담당 업무 미검증' AND source_url IS NULL AND verified_at IS NULL AND demo_only=FALSE AND department_id IN (SELECT id FROM departments WHERE name='총무처 건설관리과')");
+        if(demoRouting&&!password.isBlank()){
+            for(var department:db.all("SELECT id,name FROM departments WHERE active=TRUE ORDER BY id")){
+                long departmentId=Db.id(department,"id");String username="dept"+departmentId;
+                if(db.one("SELECT id FROM users WHERE username=?",username)==null)
+                    db.insert("INSERT INTO users(username,password_hash,display_name,role,department_id) VALUES(?,?,?,?,?)",username,encoder.encode(password),"시연 "+department.get("name")+" 담당자","DEPT_ADMIN",departmentId);
+            }
+        }
+    }
+    private void seedDirectory(){
         long it=dept("정보전산원","https://www.skuniv.ac.kr/campus-network",true);
         long electric=dept("건설관리과 / 전기실","https://www.skuniv.ac.kr/notice/58965",true);
         long general=dept("총무처 건설관리과",null,false);

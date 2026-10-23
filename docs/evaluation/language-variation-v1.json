@@ -1,0 +1,16 @@
+{
+  "id":"language-variation-v1",
+  "scope":"Six synthetic standard/variant pairs; every input submitted through the visible browser to production intake with live OpenAI. No production edits. H2 temporary database, no live embeddings. Human-independent dialect authenticity and population accuracy are not established.",
+  "grading":"Freeze before execution. Grade meaning/grounding and intake behavior separately. Preserve place, observed symptom, negation and emergency without invented detail. Same meaning should produce equivalent fields and reasonable next action, not identical wording. For heat, acceptance or a concrete relevant clarification is allowed, but asking what is uncomfortable as if heat was never stated fails behavior. Undefined input must request clarification and cannot invent location/symptom. Evaluate each side independently before paired consistency; two equally wrong outputs are not a passing pair.",
+  "budget":{"llmCallsMax":12,"embeddingCallsMax":0,"automaticRetries":0,"usdCap":0.10,"maxInputTokenProxy":25000,"maxCompletionTokens":2048,"reservationUsd":0.084576,"model":"gpt-6-luna","inputUsdPerMillion":0.10,"outputUsdPerMillion":0.50,"pricingSource":"https://developers.openai.com/api/docs/models/gpt-6-luna","priceChecked":"2026-10-18"},
+  "pairs":[
+    {"id":"P1","kind":"사투리 표현","standard":"다온관 312호에서 와이파이가 자꾸 끊겨요.","variant":"다온관 312호 와이파이가 자꾸 끊긴다 아입니꺼.","expected":"REPORT, IT/WIFI, 다온관 312호/3층, repeated disconnection not association failure, not emergency, accept without asking already supplied location or symptom."},
+    {"id":"P2","kind":"축약·영어 혼합","standard":"다온관 410호에서 와이파이 연결은 되는데 인터넷 페이지가 열리지 않아요.","variant":"다온관 410호 와파 connected는 됨 근데 인터넷 먹통임.","expected":"REPORT, IT/WIFI, 다온관 410호/4층, connected Wi-Fi but internet unusable; do not say connection impossible, not emergency, accept."},
+    {"id":"P3","kind":"오타·띄어쓰기 생략","standard":"새봄관 203호 천장에서 물이 떨어져요.","variant":"새봄관203호천장에서물이떨어저요ㅠㅠ",
+     "expected":"REPORT, FACILITY/LEAK, 새봄관 203호/2층, water dripping from ceiling, no invented pipe rupture or onset time, accept."},
+    {"id":"P4","kind":"감정·비속어·축약","standard":"해든관 502호 강의실이 너무 더워요.","variant":"아 진짜 해든관502호 개더움;;",
+     "expected":"Preserve 해든관 502호/5층 and excessive room heat; no invented AC breakdown. Accept or ask only a concrete relevant follow-up; generic ISSUE_UNCLEAR/what is uncomfortable question fails behavior because heat is already stated."},
+    {"id":"P5","kind":"사투리·위험 부정 혼합","standard":"새봄관 104호 콘센트에서 연기가 나요. 불꽃은 보이지 않아요.","variant":"새봄관 104호 콘센트서 연기 나는디 불꽃은 안 보여유.","expected":"REPORT, FACILITY/ELECTRIC, 새봄관 104호/1층, observed smoke remains positive despite negated sparks; emergency true; urgent acceptance without delaying for unrelated questions; no invented visible fire."},
+    {"id":"P6","kind":"사투리·불명확한 지시어","standard":"여기 또 이러네요.","variant":"여그 또 이러네유.","expected":"UNKNOWN or unresolved intent, no invented building/floor/concrete symptom; NEEDS_INPUT asking what happened or where; no automatic acceptance of a fabricated report."}
+  ]
+}

@@ -1,6 +1,87 @@
 # SKOPE 구현·실행 검증 결과
 
-최종 검증일: **2026-10-16 KST**. 사용자가 제공한 `SKOPE_CODEX_IMPLEMENTATION_SPEC.md`를 기준으로 로컬 프로젝트를 구현했다. 실제 학교 접수·외부 배포·Notion 수정·공식 저장소 변경은 수행하지 않았다.
+최종 검증일: **2026-10-23 KST**. 사용자가 제공한 명세와 이후 승인된 개선 요청을 기준으로 구현했다. 실제 학교 접수·외부 배포·Notion 수정은 수행하지 않았다. 팀 GitHub 저장소의 최신 통합은 아래 기록을 따른다.
+
+## 2026-10-23 사진 PR 및 로컬 최신 변경 통합
+
+사진 PR #1의 `41512b6`(첨부 V5·정리 장부 V6), 부서별 관리자·이관, AI `hybrid-intake-v2` / `hybrid-check-v3`, 공식 장소 예시와 과거 평가 자료를 통합했다. 기존 V1~V5는 그대로다. 프런트 디자인 교체 및 사진 화면은 담당자 후속 작업으로 남겼다.
+
+| 검증 | 결과 | 범위 |
+|---|---|---|
+| 백엔드 전체 H2 회귀 | 347 PASS / 0 FAIL / 14 SKIP | 361건. 유료·캐시 평가 opt-in 14건 제외 |
+| MySQL 포함 통합/첨부 회귀 | 92 PASS / 0 FAIL / 0 SKIP | MySQL 사용 59건 + 파일/이미지 단위 33건 |
+| V4 → V5 → V6 | PASS | 기존 `skope_test`에서 Flyway 적용·기존 버전 체크섬 확인 |
+| 자연어 접수 + 사진 + 부서 재배정 + 학생 결과 | PASS | 새 HTTP 통합 사례, 위 MySQL 집계에 포함 |
+| 추가 HTTP 통합 사례의 H2 실행 | 1 PASS | 전체 회귀 후 추가한 위 사례만 실행. H2 합계 348 PASS / 14 SKIP |
+| 프런트 회귀 / 빌드 | 57 PASS / 빌드 PASS | 기존 임시 UI, 디자인 변경 없음 |
+| 백엔드 bootJar | PASS | 통합 제품 코드 |
+| 비밀정보 검사 | 검출 0건 | 알려진 로컬 값·일반 키 패턴·금지 경로, 전체 보증 아님 |
+
+유료 API 호출 0회. DEMO/RULE_ONLY 및 합성 사진을 사용했다. 이번 결과를 LIVE AI 정확도나 브라우저 사진 E2E로 보고하지 않는다. 기존 개발·시연 MySQL 데이터는 유지하고, 테스트 전용 DB만 백업 후 사용했다. 최초 샌드박스 실행은 Gradle 로컬 통신 제한으로 시작하지 못했으며 허용된 로컬 실행에서 위 검증을 완료했다.
+
+삭제 실패 후 추적·재처리, 업로드 DB 저장 실패 시 파일 정리 추적, 정상 첨부 보존, 같은 인스턴스의 진행 중 업로드 보호, 재시작 상태 모의·배치 제한을 회귀 검증했다. 실제 프로세스 강제 종료는 이번에 재현하지 않았으며 팀원이 보고한 범위는 [첨부 운영 메모](report-attachments.md)에 구분되어 있다. 주기 정리 작업이 없다는 제한은 유지한다.
+
+프런트 파일별 활용 방법과 API 연결 주의점은 [인수인계](TEAM_HANDOFF.md), 사진 API는 [계약](api-contract.md#사진-첨부-api-v5v6)을 참고한다.
+
+## 2026-10-20 표현 변형 오류 수정
+
+**이후 장소 예시 정정:** 공식 자료의 북악관 608호·은주2관 2층 205호·유담관 12층 1202호/14층 1404호를 확인하고 향후 평가 입력 및 임시 화면 데이터를 교체했다. 관련 로컬 166 PASS, 수동 시연 신고 저장·학생 조회 4/4 PASS. 현재 임시 화면은 DEMO/H2이며 신규 API 호출 0회다. 과거 LIVE 입력·응답과 MySQL은 보존했고 새 장소의 LIVE 품질은 미검증이다. [범위·출처·변경 파일](evaluation/campus-locations-review.md).
+
+프롬프트 `hybrid-intake-v2`, 정책 `hybrid-check-v3`. 영어 혼합 표현의 불필요한 재질문과 축약된 더위 증상 누락을 수정했다. 관련 로컬 175 PASS 및 빌드 PASS, 기존 응답 12건 재생(옛 모델 누락 1건은 새 추론 필요), 새 LIVE 개발 사례 2/2·새 합성 사례 4/4 PASS. 최종 서버 HTTP 6/6 PASS는 실제 응답 캐시·격리 H2 기준이며 추가 API 0회다. 새 LIVE는 총 6회, 입력 10,148/출력 974토큰, 보수적 추정 $0.0017555. 수정 후 브라우저 클릭·MySQL·Embedding·관리자 처리 재검사는 미수행이다. [변경 파일·전후 비교·한계](evaluation/language-variation-v2-review.md).
+
+## 2026-10-18 부서별 담당자·총괄 관리자·시연 배정
+
+**구현·회귀·MySQL·브라우저 검증 완료. 새 유료 API 호출 0회.** 현재 등록된 정보전산원/전기실/건설관리과/교무과 4개 부서를 모두 지원한다. 학교 전체 조직을 새로 조사하거나 실제 학교 담당자 계정을 만든 것은 아니다. 기존 AI 모델·프롬프트·질문 정책과 학생 저장 요청 계약은 유지했다.
+
+### 변경 범위
+
+| 파일 | 변경 |
+|---|---|
+| `backend/src/main/resources/db/migration/V4__department_workflow.sql` | 사용자 소속 부서 FK, 시연 규칙 `demo_only`, 부서 조회 인덱스. V1~V3 원본 유지 |
+| `DepartmentAccess.java`, `SecurityConfig.java`, `AuthController.java` | 총괄 ADMIN/부서 DEPT_ADMIN 구분, DB 소속·활성 상태 검증, 인증 응답에 부서 정보 |
+| `ReportService.java`, `ApiController.java` | 부서별 목록·상세·처리 범위, 이관 사유/대기 목록, 총괄 재배정과 이력 |
+| `IncidentService.java`, `SimilarityService.java` | 후보 양쪽·사건 전체 구성원 권한 검사, 타 부서 과거 사건 숨김, 부서 범위에서 후보 그룹 구성 |
+| `RoutingService.java`, `SeedData.java`, `application.properties` | 시연 규칙 기본 비활성, 옵션 활성 시 부서별 계정 생성·누수 가정 배정, 미검증 연락처/출처 숨김 |
+| `frontend/src/App.tsx`, `reports.tsx`, `student.tsx`, `ui.tsx`, `types.ts`, `styles.css` | 소속 부서 화면·이관 요청, 총괄 미배정/이관 필터·재배정 사유, 시연용 배정 표시 |
+| `scripts/Start-Backend.ps1`, `Start-LiveVerificationBackend.ps1` | `-DemoRouting` 옵션. AI 모드와 배정 시연 설정을 분리 |
+
+신규 테스트는 `DepartmentWorkflowTest.java`, `RoutingServiceTest.java`, `DepartmentWorkflowIntegrationTest.java`, `frontend/src/department-workflow.test.tsx`. 기존 `IncidentServiceTest.java`는 새 권한 검사 이후에도 DB 감사 이력 실패의 트랜잭션 롤백을 검사하도록 오류 주입 위치를 수정했다. `IncidentTestFixture.java`, `AiHoldoutTest.java`에는 V4 테스트 스키마를 반영했다. holdout LIVE 재실행은 하지 않았다.
+
+### 결과
+
+| 검사 | 결과 | 범위 |
+|---|---|---|
+| 백엔드 관련 6개 클래스 | **101 PASS / 0 FAIL / 0 SKIP** | 단위·H2 73 + 실제 HTTP/MySQL 28 |
+| 부서 신규 HTTP/MySQL | **8 PASS** | 네 부서 처리, 타 부서 접근·CSRF 차단, 이관/재배정, 시연·미배정, 후보·사건·재발 제한, 기존 세션의 소속 변경/비활성 반영 |
+| 기존 API HTTP/MySQL | **20 PASS** | 기존 접수·학생 소유권·관리자 처리 등 변경 영향 회귀 |
+| 프런트 관련 | **52 PASS / 0 FAIL** | 부서 UI 9 + 기존 flows 35 + intake 6 + session privacy 2. 서로 다른 실행의 고유 테스트 합계이며 중복 합산하지 않음 |
+| 빌드 | **bootJar / TypeScript / Vite PASS** | 새 라이브러리 없음 |
+| 실제 브라우저 + MySQL | **PASS** | 아래 합성 신고 1건. AI는 DEMO, Embedding RULE_ONLY |
+| 새 LIVE AI/Embedding | **미실행** | 호출·토큰·비용 모두 0. 기존 LIVE 정확도를 이번 버전의 새 측정으로 인용하지 않음 |
+
+백엔드 클래스별: ApiIntegrationTest 20, DepartmentWorkflowIntegrationTest 8, DepartmentWorkflowTest 11, IncidentServiceTest 10, RoutingServiceTest 6, SimilarityServiceTest 46. HTTP 통합은 `skope_test`에서 실행했다. 초기 H2 실행에서 감사 이력 오류 주입 1건이 새 권한 검사에 먼저 차단되어 테스트 목적에 맞게 수정했고, 최종 실행은 모두 통과했다.
+
+검토 중 타 부서 후보와 같은 전역 묶음에 들어가면 자기 부서의 후보까지 사라지는 경계 사례를 발견했다. 그룹 구성 전에 소속 부서 범위를 적용하고 신규 회귀를 추가했다. 서로 다른 부서의 신고를 포함한 사건 조회/처리와 부분 재배정은 차단한다.
+
+### 브라우저 실행 증거
+
+별도 `skope_department_verification` DB, 임시 백엔드 8081/프리뷰 4175, 고정 합성 입력 “북악관 502호 천장에서 물이 떨어져요.” 1건으로 검증했다. 개인 정보·LIVE 키는 사용하지 않았다.
+
+1. student1이 입력 → DEMO 분석 → MySQL 신고 #1 → 건설관리과 시연용 가정 배정/미검증 안내 표시.
+2. dept3이 소속 목록에서 확인 → 전기 안전 점검이 필요하다는 이관 사유 등록. 처리 상태와 현재 부서 유지.
+3. admin이 이관 대기 필터에서 확인 → 사유를 남겨 전기실 재배정.
+4. dept3 목록에서 제외되고 기존 상세 URL 직접 접근도 REPORT_NOT_FOUND. dept2는 새 배정 신고 확인 가능.
+5. dept2가 처리 시작·완료 및 합성 조치 결과 등록 → student1 결과 조회·새로고침 후 유지.
+
+증거: [부서 담당자 처리 완료](evidence/department-workflow-admin.png), [학생 결과 조회](evidence/department-workflow-student.png). 해당 테스트는 실제 UI·세션·CSRF·MySQL을 사용했지만 **실제 LLM 검증이 아니다**. 임시 검증 서버는 종료하고 데이터는 합성 검증 DB에 보존한다. 기존 사용자 시연 DB는 테스트 대상으로 사용하지 않았다.
+
+### 남은 범위·협업
+
+- 여러 신고가 이미 묶인 사건의 일괄 부서 이관, 담당자 개인별 할당, 외부 알림, 학교 실제 연동은 추가하지 않았다. 사건 일부를 나누는 재배정에는 명확한 409를 반환한다.
+- 담당 부서 정보는 기존 기록 기준이며 시연 가정은 공식 경로로 승격하지 않았다. `DEMO_ROUTING_ENABLED=false`로 끄면 신규 시연 배정은 차단되지만 기존 기록은 삭제하지 않는다.
+- 기본 신규 DB 계정은 admin(총괄), dept1~dept4(부서). 실제 ID/계정·시작 방법·이미지 개발자의 권한 계약은 [TEAM_HANDOFF.md](TEAM_HANDOFF.md) 참조.
+- 이미지 팀원과 **V4 마이그레이션 번호 충돌 및 DEPT_ADMIN 이미지 접근 범위**를 합의해야 한다. 원격 브랜치 병합/푸시는 하지 않았다.
+
 
 ## 2026-10-16 발견 결함 수정 — hybrid-check-v2
 

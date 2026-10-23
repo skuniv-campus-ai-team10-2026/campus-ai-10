@@ -14,14 +14,17 @@ import java.util.*;
 public class IncidentService {
     private static final ZoneId SEOUL = ZoneId.of("Asia/Seoul");
     private final Db db;
+    private final DepartmentAccess access;
 
-    public IncidentService(Db db) { this.db = db; }
+    public IncidentService(Db db) { this.db = db; this.access = new DepartmentAccess(db); }
 
     public void start(long reportId, long actorId) {
         var report = report(reportId, true);
+        access.requireReport(actorId, reportId);
         if ("QUESTION".equals(report.get("requestKind"))) return;
         if (report.get("incidentId") != null) {
             var existing = incident(Db.id(report, "incidentId"), true);
+            access.requireIncident(actorId, Db.id(report, "incidentId"));
             if (!"OPEN".equals(existing.get("status"))) conflict("종료된 사건에 속한 신고입니다.");
             return;
         }
@@ -47,6 +50,7 @@ public class IncidentService {
             throw new ApiException(400, "VALIDATION_ERROR", "유사 후보 검토 결정을 선택해 주세요.");
         var pair = db.one("SELECT * FROM similar_pairs WHERE id=? FOR UPDATE", pairId);
         if (pair == null) throw new ApiException(404, "REPORT_NOT_FOUND", "유사 후보를 찾을 수 없습니다.");
+        access.requirePair(actorId, pairId);
         String old = Db.str(pair, "decision");
         if (!"CANDIDATE".equals(old)) {
             if (old.equals(decision)) return pair;
@@ -56,7 +60,9 @@ public class IncidentService {
         long leftId = Db.id(pair, "leftReportId"), rightId = Db.id(pair, "rightReportId");
         var left = report(Math.min(leftId, rightId), true);
         var right = report(Math.max(leftId, rightId), true);
+        access.requirePair(actorId, pairId);
         var lockedIncidents = lockIncidentIds(left.get("incidentId"), right.get("incidentId"));
+        for (long linked : lockedIncidents.keySet()) access.requireIncident(actorId, linked);
         Long resultingIncident = null;
         if ("SAME_INCIDENT".equals(decision)) {
             requireCompatibleMembership(left, right);
@@ -97,13 +103,15 @@ public class IncidentService {
 
     public Map<String, Object> link(long reportId, long incidentId, long actorId) {
         var report = report(reportId, true);
+        access.requireReport(actorId, reportId);
         if ("QUESTION".equals(report.get("requestKind"))) conflict("일반 문의는 시설 사건에 연결할 수 없습니다.");
         var locked = lockIncidentIds(report.get("incidentId"), incidentId);
+        for (long linked : locked.keySet()) access.requireIncident(actorId, linked);
         var target = locked.get(incidentId);
         if (!"OPEN".equals(target.get("status"))) conflict("종료된 사건에는 신고를 연결할 수 없습니다.");
         if (report.get("incidentId") != null) {
             if (Db.id(report, "incidentId") != incidentId) conflict("이미 다른 사건에 연결된 신고입니다.");
-            return detail(incidentId);
+            return detail(incidentId, actorId);
         }
         if ("RESOLVED".equals(report.get("status"))) conflict("완료된 신고를 새 사건에 연결할 수 없습니다.");
         requireCompatibleMembership(report, target);
@@ -111,7 +119,25 @@ public class IncidentService {
         requireConfirmedRecurrenceCompatible(incidentId, List.of(report));
         attach(report, incidentId, actorId);
         updateCandidateAfterMembership(incidentId);
-        return detail(incidentId);
+        return detail(incidentId, actorId);
+    }
+
+    @Transactional
+    public Map<String, Object> detail(long incidentId, long actorId) {
+        // Routing/membership writers use report -> incident locks in this same order.
+        // Keep ownership stable until all report text and history have been returned.
+        for (var member : members(incidentId)) report(Db.id(member, "id"), true);
+        incident(incidentId, true);
+        access.requireIncident(actorId, incidentId);
+        var result = detail(incidentId);
+        if (result.get("previousIncidentId") != null
+                && !access.canReadIncident(actorId, Db.id(result, "previousIncidentId"))) {
+            result.remove("previousIncident");
+            result.put("previousIncidentId", null);
+            result.put("recurrenceDecision", "NOT_EVALUATED");
+            result.put("reasonText", recurrenceReason(members(incidentId), false));
+        }
+        return result;
     }
 
     @Transactional(readOnly = true)
@@ -133,6 +159,8 @@ public class IncidentService {
     }
 
     public Map<String, Object> recurrence(long incidentId, long previousId, String decision, long actorId) {
+        access.requireIncident(actorId, incidentId);
+        access.requireIncident(actorId, previousId);
         if (!Set.of("CONFIRMED", "REJECTED").contains(Objects.toString(decision, "")))
             throw new ApiException(400, "VALIDATION_ERROR", "재발 확인 또는 반려를 선택해 주세요.");
         if (incidentId == previousId) invalidRecurrence("같은 사건을 과거 사건으로 참조할 수 없습니다.");
@@ -140,6 +168,8 @@ public class IncidentService {
         var initialReports = members(incidentId);
         for (var report : initialReports) report(Db.id(report, "id"), true);
         var locked = lockIncidentIds(incidentId, previousId);
+        access.requireIncident(actorId, incidentId);
+        access.requireIncident(actorId, previousId);
         var current = locked.get(incidentId);
         var previous = locked.get(previousId);
         var reports = members(incidentId);
@@ -153,18 +183,47 @@ public class IncidentService {
         for (var report : reports)
             audit(Db.id(report, "id"), actorId, "RECURRENCE_REVIEW", old, decision,
                     "과거 사건 #" + previousId + ". " + recurrenceReason(reports, true));
-        return detail(incidentId);
+        return detail(incidentId, actorId);
+    }
+
+    @Transactional(readOnly = true)
+    @SuppressWarnings("unchecked")
+    public Map<String, Object> repeated(long actorId) {
+        access.departmentId(actorId);
+        var result = new LinkedHashMap<>(repeatedScoped(actorId));
+        var visible = new ArrayList<Map<String, Object>>();
+        for (var item : (List<Map<String, Object>>) result.get("items")) {
+            var ids = (List<Number>) item.get("reportIds");
+            if (!ids.stream().allMatch(id -> access.canReadReport(actorId, id.longValue()))) continue;
+            if (item.get("previousIncidentId") != null
+                    && !access.canReadIncident(actorId, Db.id(item, "previousIncidentId"))) {
+                item.put("previousIncidentId", null);
+                item.put("recurrenceDecision", "NOT_EVALUATED");
+                item.put("reasonText", "소속 부서 신고의 사건 후보입니다. 최종 판단은 담당자가 확인합니다.");
+            }
+            visible.add(item);
+        }
+        result.put("items", visible);
+        return result;
     }
 
     @Transactional(readOnly = true)
     public Map<String, Object> repeated() {
+        return repeatedScoped(null);
+    }
+
+    private Map<String, Object> repeatedScoped(Long actorId) {
         List<Map<String, Object>> items = new ArrayList<>();
         for (var incident : db.all("SELECT * FROM incidents ORDER BY created_at DESC,id DESC")) {
+            if (actorId != null && !access.canReadIncident(actorId, Db.id(incident,"id"))) continue;
             var reports = members(Db.id(incident, "id"));
             if (reports.isEmpty()) continue;
             items.add(candidateItem(incident, reports, incident.get("previousIncidentId"), "INCIDENT"));
         }
-        var pending = db.all("SELECT * FROM reports WHERE incident_id IS NULL ORDER BY id");
+        Long department = actorId == null ? null : access.departmentId(actorId);
+        var pending = department == null
+                ? db.all("SELECT * FROM reports WHERE incident_id IS NULL ORDER BY id")
+                : db.all("SELECT * FROM reports WHERE incident_id IS NULL AND assigned_department_id=? ORDER BY id", department);
         Map<Long, List<Map<String, Object>>> groups = new LinkedHashMap<>();
         for (var report : pending) groups.put(Db.id(report, "id"), new ArrayList<>(List.of(report)));
         var pairs = db.all("SELECT left_report_id,right_report_id FROM similar_pairs WHERE decision='CANDIDATE' ORDER BY id");

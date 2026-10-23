@@ -1,0 +1,59 @@
+{
+  "id": "language-variation-v3",
+  "labelLimitation": "Derived location regression set from v2; all six cases are development data, NOT an independent holdout. Official place examples are sourced in campus-locations.json. Complaints are synthetic. No new LIVE execution has occurred. Expectations fixed before future execution.",
+  "preflight": {
+    "maxNewCalls": 6,
+    "maxEmbeddings": 0,
+    "maxRetries": 0,
+    "budgetUsd": 0.05,
+    "conservativeReservationUsd": 0.049788,
+    "maxInputTokenProxy": 25000,
+    "maxCompletionTokens": 2048,
+    "model": "gpt-6-luna",
+    "serviceTier": "default",
+    "inputUsdPerMillion": 0.1,
+    "cacheWriteUsdPerMillion": 0.125,
+    "cachedInputUsdPerMillion": 0.01,
+    "outputUsdPerMillion": 0.5,
+    "priceChecked": "2026-10-19",
+    "pricingSource": "https://developers.openai.com/api/docs/models/gpt-6-luna"
+  },
+  "cases": [
+    {
+      "id": "D1",
+      "split": "derived-development",
+      "text": "북악관 608호 와파 connected는 됨 근데 인터넷 먹통임.",
+      "expected": "REPORT IT/WIFI; 북악관 608호 floor6 (room-number inference, not official floor confirmation); connected Wi-Fi but unusable internet, not connection failure; no repeated symptom/location question; COMPLETE, nonurgent."
+    },
+    {
+      "id": "D2",
+      "split": "derived-development",
+      "text": "아 진짜 은주2관 2층 205호 개더움;;",
+      "expected": "Preserve 은주2관205호 floor2 and excessive heat. Do not invent air-conditioner breakdown or cause. COMPLETE or concrete relevant clarification allowed; generic ISSUE_UNCLEAR fails."
+    },
+    {
+      "id": "H1",
+      "split": "derived-development",
+      "text": "북악관 608호 개추움ㅠ 손 시려서 수업 듣기 힘듦",
+      "expected": "Preserve 북악관608호 floor6 (room-number inference), excessive cold and cold hands, no invented broken heater, no generic ISSUE_UNCLEAR; COMPLETE or concrete relevant clarification allowed; nonurgent."
+    },
+    {
+      "id": "H2",
+      "split": "derived-development",
+      "text": "유담관 12층 1202호 wifi connected but no internet",
+      "expected": "REPORT IT/WIFI; 유담관1202호 floor12; connected network but unavailable internet, no invented router fault; COMPLETE without asking connection mode; nonurgent."
+    },
+    {
+      "id": "H3",
+      "split": "derived-development",
+      "text": "은주2관 2층 205호 엄청 더운 건 아니고 그냥 불편해요",
+      "expected": "Heat is negated, concrete problem unspecified. Do not assert excessive heat or broken AC. Ask actual symptom (ISSUE_UNCLEAR/CONTINUE), no automatic acceptance; retain location, nonurgent."
+    },
+    {
+      "id": "H4",
+      "split": "derived-development",
+      "text": "유담관 14층 1404호 와파 먹통임. connected인지는 모르겠음",
+      "expected": "IT/WIFI; 유담관1404호 floor14; generic Wi-Fi failure with uncertain connection state. Do not invent positive connected/disconnected fact. Ask SYMPTOM_DETAIL/CONTINUE, nonurgent."
+    }
+  ]
+}

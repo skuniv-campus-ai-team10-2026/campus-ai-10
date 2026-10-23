@@ -169,7 +169,7 @@ class SimilarityServiceTest {
         assertEquals(List.of("EMBEDDING_THRESHOLD"), below.get("excludedBy"));
         assertEquals(false, below.get("candidate"));
         right.put("category", "FACILITY"); right.put("subcategory", "ELECTRIC");
-        right.put("building", "한빛관"); right.put("floor", "5"); right.put("locationText", "한빛관 507호");
+        right.put("building", "유담관"); right.put("floor", "5"); right.put("locationText", "유담관 507호");
         right.put("createdAt", LocalDateTime.of(2026, 1, 1, 0, 0).plusDays(31));
         var blocked = SimilarityService.diagnose(left, right, .82, 30);
         assertEquals(List.of("TYPE", "BUILDING", "FLOOR", "ROOM", "TIME_WINDOW", "EMBEDDING_THRESHOLD"), blocked.get("excludedBy"));
@@ -242,25 +242,25 @@ class SimilarityServiceTest {
     }
 
     @Test void connectivitySupportNeverBypassesItsScoreFloorOrPlaceTypeAndTimeGates() {
-        var left = diagnosticReport("한울관", "6", "한울관 612호", new double[]{1, 0});
-        var right = diagnosticReport("한울관", "6", "한울관 612호", new double[]{.69, Math.sqrt(1 - .69 * .69)});
+        var left = diagnosticReport("은주2관", "6", "은주2관 612호", new double[]{1, 0});
+        var right = diagnosticReport("은주2관", "6", "은주2관 612호", new double[]{.69, Math.sqrt(1 - .69 * .69)});
         left.put("originalText", "와이파이 연결이 자꾸 끊겨요"); right.put("originalText", "무선망이 계속 단절됩니다");
         assertEquals(false, SimilarityService.diagnose(left, right, .82, 30).get("candidate"));
         right.put("embeddingJson", java.util.Arrays.toString(new double[]{.71, Math.sqrt(1 - .71 * .71)}));
         assertEquals(true, SimilarityService.diagnose(left, right, .82, 30).get("candidate"));
-        right.put("locationText", "한울관 613호");
+        right.put("locationText", "은주2관 613호");
         assertEquals(List.of("ROOM"), SimilarityService.diagnose(left, right, .82, 30).get("excludedBy"));
-        right.put("locationText", "한울관 612호"); right.put("createdAt", LocalDateTime.of(2026, 2, 1, 0, 0));
+        right.put("locationText", "은주2관 612호"); right.put("createdAt", LocalDateTime.of(2026, 2, 1, 0, 0));
         assertEquals(List.of("TIME_WINDOW"), SimilarityService.diagnose(left, right, .82, 30).get("excludedBy"));
         right.put("createdAt", left.get("createdAt")); right.put("category", "FACILITY"); right.put("subcategory", "ELECTRIC");
         assertEquals(false, SimilarityService.diagnose(left, right, .82, 30).get("candidate"));
     }
 
     @ParameterizedTest @ValueSource(strings = {
-            "한울관 612호 무선 인터넷 접속이 자꾸 끊깁니다.", "한울관 와이파이가 불안정합니다.",
+            "은주2관 612호 무선 인터넷 접속이 자꾸 끊깁니다.", "은주2관 와이파이가 불안정합니다.",
             "무선망 재접속을 계속 반복합니다.", "무선망이 수업 중 꺼져요.", "와이파이 연결이 안 됩니다."})
     void explicitConnectivityFailureIncludesSeveralFailureExpressions(String text) {
-        var report = diagnosticReport("한울관", "6", "한울관 612호", new double[]{1, 0}); report.put("originalText", text);
+        var report = diagnosticReport("은주2관", "6", "은주2관 612호", new double[]{1, 0}); report.put("originalText", text);
         assertTrue(SimilarityService.explicitConnectivityFailure(report));
     }
 
@@ -270,9 +270,9 @@ class SimilarityServiceTest {
             "와이파이가 끊겨서 비밀번호 변경도 요청합니다.", "와이파이 안내 스티커에 끊김이라고 적혀 있습니다.",
             "모니터 화면만 끊기고 와이파이는 정상입니다.", "와이파이는 아니고 전등이 꺼집니다."})
     void ambiguousDistinctOrNegatedProblemsDoNotUseTheRecallSupportRule(String text) {
-        var left = diagnosticReport("한울관", "6", "한울관 612호", new double[]{1, 0});
-        var right = diagnosticReport("한울관", "6", "한울관 612호", new double[]{.75, Math.sqrt(1 - .75 * .75)});
-        left.put("originalText", "한울관 와이파이 연결이 자꾸 끊깁니다."); right.put("originalText", text);
+        var left = diagnosticReport("은주2관", "6", "은주2관 612호", new double[]{1, 0});
+        var right = diagnosticReport("은주2관", "6", "은주2관 612호", new double[]{.75, Math.sqrt(1 - .75 * .75)});
+        left.put("originalText", "은주2관 와이파이 연결이 자꾸 끊깁니다."); right.put("originalText", text);
         assertFalse(SimilarityService.explicitConnectivityFailure(right));
         assertEquals(false, SimilarityService.diagnose(left, right, .82, 30).get("candidate"));
     }
