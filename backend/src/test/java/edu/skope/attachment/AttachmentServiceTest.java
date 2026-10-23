@@ -50,6 +50,7 @@ class AttachmentServiceTest {
     }
 
     @BeforeEach void clean() throws Exception {
+        db.update("DELETE FROM attachment_cleanup");
         db.update("DELETE FROM report_attachments"); db.update("DELETE FROM report_events"); db.update("DELETE FROM similar_pairs");
         db.update("DELETE FROM reports"); db.update("UPDATE incidents SET previous_incident_id=NULL"); db.update("DELETE FROM incidents");
         db.update("UPDATE departments SET active=TRUE");
@@ -98,8 +99,10 @@ class AttachmentServiceTest {
         assertNotNull(ImageIO.read(new ByteArrayInputStream(content.bytes())));
         assertEquals(1, files());
 
+        assertNull(db.one("SELECT storage_key FROM attachment_cleanup"), "a finished upload leaves no ledger entry");
         service.deleteForStudent(student1, r, id(view));
         assertEquals(0, rows(r)); assertEquals(0, files());
+        assertNull(db.one("SELECT storage_key FROM attachment_cleanup"), "a successful delete leaves no ledger entry");
         var event = db.one("SELECT * FROM report_events WHERE report_id=? AND event_type='ATTACHMENT_DELETED'", r);
         assertEquals(String.valueOf(id(view)), event.get("oldValue"));
         assertEquals(student1, Db.id(event, "actorId"));
@@ -186,6 +189,7 @@ class AttachmentServiceTest {
             .when(db).insert(startsWith("INSERT INTO report_attachments"), any(Object[].class));
         assertThrows(DataAccessResourceFailureException.class, () -> service.upload(student1, r, jpeg()));
         assertEquals(0, rows(r)); assertEquals(0, files());
+        assertNull(db.one("SELECT storage_key FROM attachment_cleanup"), "file removed at once, so nothing left to retry");
         assertEquals("RECEIVED", db.one("SELECT status FROM reports WHERE id=?", r).get("status"));
     }
 

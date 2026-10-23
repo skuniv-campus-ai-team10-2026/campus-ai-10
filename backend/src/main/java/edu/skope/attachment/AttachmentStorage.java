@@ -56,12 +56,22 @@ public class AttachmentStorage {
         }
     }
 
-    /** Never throws: cleanup must not turn a finished operation into a failure. */
-    public boolean delete(String key) {
+    /** DELETED and ALREADY_GONE both mean "the file is gone"; only FAILED needs another attempt. */
+    public enum Removal { DELETED, ALREADY_GONE, FAILED }
+
+    /** Never throws: the caller decides what a FAILED result means (AttachmentCleanup keeps it for retry). */
+    public Removal remove(String key) {
+        Path file;
         try {
-            return deleteQuietly(path(key));
+            file = path(key);
         } catch (IllegalArgumentException e) {
-            return false;
+            return Removal.FAILED;
+        }
+        try {
+            return Files.deleteIfExists(file) ? Removal.DELETED : Removal.ALREADY_GONE;
+        } catch (IOException e) {
+            log.warn("Attachment file could not be deleted: {} ({})", key, e.toString());
+            return Removal.FAILED;
         }
     }
 

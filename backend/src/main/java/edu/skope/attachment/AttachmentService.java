@@ -24,11 +24,12 @@ public class AttachmentService {
     private final DepartmentAccess access;
     private final ImageSanitizer sanitizer;
     private final AttachmentStorage storage;
+    private final AttachmentCleanup cleanup;
     private final TransactionTemplate tx;
 
     public AttachmentService(Db db, DepartmentAccess access, ImageSanitizer sanitizer, AttachmentStorage storage,
-                             PlatformTransactionManager transactions) {
-        this.db = db; this.access = access; this.sanitizer = sanitizer; this.storage = storage;
+                             AttachmentCleanup cleanup, PlatformTransactionManager transactions) {
+        this.db = db; this.access = access; this.sanitizer = sanitizer; this.storage = storage; this.cleanup = cleanup;
         this.tx = new TransactionTemplate(transactions);
         this.tx.setIsolationLevel(TransactionDefinition.ISOLATION_READ_COMMITTED);
     }
@@ -42,23 +43,28 @@ public class AttachmentService {
         checkCanAdd(ownReport(studentId, reportId, false), reportId);
         // 2) slow image work outside any lock
         var clean = sanitizer.sanitize(file);
-        // 3) file first ...
+        // 3) the cleanup ledger entry is committed before any byte is written, so a crash cannot lose the file
         String key = storage.newKey();
-        storage.write(key, clean.bytes());
+        cleanup.registerUpload(key);
         long id;
         try {
-            // 4) ... then the row, deciding again while holding the report lock so parallel uploads queue up
+            storage.write(key, clean.bytes());
+            // 4) attachment row and ledger removal commit together, deciding again under the report lock
             id = tx.execute(status -> {
                 checkCanAdd(ownReport(studentId, reportId, true), reportId);
-                return db.insert("INSERT INTO report_attachments(report_id,uploader_id,storage_key,content_type,size_bytes,width,height) VALUES(?,?,?,?,?,?,?)",
+                long inserted = db.insert("INSERT INTO report_attachments(report_id,uploader_id,storage_key,content_type,size_bytes,width,height) VALUES(?,?,?,?,?,?,?)",
                     reportId, studentId, key, clean.contentType(), clean.bytes().length, clean.width(), clean.height());
+                cleanup.confirmUpload(key);
+                return inserted;
             });
         } catch (RuntimeException e) {
-            // 5) any refusal, SQL error or failed commit: the file must not outlive the missing row
-            storage.delete(key);
+            // 5) any refusal, SQL error or failed commit: try to remove the file now; if that fails the ledger keeps it
+            cleanup.cleanNow(key);
             throw e;
+        } finally {
+            cleanup.release(key);
+            cleanup.runBatch();
         }
-        // committed: from here on the file belongs to a row and is never cleaned up by this method
         return view(row(reportId, id), false);
     }
 
@@ -72,18 +78,24 @@ public class AttachmentService {
         return content(row(reportId, attachmentId));
     }
 
-    /** Allowed after RESOLVED too. The row goes in the same transaction as the history entry; the file goes after commit. */
+    /**
+     * Allowed after RESOLVED too. Row delete, history entry and cleanup ledger entry commit together; the file is
+     * removed after commit. If that fails the photo is already unreachable and the ledger keeps the file for retry.
+     */
     public void deleteForStudent(long studentId, long reportId, long attachmentId) {
         String key = tx.execute(status -> {
             ownReport(studentId, reportId, true);
             var attachment = row(reportId, attachmentId);
             if (Db.id(attachment, "uploaderId") != studentId) throw notFound();
+            String storageKey = Db.str(attachment, "storageKey");
             db.update("DELETE FROM report_attachments WHERE id=? AND report_id=?", attachmentId, reportId);
             db.insert("INSERT INTO report_events(report_id,actor_id,event_type,old_value,new_value,note) VALUES(?,?,?,?,?,?)",
                 reportId, studentId, "ATTACHMENT_DELETED", String.valueOf(attachmentId), null, null);
-            return Db.str(attachment, "storageKey");
+            cleanup.registerDelete(storageKey);
+            return storageKey;
         });
-        storage.delete(key);
+        cleanup.cleanNow(key);
+        cleanup.runBatch();
     }
 
     // ---- staff (supervisor or department) ----

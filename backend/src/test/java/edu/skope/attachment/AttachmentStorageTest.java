@@ -46,7 +46,7 @@ class AttachmentStorageTest {
         assertThrows(IllegalArgumentException.class, () -> storage.path(key));
         assertThrows(IllegalArgumentException.class, () -> storage.read(key));
         assertThrows(IllegalArgumentException.class, () -> storage.write(key, new byte[]{1}));
-        assertFalse(storage.delete(key), "delete never throws, even for a hostile key");
+        assertEquals(AttachmentStorage.Removal.FAILED, storage.remove(key), "remove never throws, even for a hostile key");
     }
 
     @Test void existingFileIsNeverOverwrittenAndFailedWriteLeavesNoPartialFile() throws Exception {
@@ -69,13 +69,26 @@ class AttachmentStorageTest {
         assertEquals("a file where the folder should be", Files.readString(blocker));
     }
 
-    @Test void deleteRemovesTheFileAndIsSafeToRepeat() {
+    @Test void removeTellsDeletedApartFromAlreadyGone() {
         var storage = storage();
         String key = storage.newKey();
         storage.write(key, new byte[]{1});
-        assertTrue(storage.delete(key));
+        assertEquals(AttachmentStorage.Removal.DELETED, storage.remove(key));
         assertFalse(storage.exists(key));
-        assertFalse(storage.delete(key), "second delete is a no-op, not an error");
+        assertEquals(AttachmentStorage.Removal.ALREADY_GONE, storage.remove(key), "second remove: nothing left, not an error");
+    }
+
+    /** A real failure, not a mock: on Windows a file held open by another reader cannot be deleted. */
+    @Test void fileHeldOpenElsewhereIsReportedAsFailedAndKept() throws Exception {
+        org.junit.jupiter.api.Assumptions.assumeTrue(System.getProperty("os.name").toLowerCase().contains("win"), "Windows file locking");
+        var storage = storage();
+        String key = storage.newKey();
+        storage.write(key, new byte[]{1});
+        try (var held = new java.io.FileInputStream(storage.path(key).toFile())) {
+            assertEquals(AttachmentStorage.Removal.FAILED, storage.remove(key));
+            assertTrue(storage.exists(key));
+        }
+        assertEquals(AttachmentStorage.Removal.DELETED, storage.remove(key), "works once the file is released");
     }
 
     @Test void missingFileIsReportedAsNotFound() {

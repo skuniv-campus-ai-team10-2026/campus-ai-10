@@ -47,6 +47,7 @@ class AttachmentApiIntegrationTest {
     }
 
     @BeforeEach void clean() throws Exception {
+        db.update("DELETE FROM attachment_cleanup");
         db.update("DELETE FROM report_attachments"); db.update("DELETE FROM report_events"); db.update("DELETE FROM similar_pairs");
         db.update("DELETE FROM reports"); db.update("UPDATE incidents SET previous_incident_id=NULL"); db.update("DELETE FROM incidents");
         db.update("UPDATE departments SET active=TRUE");
