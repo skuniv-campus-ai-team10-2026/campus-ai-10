@@ -1,0 +1,720 @@
+{
+  "fixtureSha256": "757d37542162f7302898b100132ff7efe1a1cbd9ea3b7a248e21dbd6828180e0",
+  "sourceHashes": {
+    "AiService.java": "019edd3ae919bcf38e9c3be5b1df6950963a8087ee17c5bba89293092b297351",
+    "ClarificationPolicy.java": "01eb7db4cb36e95698b41d84660e9ae3ea336803ef5bbafeccff8bc1e166c439",
+    "EmergencySignals.java": "1866dc34cc23629a0b9af8b106b136f2148d45157ef20d79f058761a1d17fe07",
+    "FollowUpPolicy.java": "54b21fd92b7cbca66c4fd5a3918d2a21463324730d7b3ff51d1ac4aff4d80d23"
+  },
+  "promptVersion": "hybrid-intake-v2",
+  "policyVersion": "hybrid-check-v3",
+  "mode": "LIVE",
+  "preflight": {
+    "maxNewCalls": 6,
+    "maxEmbeddings": 0,
+    "maxRetries": 0,
+    "budgetUsd": 0.05,
+    "conservativeReservationUsd": 0.049788,
+    "maxInputTokenProxy": 25000,
+    "maxCompletionTokens": 2048,
+    "model": "gpt-6-luna",
+    "serviceTier": "default",
+    "inputUsdPerMillion": 0.1,
+    "cacheWriteUsdPerMillion": 0.125,
+    "cachedInputUsdPerMillion": 0.01,
+    "outputUsdPerMillion": 0.5,
+    "priceChecked": "2026-10-19",
+    "pricingSource": "https://developers.openai.com/api/docs/models/gpt-6-luna"
+  },
+  "labelLimitation": "Codex-authored frozen diagnostic set, not independently human reviewed. D1/D2 are development reproductions; H1-H4 are new evaluation inputs, not population accuracy. No label changes after execution.",
+  "evaluatedAt": "2026-10-19T01:41:44.103355800+09:00",
+  "rows": [
+    {
+      "id": "D1",
+      "expected": "REPORT IT/WIFI; 다온관 410호 floor4; connected Wi-Fi but unusable internet, not connection failure; no repeated symptom/location question; COMPLETE, nonurgent.",
+      "split": "development",
+      "input": {
+        "text": "다온관 410호 와파 connected는 됨 근데 인터넷 먹통임.",
+        "hybrid": true,
+        "preferredIntent": "AUTO"
+      },
+      "actual": {
+        "intent": "REPORT",
+        "report": {
+          "category": "IT",
+          "subcategory": "WIFI",
+          "locationText": "다온관 410호",
+          "building": "다온관",
+          "floor": "4",
+          "symptom": "Wi-Fi에는 연결되지만 인터넷이 되지 않음",
+          "occurredAtText": null,
+          "followUpQuestion": null,
+          "missingFields": [],
+          "emergencyHint": false
+        },
+        "clarification": {
+          "reason": null,
+          "neededReasons": [],
+          "message": null,
+          "source": "SERVER_RULES"
+        },
+        "followUpState": {
+          "turns": 0,
+          "noProgress": 0,
+          "askedFields": [],
+          "reviewFields": [],
+          "status": "COMPLETE",
+          "nextField": null,
+          "nextReason": null,
+          "askedReasons": [],
+          "unavailableReasons": [],
+          "knownEvidence": {
+            "locationEvidence": "다온관 410호",
+            "symptomEvidence": "다온관 410호 와파 connected는 됨 근데 인터넷 먹통임",
+            "targetEvidence": "와파"
+          },
+          "neededReasons": [],
+          "urgentReview": false
+        },
+        "aiMode": "LIVE"
+      },
+      "rawAi": {
+        "intent": "REPORT",
+        "report": {
+          "category": "IT",
+          "subcategory": "WIFI",
+          "locationText": "다온관 410호",
+          "building": "다온관",
+          "floor": "4",
+          "symptom": "Wi-Fi에는 연결되지만 인터넷이 되지 않음",
+          "occurredAtText": null,
+          "followUpQuestion": null,
+          "missingFields": [],
+          "emergencyHint": false
+        },
+        "assessment": {
+          "reason": "NONE",
+          "evidence": null,
+          "rationale": null,
+          "question": null,
+          "known": {
+            "locationEvidence": "다온관 410호",
+            "scopeEvidence": null,
+            "symptomEvidence": "connected는 됨 근데 인터넷 먹통임",
+            "targetEvidence": "와파",
+            "workflowEvidence": null
+          }
+        }
+      },
+      "source": "NEW_LIVE",
+      "status": "OUTPUT_AVAILABLE_PENDING_SEMANTIC_REVIEW",
+      "cacheKey": "f66c37fa73f9b67e56e5c55dd7cdcbfa3d2723d118db4f546da718f8de4ec44d",
+      "requestBytes": 9040,
+      "providerUsage": {
+        "prompt_tokens": 1693,
+        "completion_tokens": 147,
+        "total_tokens": 1840,
+        "prompt_tokens_details": {
+          "cached_tokens": 0,
+          "cache_write_tokens": 1690,
+          "audio_tokens": 0
+        },
+        "completion_tokens_details": {
+          "reasoning_tokens": 0,
+          "audio_tokens": 0,
+          "accepted_prediction_tokens": 0,
+          "rejected_prediction_tokens": 0
+        }
+      },
+      "returnedModel": "gpt-6-luna",
+      "returnedServiceTier": "default",
+      "semanticReview": {
+        "rawStatus": "PASS",
+        "reason": "연결 성공과 인터넷 불가를 구분하고 재질문 없이 COMPLETE",
+        "judge": "Codex; not independently human reviewed",
+        "finalStatus": "PASS"
+      }
+    },
+    {
+      "id": "D2",
+      "expected": "Preserve 해든관502호 floor5 and excessive heat. Do not invent air-conditioner breakdown or cause. COMPLETE or concrete relevant clarification allowed; generic ISSUE_UNCLEAR fails.",
+      "split": "development",
+      "input": {
+        "text": "아 진짜 해든관502호 개더움;;",
+        "hybrid": true,
+        "preferredIntent": "AUTO"
+      },
+      "actual": {
+        "intent": "REPORT",
+        "report": {
+          "category": "OTHER",
+          "subcategory": "UNKNOWN",
+          "locationText": "해든관502호",
+          "building": "해든관",
+          "floor": "5",
+          "symptom": "매우 더움",
+          "occurredAtText": null,
+          "followUpQuestion": null,
+          "missingFields": [],
+          "emergencyHint": false
+        },
+        "clarification": {
+          "reason": null,
+          "neededReasons": [],
+          "message": null,
+          "source": "SERVER_RULES"
+        },
+        "followUpState": {
+          "turns": 0,
+          "noProgress": 0,
+          "askedFields": [],
+          "reviewFields": [],
+          "status": "COMPLETE",
+          "nextField": null,
+          "nextReason": null,
+          "askedReasons": [],
+          "unavailableReasons": [],
+          "knownEvidence": {
+            "locationEvidence": "해든관502호",
+            "symptomEvidence": "개더움"
+          },
+          "neededReasons": [],
+          "urgentReview": false
+        },
+        "aiMode": "LIVE"
+      },
+      "rawAi": {
+        "intent": "REPORT",
+        "report": {
+          "category": "OTHER",
+          "subcategory": "UNKNOWN",
+          "locationText": "해든관502호",
+          "building": "해든관",
+          "floor": "5",
+          "symptom": "매우 더움",
+          "occurredAtText": null,
+          "followUpQuestion": null,
+          "missingFields": [],
+          "emergencyHint": false
+        },
+        "assessment": {
+          "reason": "NONE",
+          "evidence": null,
+          "rationale": null,
+          "question": null,
+          "known": {
+            "locationEvidence": "해든관502호",
+            "scopeEvidence": null,
+            "symptomEvidence": "개더움",
+            "targetEvidence": null,
+            "workflowEvidence": null
+          }
+        }
+      },
+      "source": "NEW_LIVE",
+      "status": "OUTPUT_AVAILABLE_PENDING_SEMANTIC_REVIEW",
+      "cacheKey": "5b3a0a58c156d92e1b285e0a0f1467e858192bcf88f246c83ce86b293c51c5dd",
+      "requestBytes": 9010,
+      "providerUsage": {
+        "prompt_tokens": 1687,
+        "completion_tokens": 128,
+        "total_tokens": 1815,
+        "prompt_tokens_details": {
+          "cached_tokens": 1659,
+          "cache_write_tokens": 25,
+          "audio_tokens": 0
+        },
+        "completion_tokens_details": {
+          "reasoning_tokens": 0,
+          "audio_tokens": 0,
+          "accepted_prediction_tokens": 0,
+          "rejected_prediction_tokens": 0
+        }
+      },
+      "returnedModel": "gpt-6-luna",
+      "returnedServiceTier": "default",
+      "semanticReview": {
+        "rawStatus": "PASS",
+        "reason": "개더움을 매우 더움으로 추출, 원인·에어컨 고장 추정 없이 COMPLETE",
+        "judge": "Codex; not independently human reviewed",
+        "finalStatus": "PASS"
+      }
+    },
+    {
+      "id": "H1",
+      "expected": "Preserve 솔빛관608호 floor6, excessive cold and cold hands, no invented broken heater, no generic ISSUE_UNCLEAR; COMPLETE or concrete relevant clarification allowed; nonurgent.",
+      "split": "new-evaluation",
+      "input": {
+        "text": "솔빛관 608호 개추움ㅠ 손 시려서 수업 듣기 힘듦",
+        "hybrid": true,
+        "preferredIntent": "AUTO"
+      },
+      "actual": {
+        "intent": "REPORT",
+        "report": {
+          "category": "OTHER",
+          "subcategory": "UNKNOWN",
+          "locationText": "솔빛관 608호",
+          "building": "솔빛관",
+          "floor": "6",
+          "symptom": "강의실이 지나치게 추워 손이 시리고 수업을 듣기 어려움",
+          "occurredAtText": null,
+          "followUpQuestion": null,
+          "missingFields": [],
+          "emergencyHint": false
+        },
+        "clarification": {
+          "reason": null,
+          "neededReasons": [],
+          "message": null,
+          "source": "SERVER_RULES"
+        },
+        "followUpState": {
+          "turns": 0,
+          "noProgress": 0,
+          "askedFields": [],
+          "reviewFields": [],
+          "status": "COMPLETE",
+          "nextField": null,
+          "nextReason": null,
+          "askedReasons": [],
+          "unavailableReasons": [],
+          "knownEvidence": {
+            "locationEvidence": "솔빛관 608호",
+            "symptomEvidence": "개추움ㅠ 손 시려서 수업 듣기 힘듦"
+          },
+          "neededReasons": [],
+          "urgentReview": false
+        },
+        "aiMode": "LIVE"
+      },
+      "rawAi": {
+        "intent": "REPORT",
+        "report": {
+          "category": "OTHER",
+          "subcategory": "UNKNOWN",
+          "locationText": "솔빛관 608호",
+          "building": "솔빛관",
+          "floor": "6",
+          "symptom": "강의실이 지나치게 추워 손이 시리고 수업을 듣기 어려움",
+          "occurredAtText": null,
+          "followUpQuestion": null,
+          "missingFields": [],
+          "emergencyHint": false
+        },
+        "assessment": {
+          "reason": "NONE",
+          "evidence": null,
+          "rationale": null,
+          "question": null,
+          "known": {
+            "locationEvidence": "솔빛관 608호",
+            "scopeEvidence": null,
+            "symptomEvidence": "개추움ㅠ 손 시려서 수업 듣기 힘듦",
+            "targetEvidence": null,
+            "workflowEvidence": null
+          }
+        }
+      },
+      "source": "NEW_LIVE",
+      "status": "OUTPUT_AVAILABLE_PENDING_SEMANTIC_REVIEW",
+      "cacheKey": "479b0e7a14bf3938cac8ef3c9ad2c5ccaf0a0f6ee475fbfcd0324f3189610754",
+      "requestBytes": 9036,
+      "providerUsage": {
+        "prompt_tokens": 1696,
+        "completion_tokens": 158,
+        "total_tokens": 1854,
+        "prompt_tokens_details": {
+          "cached_tokens": 1659,
+          "cache_write_tokens": 34,
+          "audio_tokens": 0
+        },
+        "completion_tokens_details": {
+          "reasoning_tokens": 0,
+          "audio_tokens": 0,
+          "accepted_prediction_tokens": 0,
+          "rejected_prediction_tokens": 0
+        }
+      },
+      "returnedModel": "gpt-6-luna",
+      "returnedServiceTier": "default",
+      "semanticReview": {
+        "rawStatus": "PASS",
+        "reason": "추위와 시린 손을 보존하고 설비 고장을 만들지 않음",
+        "judge": "Codex; not independently human reviewed",
+        "finalStatus": "PASS"
+      }
+    },
+    {
+      "id": "H2",
+      "expected": "REPORT IT/WIFI; 푸른관207호 floor2; connected network but unavailable internet, no invented router fault; COMPLETE without asking connection mode; nonurgent.",
+      "split": "new-evaluation",
+      "input": {
+        "text": "푸른관 207호 wifi connected but no internet",
+        "hybrid": true,
+        "preferredIntent": "AUTO"
+      },
+      "actual": {
+        "intent": "REPORT",
+        "report": {
+          "category": "IT",
+          "subcategory": "WIFI",
+          "locationText": "푸른관 207호",
+          "building": "푸른관",
+          "floor": "2",
+          "symptom": "와이파이에 연결되지만 인터넷이 되지 않음",
+          "occurredAtText": null,
+          "followUpQuestion": null,
+          "missingFields": [],
+          "emergencyHint": false
+        },
+        "clarification": {
+          "reason": null,
+          "neededReasons": [],
+          "message": null,
+          "source": "SERVER_RULES"
+        },
+        "followUpState": {
+          "turns": 0,
+          "noProgress": 0,
+          "askedFields": [],
+          "reviewFields": [],
+          "status": "COMPLETE",
+          "nextField": null,
+          "nextReason": null,
+          "askedReasons": [],
+          "unavailableReasons": [],
+          "knownEvidence": {
+            "locationEvidence": "푸른관 207호",
+            "symptomEvidence": "푸른관 207호 wifi connected but no internet"
+          },
+          "neededReasons": [],
+          "urgentReview": false
+        },
+        "aiMode": "LIVE"
+      },
+      "rawAi": {
+        "intent": "REPORT",
+        "report": {
+          "category": "IT",
+          "subcategory": "WIFI",
+          "locationText": "푸른관 207호",
+          "building": "푸른관",
+          "floor": "2",
+          "symptom": "와이파이에 연결되지만 인터넷이 되지 않음",
+          "occurredAtText": null,
+          "followUpQuestion": null,
+          "missingFields": [],
+          "emergencyHint": false
+        },
+        "assessment": {
+          "reason": "NONE",
+          "evidence": null,
+          "rationale": null,
+          "question": null,
+          "known": {
+            "locationEvidence": "푸른관 207호",
+            "scopeEvidence": null,
+            "symptomEvidence": "connected but no internet",
+            "targetEvidence": null,
+            "workflowEvidence": null
+          }
+        }
+      },
+      "source": "NEW_LIVE",
+      "status": "OUTPUT_AVAILABLE_PENDING_SEMANTIC_REVIEW",
+      "cacheKey": "66fc3909bb6ca00fc350c32a057b1807de7617ce8bba40e59f3b188fc70ae2b4",
+      "requestBytes": 9019,
+      "providerUsage": {
+        "prompt_tokens": 1686,
+        "completion_tokens": 141,
+        "total_tokens": 1827,
+        "prompt_tokens_details": {
+          "cached_tokens": 1659,
+          "cache_write_tokens": 24,
+          "audio_tokens": 0
+        },
+        "completion_tokens_details": {
+          "reasoning_tokens": 0,
+          "audio_tokens": 0,
+          "accepted_prediction_tokens": 0,
+          "rejected_prediction_tokens": 0
+        }
+      },
+      "returnedModel": "gpt-6-luna",
+      "returnedServiceTier": "default",
+      "semanticReview": {
+        "rawStatus": "PASS",
+        "reason": "영어 연결/인터넷 상태를 구분하고 COMPLETE",
+        "judge": "Codex; not independently human reviewed",
+        "finalStatus": "PASS"
+      }
+    },
+    {
+      "id": "H3",
+      "expected": "Heat is negated, concrete problem unspecified. Do not assert excessive heat or broken AC. Ask actual symptom (ISSUE_UNCLEAR/CONTINUE), no automatic acceptance; retain location, nonurgent.",
+      "split": "new-evaluation",
+      "input": {
+        "text": "가온관 309호 엄청 더운 건 아니고 그냥 불편해요",
+        "hybrid": true,
+        "preferredIntent": "AUTO"
+      },
+      "actual": {
+        "intent": "UNKNOWN",
+        "report": {
+          "category": "OTHER",
+          "subcategory": "UNKNOWN",
+          "locationText": "가온관 309호",
+          "building": "가온관",
+          "floor": "3",
+          "symptom": null,
+          "occurredAtText": null,
+          "followUpQuestion": "어떤 점이 불편한가요? 냉난방, 책상·의자, 소음처럼 실제 문제를 알려주세요.",
+          "missingFields": [
+            "SYMPTOM"
+          ],
+          "emergencyHint": false
+        },
+        "clarification": {
+          "reason": "ISSUE_UNCLEAR",
+          "neededReasons": [
+            "ISSUE_UNCLEAR",
+            "CONFLICT"
+          ],
+          "message": "담당자가 어떤 문제를 처리해야 하는지 알아야 해요.",
+          "source": "AI_AND_RULES"
+        },
+        "followUpState": {
+          "turns": 0,
+          "noProgress": 0,
+          "askedFields": [],
+          "reviewFields": [
+            "SYMPTOM"
+          ],
+          "status": "CONTINUE",
+          "nextField": "SYMPTOM",
+          "nextReason": "ISSUE_UNCLEAR",
+          "askedReasons": [],
+          "unavailableReasons": [],
+          "knownEvidence": {
+            "locationEvidence": "가온관 309호"
+          },
+          "neededReasons": [
+            "ISSUE_UNCLEAR",
+            "CONFLICT"
+          ],
+          "urgentReview": false
+        },
+        "aiMode": "LIVE"
+      },
+      "rawAi": {
+        "intent": "UNKNOWN",
+        "report": {
+          "category": "OTHER",
+          "subcategory": "UNKNOWN",
+          "locationText": "가온관 309호",
+          "building": "가온관",
+          "floor": "3",
+          "symptom": null,
+          "occurredAtText": null,
+          "followUpQuestion": "어떤 점이 불편하신가요?",
+          "missingFields": [
+            "SYMPTOM"
+          ],
+          "emergencyHint": false
+        },
+        "assessment": {
+          "reason": "ISSUE_UNCLEAR",
+          "evidence": "그냥 불편해요",
+          "rationale": "구체적인 증상이나 요청 내용이 없어 어떤 문제인지 확인이 필요합니다.",
+          "question": "어떤 점이 불편하신가요?",
+          "known": {
+            "locationEvidence": "가온관 309호",
+            "scopeEvidence": null,
+            "symptomEvidence": null,
+            "targetEvidence": null,
+            "workflowEvidence": null
+          }
+        }
+      },
+      "source": "NEW_LIVE",
+      "status": "OUTPUT_AVAILABLE_PENDING_SEMANTIC_REVIEW",
+      "cacheKey": "944261dbb97e58a872d34a4af17bf739f1a014eca2cc58dd13f1f006b91e277d",
+      "requestBytes": 9036,
+      "providerUsage": {
+        "prompt_tokens": 1693,
+        "completion_tokens": 173,
+        "total_tokens": 1866,
+        "prompt_tokens_details": {
+          "cached_tokens": 1659,
+          "cache_write_tokens": 31,
+          "audio_tokens": 0
+        },
+        "completion_tokens_details": {
+          "reasoning_tokens": 0,
+          "audio_tokens": 0,
+          "accepted_prediction_tokens": 0,
+          "rejected_prediction_tokens": 0
+        }
+      },
+      "returnedModel": "gpt-6-luna",
+      "returnedServiceTier": "default",
+      "semanticReview": {
+        "rawStatus": "PASS",
+        "reason": "부정된 더위를 확정하지 않고 구체적 증상을 질문",
+        "judge": "Codex; not independently human reviewed",
+        "finalStatus": "PASS"
+      }
+    },
+    {
+      "id": "H4",
+      "expected": "IT/WIFI; 누리관415호 floor4; generic Wi-Fi failure with uncertain connection state. Do not invent positive connected/disconnected fact. Ask SYMPTOM_DETAIL/CONTINUE, nonurgent.",
+      "split": "new-evaluation",
+      "input": {
+        "text": "누리관 415호 와파 먹통임. connected인지는 모르겠음",
+        "hybrid": true,
+        "preferredIntent": "AUTO"
+      },
+      "actual": {
+        "intent": "REPORT",
+        "report": {
+          "category": "IT",
+          "subcategory": "WIFI",
+          "locationText": "누리관 415호",
+          "building": "누리관",
+          "floor": "4",
+          "symptom": "와이파이가 작동하지 않음",
+          "occurredAtText": null,
+          "followUpQuestion": "와이파이 연결 자체가 안 되나요, 연결 후 인터넷이 안 되나요? 끊기거나 느린 경우도 알려주세요.",
+          "missingFields": [],
+          "emergencyHint": false
+        },
+        "clarification": {
+          "reason": "SYMPTOM_DETAIL",
+          "neededReasons": [
+            "SYMPTOM_DETAIL"
+          ],
+          "message": "어떻게 문제가 나타나는지에 따라 확인 방법이 달라져요.",
+          "source": "AI_AND_RULES"
+        },
+        "followUpState": {
+          "turns": 0,
+          "noProgress": 0,
+          "askedFields": [],
+          "reviewFields": [],
+          "status": "CONTINUE",
+          "nextField": "SYMPTOM",
+          "nextReason": "SYMPTOM_DETAIL",
+          "askedReasons": [],
+          "unavailableReasons": [],
+          "knownEvidence": {
+            "locationEvidence": "누리관 415호"
+          },
+          "neededReasons": [
+            "SYMPTOM_DETAIL"
+          ],
+          "urgentReview": false
+        },
+        "aiMode": "LIVE"
+      },
+      "rawAi": {
+        "intent": "REPORT",
+        "report": {
+          "category": "IT",
+          "subcategory": "WIFI",
+          "locationText": "누리관 415호",
+          "building": "누리관",
+          "floor": "4",
+          "symptom": "와이파이가 작동하지 않음",
+          "occurredAtText": null,
+          "followUpQuestion": "와이파이가 아예 연결되지 않는 건가요, 연결은 되지만 인터넷이 안 되거나 끊기고 느린 건가요?",
+          "missingFields": [],
+          "emergencyHint": false
+        },
+        "assessment": {
+          "reason": "SYMPTOM_DETAIL",
+          "evidence": "connected인지는 모르겠음",
+          "rationale": "와이파이 연결 자체의 문제인지 연결 후 인터넷 문제인지에 따라 확인할 사항이 달라집니다.",
+          "question": "와이파이가 아예 연결되지 않는 건가요, 연결은 되지만 인터넷이 안 되거나 끊기고 느린 건가요?",
+          "known": {
+            "locationEvidence": "누리관 415호",
+            "scopeEvidence": null,
+            "symptomEvidence": null,
+            "targetEvidence": null,
+            "workflowEvidence": null
+          }
+        }
+      },
+      "source": "NEW_LIVE",
+      "status": "OUTPUT_AVAILABLE_PENDING_SEMANTIC_REVIEW",
+      "cacheKey": "536a38abd75ca029d2a976753d0808b647501eaa2073e1f2b8fde4594f60a4b0",
+      "requestBytes": 9038,
+      "providerUsage": {
+        "prompt_tokens": 1693,
+        "completion_tokens": 227,
+        "total_tokens": 1920,
+        "prompt_tokens_details": {
+          "cached_tokens": 1659,
+          "cache_write_tokens": 31,
+          "audio_tokens": 0
+        },
+        "completion_tokens_details": {
+          "reasoning_tokens": 0,
+          "audio_tokens": 0,
+          "accepted_prediction_tokens": 0,
+          "rejected_prediction_tokens": 0
+        }
+      },
+      "returnedModel": "gpt-6-luna",
+      "returnedServiceTier": "default",
+      "semanticReview": {
+        "rawStatus": "PASS",
+        "reason": "연결 여부 불확실성을 유지하며 장애 방식 질문",
+        "judge": "Codex; not independently human reviewed",
+        "finalStatus": "PASS"
+      }
+    }
+  ],
+  "measurement": {
+    "conservativeEstimatedNewCostUsd": 0.0017555,
+    "cumulativeAttempts": 6,
+    "newLlmCalls": 6,
+    "inputTokens": 10148,
+    "cacheHits": 0,
+    "embeddingCalls": 0,
+    "automaticRetries": 0,
+    "outputTokens": 974
+  },
+  "evidenceIntegrity": "PASS",
+  "review": {
+    "replay": {
+      "semanticPass": 11,
+      "newApiCalls": 0,
+      "responses": 12,
+      "knownOldModelFailure": 1
+    },
+    "newEvaluationTotal": 4,
+    "browserClickVerification": "NOT_PERFORMED_THIS_REVISION",
+    "newEvaluationPass": 4,
+    "outsideScoredScope": {
+      "H3": "기존 FollowUpPolicy가 초기 null 증상을 reviewFields SYMPTOM/CONFLICT로도 표시. 실제 질문은 ISSUE_UNCLEAR이며 필요 질문을 수행. 후속 답변 후 표식 해소는 이번 평가 범위 밖",
+      "heatRouting": "OTHER/UNKNOWN으로 접수 후 총괄 검토. 냉난방 자동 부서 배정은 기존 미지원"
+    },
+    "developmentPass": 2,
+    "limitations": "Small synthetic set; Codex-authored labels/judgment; one LIVE sample per input; no population accuracy claim",
+    "reviewedAt": "2026-10-20",
+    "localTests": {
+      "skipped": 0,
+      "failed": 0,
+      "total": 175
+    },
+    "http": {
+      "source": "Exact saved LIVE responses",
+      "newApiCalls": 0,
+      "pass": 6,
+      "total": 6,
+      "database": "isolated H2 memory"
+    },
+    "developmentTotal": 2
+  }
+}

@@ -1,0 +1,121 @@
+{
+  "fixtureSha256" : "757d37542162f7302898b100132ff7efe1a1cbd9ea3b7a248e21dbd6828180e0",
+  "sourceHashes" : {
+    "AiService.java" : "019edd3ae919bcf38e9c3be5b1df6950963a8087ee17c5bba89293092b297351",
+    "ClarificationPolicy.java" : "01eb7db4cb36e95698b41d84660e9ae3ea336803ef5bbafeccff8bc1e166c439",
+    "EmergencySignals.java" : "1866dc34cc23629a0b9af8b106b136f2148d45157ef20d79f058761a1d17fe07",
+    "FollowUpPolicy.java" : "54b21fd92b7cbca66c4fd5a3918d2a21463324730d7b3ff51d1ac4aff4d80d23"
+  },
+  "promptVersion" : "hybrid-intake-v2",
+  "policyVersion" : "hybrid-check-v3",
+  "mode" : "PREPARE_NO_NETWORK",
+  "preflight" : {
+    "maxNewCalls" : 6,
+    "maxEmbeddings" : 0,
+    "maxRetries" : 0,
+    "budgetUsd" : 0.05,
+    "conservativeReservationUsd" : 0.049788,
+    "maxInputTokenProxy" : 25000,
+    "maxCompletionTokens" : 2048,
+    "model" : "gpt-6-luna",
+    "serviceTier" : "default",
+    "inputUsdPerMillion" : 0.1,
+    "cacheWriteUsdPerMillion" : 0.125,
+    "cachedInputUsdPerMillion" : 0.01,
+    "outputUsdPerMillion" : 0.5,
+    "priceChecked" : "2026-10-19",
+    "pricingSource" : "https://developers.openai.com/api/docs/models/gpt-6-luna"
+  },
+  "labelLimitation" : "Codex-authored frozen diagnostic set, not independently human reviewed. D1/D2 are development reproductions; H1-H4 are new evaluation inputs, not population accuracy. No label changes after execution.",
+  "evaluatedAt" : "2026-10-19T01:40:13.431424900+09:00",
+  "rows" : [ {
+    "id" : "D1",
+    "expected" : "REPORT IT/WIFI; 다온관 410호 floor4; connected Wi-Fi but unusable internet, not connection failure; no repeated symptom/location question; COMPLETE, nonurgent.",
+    "split" : "development",
+    "input" : {
+      "text" : "다온관 410호 와파 connected는 됨 근데 인터넷 먹통임.",
+      "hybrid" : true,
+      "preferredIntent" : "AUTO"
+    },
+    "status" : "UNVERIFIED_PREFLIGHT_ONLY",
+    "cause" : "AI_UNAVAILABLE",
+    "cacheKey" : "f66c37fa73f9b67e56e5c55dd7cdcbfa3d2723d118db4f546da718f8de4ec44d",
+    "requestBytes" : 9040
+  }, {
+    "id" : "D2",
+    "expected" : "Preserve 해든관502호 floor5 and excessive heat. Do not invent air-conditioner breakdown or cause. COMPLETE or concrete relevant clarification allowed; generic ISSUE_UNCLEAR fails.",
+    "split" : "development",
+    "input" : {
+      "text" : "아 진짜 해든관502호 개더움;;",
+      "hybrid" : true,
+      "preferredIntent" : "AUTO"
+    },
+    "status" : "UNVERIFIED_PREFLIGHT_ONLY",
+    "cause" : "AI_UNAVAILABLE",
+    "cacheKey" : "5b3a0a58c156d92e1b285e0a0f1467e858192bcf88f246c83ce86b293c51c5dd",
+    "requestBytes" : 9010
+  }, {
+    "id" : "H1",
+    "expected" : "Preserve 솔빛관608호 floor6, excessive cold and cold hands, no invented broken heater, no generic ISSUE_UNCLEAR; COMPLETE or concrete relevant clarification allowed; nonurgent.",
+    "split" : "new-evaluation",
+    "input" : {
+      "text" : "솔빛관 608호 개추움ㅠ 손 시려서 수업 듣기 힘듦",
+      "hybrid" : true,
+      "preferredIntent" : "AUTO"
+    },
+    "status" : "UNVERIFIED_PREFLIGHT_ONLY",
+    "cause" : "AI_UNAVAILABLE",
+    "cacheKey" : "479b0e7a14bf3938cac8ef3c9ad2c5ccaf0a0f6ee475fbfcd0324f3189610754",
+    "requestBytes" : 9036
+  }, {
+    "id" : "H2",
+    "expected" : "REPORT IT/WIFI; 푸른관207호 floor2; connected network but unavailable internet, no invented router fault; COMPLETE without asking connection mode; nonurgent.",
+    "split" : "new-evaluation",
+    "input" : {
+      "text" : "푸른관 207호 wifi connected but no internet",
+      "hybrid" : true,
+      "preferredIntent" : "AUTO"
+    },
+    "status" : "UNVERIFIED_PREFLIGHT_ONLY",
+    "cause" : "AI_UNAVAILABLE",
+    "cacheKey" : "66fc3909bb6ca00fc350c32a057b1807de7617ce8bba40e59f3b188fc70ae2b4",
+    "requestBytes" : 9019
+  }, {
+    "id" : "H3",
+    "expected" : "Heat is negated, concrete problem unspecified. Do not assert excessive heat or broken AC. Ask actual symptom (ISSUE_UNCLEAR/CONTINUE), no automatic acceptance; retain location, nonurgent.",
+    "split" : "new-evaluation",
+    "input" : {
+      "text" : "가온관 309호 엄청 더운 건 아니고 그냥 불편해요",
+      "hybrid" : true,
+      "preferredIntent" : "AUTO"
+    },
+    "status" : "UNVERIFIED_PREFLIGHT_ONLY",
+    "cause" : "AI_UNAVAILABLE",
+    "cacheKey" : "944261dbb97e58a872d34a4af17bf739f1a014eca2cc58dd13f1f006b91e277d",
+    "requestBytes" : 9036
+  }, {
+    "id" : "H4",
+    "expected" : "IT/WIFI; 누리관415호 floor4; generic Wi-Fi failure with uncertain connection state. Do not invent positive connected/disconnected fact. Ask SYMPTOM_DETAIL/CONTINUE, nonurgent.",
+    "split" : "new-evaluation",
+    "input" : {
+      "text" : "누리관 415호 와파 먹통임. connected인지는 모르겠음",
+      "hybrid" : true,
+      "preferredIntent" : "AUTO"
+    },
+    "status" : "UNVERIFIED_PREFLIGHT_ONLY",
+    "cause" : "AI_UNAVAILABLE",
+    "cacheKey" : "536a38abd75ca029d2a976753d0808b647501eaa2073e1f2b8fde4594f60a4b0",
+    "requestBytes" : 9038
+  } ],
+  "measurement" : {
+    "conservativeEstimatedNewCostUsd" : 0.0,
+    "cumulativeAttempts" : 0,
+    "newLlmCalls" : 0,
+    "inputTokens" : 0,
+    "cacheHits" : 0,
+    "embeddingCalls" : 0,
+    "automaticRetries" : 0,
+    "outputTokens" : 0
+  },
+  "evidenceIntegrity" : "PASS"
+}

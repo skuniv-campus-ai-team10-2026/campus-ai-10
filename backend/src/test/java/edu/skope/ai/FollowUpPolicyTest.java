@@ -51,12 +51,12 @@ class FollowUpPolicyTest {
 
     @Test void oneAnswerCanFillPlaceTimeAndSymptomDespiteBeingAskedForLocation() {
         var previous = report("building", null, "floor", null, "locationText", null, "symptom", null, "occurredAtText", null);
-        var extracted = report("building", "한빛관", "floor", "4", "locationText", "한빛관 401호",
+        var extracted = report("building", "유담관", "floor", "4", "locationText", "유담관 401호",
                 "symptom", "화면이 10분마다 깜빡임", "occurredAtText", "어제부터");
-        String answer = "한빛관 401호에서 어제부터 화면이 10분마다 깜빡여요";
-        var updates = updates("LOCATION", "한빛관 401호", "OCCURRED_AT", "어제부터", "SYMPTOM", "화면이 10분마다 깜빡여요");
+        String answer = "유담관 401호에서 어제부터 화면이 10분마다 깜빡여요";
+        var updates = updates("LOCATION", "유담관 401호", "OCCURRED_AT", "어제부터", "SYMPTOM", "화면이 10분마다 깜빡여요");
         var outcome = follow(previous, extracted, updates, answer);
-        assertEquals("한빛관", outcome.report().get("building"));
+        assertEquals("유담관", outcome.report().get("building"));
         assertEquals("4", outcome.report().get("floor"));
         assertTrue(outcome.report().get("locationText").toString().contains("401호"));
         assertEquals("어제부터", outcome.report().get("occurredAtText"));
@@ -67,21 +67,21 @@ class FollowUpPolicyTest {
     }
 
     @Test void changingBuildingAloneClearsStaleFloorAndRoom() {
-        var outcome = follow(report(), report("building", "미래관"), update("LOCATION", "SET", "미래관"),
-                "북악관이 아니라 미래관이에요");
-        assertEquals("미래관", outcome.report().get("building"));
-        assertEquals("미래관", outcome.report().get("locationText"));
+        var outcome = follow(report(), report("building", "유담관"), update("LOCATION", "SET", "유담관"),
+                "북악관이 아니라 유담관이에요");
+        assertEquals("유담관", outcome.report().get("building"));
+        assertEquals("유담관", outcome.report().get("locationText"));
         assertNull(outcome.report().get("floor"));
         assertEquals("어제부터", outcome.report().get("occurredAtText"));
         assertEquals("와이파이가 끊김", outcome.report().get("symptom"));
     }
 
     @Test void definiteBuildingCorrectionIsNotLostBecauseOtherPlaceDetailsAreUnknown() {
-        var outcome = follow(report(), report("building", "미래관", "floor", null, "locationText", "미래관"),
-                update("LOCATION", "SET", "북악관이 아니라 미래관이에요."),
-                "북악관이 아니라 미래관이에요. 층과 호실은 잘 모르겠어요.");
-        assertEquals("미래관", outcome.report().get("building"));
-        assertEquals("미래관", outcome.report().get("locationText"));
+        var outcome = follow(report(), report("building", "유담관", "floor", null, "locationText", "유담관"),
+                update("LOCATION", "SET", "북악관이 아니라 유담관이에요."),
+                "북악관이 아니라 유담관이에요. 층과 호실은 잘 모르겠어요.");
+        assertEquals("유담관", outcome.report().get("building"));
+        assertEquals("유담관", outcome.report().get("locationText"));
         assertNull(outcome.report().get("floor"));
         assertFalse(review(outcome).contains("LOCATION"));
     }
@@ -124,17 +124,17 @@ class FollowUpPolicyTest {
     }
 
     @Test void definiteNewBuildingSurvivesAmbiguousFloorsWithoutRetainingOldBuilding() {
-        var outcome = follow(report(), report("building", "미래관", "floor", "2", "locationText", "미래관 2층"),
-                update("LOCATION", "SET", "미래관 2층인지 3층인지"), "미래관 2층인지 3층인지 모르겠어요");
-        assertEquals("미래관", outcome.report().get("building"));
-        assertEquals("미래관", outcome.report().get("locationText"));
+        var outcome = follow(report(), report("building", "유담관", "floor", "2", "locationText", "유담관 2층"),
+                update("LOCATION", "SET", "유담관 2층인지 3층인지"), "유담관 2층인지 3층인지 모르겠어요");
+        assertEquals("유담관", outcome.report().get("building"));
+        assertEquals("유담관", outcome.report().get("locationText"));
         assertNull(outcome.report().get("floor"));
         assertTrue(review(outcome).contains("LOCATION"));
     }
 
     @Test void ambiguousBuildingAlternativesRequireReviewInsteadOfInventingChoice() {
-        var outcome = follow(report(), report("building", "미래관", "locationText", "미래관"),
-                update("LOCATION", "SET", "북악관인지 미래관인지"), "북악관인지 미래관인지 모르겠어요");
+        var outcome = follow(report(), report("building", "유담관", "locationText", "유담관"),
+                update("LOCATION", "SET", "북악관인지 유담관인지"), "북악관인지 유담관인지 모르겠어요");
         assertNull(outcome.report().get("building"));
         assertNull(outcome.report().get("floor"));
         assertNull(outcome.report().get("locationText"));
@@ -180,9 +180,9 @@ class FollowUpPolicyTest {
 
     @Test void uncertainTimeDoesNotEraseCertainPlaceInSameAnswer() {
         var outcome = follow(report("locationText", null, "building", null, "floor", null),
-                report("locationText", "한빛관 401호", "building", "한빛관", "floor", "4"),
-                update("LOCATION", "SET", "한빛관 401호"), "한빛관 401호이고 시작 시간은 모르겠어요");
-        assertEquals("한빛관", outcome.report().get("building"));
+                report("locationText", "유담관 401호", "building", "유담관", "floor", "4"),
+                update("LOCATION", "SET", "유담관 401호"), "유담관 401호이고 시작 시간은 모르겠어요");
+        assertEquals("유담관", outcome.report().get("building"));
         assertEquals("4", outcome.report().get("floor"));
         assertTrue(outcome.report().get("locationText").toString().contains("401호"));
         assertFalse(review(outcome).contains("LOCATION"));
@@ -269,8 +269,8 @@ class FollowUpPolicyTest {
     @Test void threeRepliesAreMaximumEvenWhenUnrelatedInformationKeepsChanging() {
         var outcome = initial(report("symptom", null, "locationText", null, "building", null, "floor", null));
         for (int turn = 1; turn <= 3; turn++) {
-            String place = "한빛관 " + turn + "층";
-            var extracted = report("symptom", null, "building", "한빛관", "floor", Integer.toString(turn), "locationText", place);
+            String place = "유담관 " + turn + "층";
+            var extracted = report("symptom", null, "building", "유담관", "floor", Integer.toString(turn), "locationText", place);
             outcome = follow(outcome.report(), extracted, update("LOCATION", "SET", place), place,
                     "SYMPTOM", outcome.state());
         }

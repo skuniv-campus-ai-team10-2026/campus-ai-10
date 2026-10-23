@@ -1,22 +1,26 @@
 # SKOPE — 캠퍼스 문제 접수 실험
 
-**2026-10-21 부서별 관리자 공유 브랜치:** `feature/department-workflow`는 기존 `b64185c`에 V4·부서별 권한·이관/재배정·시연용 배정을 추가합니다. 첨부 작업자는 [최신 인수인계](docs/TEAM_HANDOFF.md)의 시작 기준을 먼저 확인하세요. 첨부 마이그레이션은 V5를 사용합니다. 조장 로컬의 이후 AI 품질 변경은 이 브랜치에 포함되지 않습니다.
-
 자연어 입력 → 필요한 경우에만 추가 질문 → 자체 접수·DB 규칙 배정 → 관리자 답변·조치 → 학생 결과 조회를 연결하는 로컬 웹 애플리케이션입니다. 일반 질문, 추가 질문, 유사 후보 검토, 동일 사건 묶음, 완료 후 재발 검토까지 P0를 구현합니다.
 
-**시연용 시스템이며 학교 공식 민원 접수가 아닙니다.** 실제 학교·Notion·공식 저장소·학교 계정을 변경하거나 민원을 전송하지 않습니다. RAG, 벡터 DB, Fine-tuning, 사진·알림·통계는 포함하지 않습니다.
+**시연용 시스템이며 학교 공식 민원 접수가 아닙니다.** 실제 학교·Notion·공식 저장소·학교 계정을 변경하거나 민원을 전송하지 않습니다. RAG, 벡터 DB, Fine-tuning, 알림·통계는 포함하지 않습니다. 사진 첨부 백엔드 API는 포함되며, 사진 화면 연결과 새 Figma 디자인 적용은 프런트 담당자의 후속 작업입니다.
 
 ## 협업용 소스와 현재 상태
 
+**2026-10-23 통합:** 부서별 관리자·이관 기능, 최신 AI 프롬프트 `hybrid-intake-v2` / 정책 `hybrid-check-v3`, 공식 장소 예시와 기존 평가 기록, 사진 첨부 PR #1의 V5·V6를 한 소스에 통합했습니다. 기존 마이그레이션은 변경하지 않습니다. 사진은 JPEG/PNG·장당 5MB·신고당 3장까지이며, 실패한 파일 정리는 V6 장부로 추적합니다. [사진 API·운영 제한](docs/report-attachments.md), [프런트 인수인계와 통합 검증](docs/TEAM_HANDOFF.md)을 먼저 확인하세요. 아래의 과거 LIVE 결과는 이번 통합 버전의 새 LIVE 검증 결과가 아닙니다.
+
+**2026-10-20 장소 예시 정정:** 학교 공식 자료에서 확인한 장소로 향후 평가·화면 예시를 교체했습니다. 과거 LIVE 기록의 가상 장소는 원본 증거로 보존하며, 현재 임시 화면의 신고 4건은 수동 DEMO입니다. 관련 로컬 166 PASS, 저장·조회 4/4 PASS, 신규 API 호출 0회. [확인한 장소·정정 범위](docs/evaluation/campus-locations-review.md).
+
 처음 받은 작업자는 [팀원 실행·연동 검증 안내](docs/TEAM_HANDOFF.md)를 먼저 읽으세요. GitHub 첫 업로드는 [업로드 방법](docs/GITHUB_UPLOAD.md)을 따릅니다. API 키·비밀번호·로컬 DB·AI 원시 캐시는 배포 소스에 포함되지 않으며 각자 환경을 준비해야 합니다.
 
-최신 서버 정책은 **hybrid-check-v2**입니다. 관련 회귀 132개 PASS, 기존 LIVE 응답 재생 37개 PASS이며, 후속 3단계와 수정 후 새 LIVE 브라우저 E2E는 미검증입니다. 재생 결과는 독립 정확도가 아닙니다. 세부 내용과 이전 버전의 검증 기록은 [verification.md](docs/verification.md)를 확인하세요. 아래 과거 품질·브라우저 측정은 실행 당시 버전의 기록입니다.
+최신 프롬프트는 **hybrid-intake-v2**, 서버 정책은 **hybrid-check-v3**입니다. 표현 변형 오류 수정 후 관련 로컬 175개·빌드 PASS, 새 LIVE 개발 사례 2개·새 합성 사례 4개 PASS, 실제 응답 캐시를 사용한 최종 HTTP/H2 접수·조회 6개 PASS입니다. 수정 후 브라우저 클릭·MySQL·Embedding E2E는 다시 검사하지 않았습니다. 소규모 합성 평가와 재생 결과는 전체 서비스 정확도가 아닙니다. [표현 변형 수정 결과](docs/evaluation/language-variation-v2-review.md), [전체 검증 기록](docs/verification.md)을 확인하세요. 아래 과거 품질·브라우저 측정은 실행 당시 버전의 기록입니다.
+
+**2026-10-18 추가:** 등록된 4개 부서의 담당자 권한, 총괄 이관·재배정, 명시적 시연용 배정을 구현했습니다. 관련 백엔드 101개·프런트 52개와 빌드 PASS, 별도 MySQL의 브라우저 DEMO 흐름 PASS입니다. 새 LIVE 호출은 0회입니다. `-DemoRouting` 실행 옵션과 부서 계정은 [인수인계 안내](docs/TEAM_HANDOFF.md)를 확인하세요.
 
 ## 구성
 
 - `backend/`: Java 25, Spring Boot 4.1.1, Gradle 9.7.1 Groovy, Spring Security 세션·CSRF, JDBC, Flyway.
 - `frontend/`: React 19, TypeScript, Vite 7, 학생/관리자 화면. 최종 버전은 `package-lock.json`.
-- `backend/src/main/resources/db/migration/`: V1 핵심 테이블, V2 사건 테이블·연결 확장, V3 문의/접수 맥락.
+- `backend/src/main/resources/db/migration/`: V1 핵심 테이블, V2 사건 테이블·연결 확장, V3 문의/접수 맥락, V4 부서별 권한·시연 배정, V5 사진 첨부, V6 파일 정리 장부.
 - `scripts/`: Windows 로컬 DB·계정 준비, 실행·테스트·종료.
 - `docs/`: 데이터 출처, AI 평가, 테스트·구현 결과.
 - `SKOPE_CODEX_IMPLEMENTATION_SPEC.md`: 사용자가 제공한 원본 구현 기준. Downloads 원본은 수정하지 않았습니다.

@@ -1,0 +1,121 @@
+{
+  "fixtureSha256" : "271ff76a6f5715ad07b33e3e38feecedb407b1bc6e3f6ffca7635c0349cdfe35",
+  "sourceHashes" : {
+    "AiService.java" : "019edd3ae919bcf38e9c3be5b1df6950963a8087ee17c5bba89293092b297351",
+    "ClarificationPolicy.java" : "01eb7db4cb36e95698b41d84660e9ae3ea336803ef5bbafeccff8bc1e166c439",
+    "EmergencySignals.java" : "1866dc34cc23629a0b9af8b106b136f2148d45157ef20d79f058761a1d17fe07",
+    "FollowUpPolicy.java" : "54b21fd92b7cbca66c4fd5a3918d2a21463324730d7b3ff51d1ac4aff4d80d23"
+  },
+  "promptVersion" : "hybrid-intake-v2",
+  "policyVersion" : "hybrid-check-v3",
+  "mode" : "PREPARE_NO_NETWORK",
+  "preflight" : {
+    "maxNewCalls" : 6,
+    "maxEmbeddings" : 0,
+    "maxRetries" : 0,
+    "budgetUsd" : 0.05,
+    "conservativeReservationUsd" : 0.049788,
+    "maxInputTokenProxy" : 25000,
+    "maxCompletionTokens" : 2048,
+    "model" : "gpt-6-luna",
+    "serviceTier" : "default",
+    "inputUsdPerMillion" : 0.1,
+    "cacheWriteUsdPerMillion" : 0.125,
+    "cachedInputUsdPerMillion" : 0.01,
+    "outputUsdPerMillion" : 0.5,
+    "priceChecked" : "2026-10-19",
+    "pricingSource" : "https://developers.openai.com/api/docs/models/gpt-6-luna"
+  },
+  "labelLimitation" : "Derived location regression set from v2; all six cases are development data, NOT an independent holdout. Official place examples are sourced in campus-locations.json. Complaints are synthetic. No new LIVE execution has occurred. Expectations fixed before future execution.",
+  "evaluatedAt" : "2026-10-20T02:47:06.877571300+09:00",
+  "rows" : [ {
+    "id" : "D1",
+    "expected" : "REPORT IT/WIFI; 북악관 608호 floor6 (room-number inference, not official floor confirmation); connected Wi-Fi but unusable internet, not connection failure; no repeated symptom/location question; COMPLETE, nonurgent.",
+    "split" : "derived-development",
+    "input" : {
+      "hybrid" : true,
+      "preferredIntent" : "AUTO",
+      "text" : "북악관 608호 와파 connected는 됨 근데 인터넷 먹통임."
+    },
+    "status" : "UNVERIFIED_PREFLIGHT_ONLY",
+    "cause" : "AI_UNAVAILABLE",
+    "cacheKey" : "1a1f793b32179f7aa9e0fe09a623625a57795d7324e24ff098d22c424714ca17",
+    "requestBytes" : 9040
+  }, {
+    "id" : "D2",
+    "expected" : "Preserve 은주2관205호 floor2 and excessive heat. Do not invent air-conditioner breakdown or cause. COMPLETE or concrete relevant clarification allowed; generic ISSUE_UNCLEAR fails.",
+    "split" : "derived-development",
+    "input" : {
+      "hybrid" : true,
+      "preferredIntent" : "AUTO",
+      "text" : "아 진짜 은주2관 2층 205호 개더움;;"
+    },
+    "status" : "UNVERIFIED_PREFLIGHT_ONLY",
+    "cause" : "AI_UNAVAILABLE",
+    "cacheKey" : "d1fd4edd55236965fc4a7cc28cbc11f5e33db86d1f3b2de29d49dbe13ed3dfed",
+    "requestBytes" : 9017
+  }, {
+    "id" : "H1",
+    "expected" : "Preserve 북악관608호 floor6 (room-number inference), excessive cold and cold hands, no invented broken heater, no generic ISSUE_UNCLEAR; COMPLETE or concrete relevant clarification allowed; nonurgent.",
+    "split" : "derived-development",
+    "input" : {
+      "hybrid" : true,
+      "preferredIntent" : "AUTO",
+      "text" : "북악관 608호 개추움ㅠ 손 시려서 수업 듣기 힘듦"
+    },
+    "status" : "UNVERIFIED_PREFLIGHT_ONLY",
+    "cause" : "AI_UNAVAILABLE",
+    "cacheKey" : "22ce7952031bb5c647ac52a2b20fb8a7b856762c2ff880d9eaa2bb55db484fa5",
+    "requestBytes" : 9036
+  }, {
+    "id" : "H2",
+    "expected" : "REPORT IT/WIFI; 유담관1202호 floor12; connected network but unavailable internet, no invented router fault; COMPLETE without asking connection mode; nonurgent.",
+    "split" : "derived-development",
+    "input" : {
+      "hybrid" : true,
+      "preferredIntent" : "AUTO",
+      "text" : "유담관 12층 1202호 wifi connected but no internet"
+    },
+    "status" : "UNVERIFIED_PREFLIGHT_ONLY",
+    "cause" : "AI_UNAVAILABLE",
+    "cacheKey" : "dbf638333fcd845101aaa27c7a426c5f2215d4a6795d4d57b873d04ce6ce68de",
+    "requestBytes" : 9026
+  }, {
+    "id" : "H3",
+    "expected" : "Heat is negated, concrete problem unspecified. Do not assert excessive heat or broken AC. Ask actual symptom (ISSUE_UNCLEAR/CONTINUE), no automatic acceptance; retain location, nonurgent.",
+    "split" : "derived-development",
+    "input" : {
+      "hybrid" : true,
+      "preferredIntent" : "AUTO",
+      "text" : "은주2관 2층 205호 엄청 더운 건 아니고 그냥 불편해요"
+    },
+    "status" : "UNVERIFIED_PREFLIGHT_ONLY",
+    "cause" : "AI_UNAVAILABLE",
+    "cacheKey" : "c0d839fbd93bad10fe8c819401cf2320b1b7ddf7ecdf0d319924ccf0f15cd67a",
+    "requestBytes" : 9042
+  }, {
+    "id" : "H4",
+    "expected" : "IT/WIFI; 유담관1404호 floor14; generic Wi-Fi failure with uncertain connection state. Do not invent positive connected/disconnected fact. Ask SYMPTOM_DETAIL/CONTINUE, nonurgent.",
+    "split" : "derived-development",
+    "input" : {
+      "hybrid" : true,
+      "preferredIntent" : "AUTO",
+      "text" : "유담관 14층 1404호 와파 먹통임. connected인지는 모르겠음"
+    },
+    "status" : "UNVERIFIED_PREFLIGHT_ONLY",
+    "cause" : "AI_UNAVAILABLE",
+    "cacheKey" : "cc6daae0faa17d25da4e091e6c6a426cb89a688642be9acc00bc39e8ce87e16c",
+    "requestBytes" : 9045
+  } ],
+  "measurement" : {
+    "inputTokens" : 0,
+    "cacheHits" : 0,
+    "embeddingCalls" : 0,
+    "automaticRetries" : 0,
+    "outputTokens" : 0,
+    "conservativeEstimatedNewCostUsd" : 0.0,
+    "cumulativeAttempts" : 0,
+    "newLlmCalls" : 0
+  },
+  "evidenceIntegrity" : "PASS"
+}

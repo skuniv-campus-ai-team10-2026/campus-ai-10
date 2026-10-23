@@ -1,0 +1,10 @@
+{
+  "checkedAt": "2026-10-20",
+  "scope": "Official published location examples, not a complete or onsite-verified campus inventory. All associated complaints are synthetic.",
+  "locations": [
+    {"building":"북악관","room":"608","floor":null,"locationText":"북악관 608호","source":"https://comso.skuniv.ac.kr/index.php?document_srl=25893","evidence":"2026-07-16 notice: 북악관 608호. Floor is not explicitly stated; do not treat the room-number inference as official confirmation."},
+    {"building":"은주2관","room":"205","floor":"2","locationText":"은주2관 2층 205호","source":"https://ur.skuniv.ac.kr/ur_main","evidence":"Department address: 은주2관 2층 205호. Do not label this office as a classroom."},
+    {"building":"유담관","room":"1202","floor":"12","locationText":"유담관 12층 1202호","source":"https://ucon.skuniv.ac.kr/graduate_contract_manage","evidence":"산업교육지원과: 유담관 12층 1202호. Office, not classroom."},
+    {"building":"유담관","room":"1404","floor":"14","locationText":"유담관 14층 1404호","source":"https://ucon.skuniv.ac.kr/graduate_contract_manage","evidence":"계약학과 사무실: 유담관 14층 1404호. Office, not classroom."}
+  ]
+}

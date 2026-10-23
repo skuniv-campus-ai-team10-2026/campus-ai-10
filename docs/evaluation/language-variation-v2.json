@@ -1,0 +1,13 @@
+{
+  "id":"language-variation-v2",
+  "labelLimitation":"Codex-authored frozen diagnostic set, not independently human reviewed. D1/D2 are development reproductions; H1-H4 are new evaluation inputs, not population accuracy. No label changes after execution.",
+  "preflight":{"maxNewCalls":6,"maxEmbeddings":0,"maxRetries":0,"budgetUsd":0.05,"conservativeReservationUsd":0.049788,"maxInputTokenProxy":25000,"maxCompletionTokens":2048,"model":"gpt-6-luna","serviceTier":"default","inputUsdPerMillion":0.10,"cacheWriteUsdPerMillion":0.125,"cachedInputUsdPerMillion":0.01,"outputUsdPerMillion":0.50,"priceChecked":"2026-10-19","pricingSource":"https://developers.openai.com/api/docs/models/gpt-6-luna"},
+  "cases":[
+    {"id":"D1","split":"development","text":"다온관 410호 와파 connected는 됨 근데 인터넷 먹통임.","expected":"REPORT IT/WIFI; 다온관 410호 floor4; connected Wi-Fi but unusable internet, not connection failure; no repeated symptom/location question; COMPLETE, nonurgent."},
+    {"id":"D2","split":"development","text":"아 진짜 해든관502호 개더움;;","expected":"Preserve 해든관502호 floor5 and excessive heat. Do not invent air-conditioner breakdown or cause. COMPLETE or concrete relevant clarification allowed; generic ISSUE_UNCLEAR fails."},
+    {"id":"H1","split":"new-evaluation","text":"솔빛관 608호 개추움ㅠ 손 시려서 수업 듣기 힘듦","expected":"Preserve 솔빛관608호 floor6, excessive cold and cold hands, no invented broken heater, no generic ISSUE_UNCLEAR; COMPLETE or concrete relevant clarification allowed; nonurgent."},
+    {"id":"H2","split":"new-evaluation","text":"푸른관 207호 wifi connected but no internet","expected":"REPORT IT/WIFI; 푸른관207호 floor2; connected network but unavailable internet, no invented router fault; COMPLETE without asking connection mode; nonurgent."},
+    {"id":"H3","split":"new-evaluation","text":"가온관 309호 엄청 더운 건 아니고 그냥 불편해요","expected":"Heat is negated, concrete problem unspecified. Do not assert excessive heat or broken AC. Ask actual symptom (ISSUE_UNCLEAR/CONTINUE), no automatic acceptance; retain location, nonurgent."},
+    {"id":"H4","split":"new-evaluation","text":"누리관 415호 와파 먹통임. connected인지는 모르겠음","expected":"IT/WIFI; 누리관415호 floor4; generic Wi-Fi failure with uncertain connection state. Do not invent positive connected/disconnected fact. Ask SYMPTOM_DETAIL/CONTINUE, nonurgent."}
+  ]
+}

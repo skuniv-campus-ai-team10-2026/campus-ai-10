@@ -39,9 +39,9 @@ class AiServiceTest {
     }
 
     @Test void demoProducesDifferentResultsAndNeverInventsOfficialContacts() {
-        Map<String, Object> leak = report(demo().analyze(Map.of("text", "어제 미래관 지하 1층 천장에서 물이 떨어져요")));
+        Map<String, Object> leak = report(demo().analyze(Map.of("text", "어제 유담관 지하 1층 천장에서 물이 떨어져요")));
         assertEquals("LEAK", leak.get("subcategory"));
-        assertEquals("미래관", leak.get("building"));
+        assertEquals("유담관", leak.get("building"));
         assertEquals("B1", leak.get("floor"));
         assertEquals("어제", leak.get("occurredAtText"));
         assertFalse(leak.containsKey("departmentName"));
@@ -70,10 +70,10 @@ class AiServiceTest {
     @Test void newestLocationAnswerReplacesOldBuildingAndFloor() {
         Map<String, Object> initial = report(demo().analyze(Map.of("text", "북악관 502호 와이파이가 끊겨요")));
         Map<String, Object> corrected = report(demo().analyze(Map.of("text", "북악관 502호 와이파이가 끊겨요", "preferredIntent", "REPORT",
-                "followUp", Map.of("field", "LOCATION", "answer", "미래관 201호", "previousReport", initial))));
-        assertEquals("미래관", corrected.get("building"));
+                "followUp", Map.of("field", "LOCATION", "answer", "유담관 201호", "previousReport", initial))));
+        assertEquals("유담관", corrected.get("building"));
         assertEquals("2", corrected.get("floor"));
-        assertEquals("미래관 201호", corrected.get("locationText"));
+        assertEquals("유담관 201호", corrected.get("locationText"));
     }
 
     @Test void emergencySignalSurvivesWithoutAClassifier() {
@@ -180,11 +180,11 @@ class AiServiceTest {
     @Test void liveAnalysisCanonicalizesFloorWithoutChangingItsLocationEvidence() throws Exception {
         Map<String, Object> output = validOutput();
         report(output).put("floor", "3층");
-        report(output).put("locationText", "미래관 3층 복도");
+        report(output).put("locationText", "유담관 3층 복도");
         AiService live = stub(200, completion(output), "RULE_ONLY", 20);
-        Map<String, Object> result = live.analyze(Map.of("text", "미래관 3층 복도 와이파이 연결이 끊깁니다."));
+        Map<String, Object> result = live.analyze(Map.of("text", "유담관 3층 복도 와이파이 연결이 끊깁니다."));
         assertEquals("3", report(result).get("floor"));
-        assertEquals("미래관 3층 복도", report(result).get("locationText"));
+        assertEquals("유담관 3층 복도", report(result).get("locationText"));
         assertEquals("LIVE", result.get("aiMode"));
     }
 

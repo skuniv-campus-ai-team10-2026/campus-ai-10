@@ -22,8 +22,8 @@ import java.util.regex.Pattern;
 /** Extracts suggestions only. The caller obtains all routing and answer grounds from the database. */
 @Service
 public class AiService {
-    public static final String PROMPT_VERSION = "hybrid-intake-v1";
-    public static final String POLICY_VERSION = "hybrid-check-v2";
+    public static final String PROMPT_VERSION = "hybrid-intake-v2";
+    public static final String POLICY_VERSION = "hybrid-check-v3";
     private static final Set<String> INTENTS = Set.of("REPORT", "QUESTION", "UNKNOWN");
     private static final Map<String, String> TYPES = Map.of("WIFI", "IT", "LEAK", "FACILITY",
             "ELECTRIC", "FACILITY", "STUDENT_RECORD", "ACADEMIC", "UNKNOWN", "OTHER");
@@ -66,6 +66,13 @@ public class AiService {
             (B1 for basement). Room 502 can suggest floor 5. symptom is concise Korean. occurredAtText preserves
             the student's expression, never substitute submission time or invent an occurrence date.
             Judge whether the actual issue/request is specific enough to act on, not whether fields contain text.
+            Interpret dialect, omitted spacing, typos, slang and Korean/English mixtures by their meaning.
+            Emotion or profanity does not erase an observed symptom. Normalize symptom into plain Korean,
+            but keep assessment.known evidence as exact original quotes, including informal spellings.
+            For example '개더움' explicitly describes excessive heat; it is not merely dissatisfaction.
+            Preserve explicit heat/cold/noise observations without inventing a broken AC/heater or its cause.
+            Do not ask what is wrong when the symptom is already stated informally. Still ask for a genuinely
+            unspecified issue; preserve negation and uncertainty, including slang that denies a symptom.
             A vague complaint such as '강의실이 너무 불편해요' or '은주2관에 문제가 있어요' has no specific
             symptom: set symptom null and missingFields SYMPTOM. Never invent a fault from dissatisfaction.
             Ask what is wrong before asking where. A concrete symptom such as '의자가 흔들려요' is sufficient

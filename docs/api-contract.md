@@ -236,3 +236,24 @@ incidentStatus?, previousIncidentId?, recurrenceDecision, reasonText, timeBasis
 | 503 | `DATABASE_UNAVAILABLE` | DB 처리 실패 |
 
 프런트엔드 `NETWORK_ERROR`는 HTTP 응답 없이 네트워크 호출이 실패했을 때 생성하는 클라이언트 오류다. 프리뷰 프록시의 `HOST_REJECTED`, `ORIGIN_REJECTED`, `PATH_REJECTED`, `UPSTREAM_UNAVAILABLE`, `UPSTREAM_TIMEOUT` 등은 애플리케이션 REST 오류와 구분한다.
+
+## 사진 첨부 API (V5/V6)
+
+신고가 저장된 뒤 받은 ID를 사용한다. 신고 생성 계약은 그대로이며 사진이 실패해도 기존 신고를 재생성하지 않는다. 사진 AI 분석은 없다. 로그인 세션이 필요하고 POST/DELETE에는 기존 CSRF 헤더를 붙인다.
+
+| 메서드 | 경로 | 성공 / 권한 |
+|---|---|---|
+| POST | `/api/reports/{id}/attachments` | 201 / 학생 본인 신고 |
+| GET | `/api/reports/{id}/attachments` | 200 `{items,maxCount}` / 학생 본인 신고 |
+| GET | `/api/reports/{id}/attachments/{attachmentId}/content` | 200 이미지 바이트 / 학생 본인 신고 |
+| DELETE | `/api/reports/{id}/attachments/{attachmentId}` | 204 / 본인 사진, 완료 후에도 가능 |
+| GET | `/api/admin/reports/{id}/attachments` | 200 목록 / 총괄 또는 현재 배정 부서 |
+| GET | `/api/admin/reports/{id}/attachments/{attachmentId}/content` | 200 이미지 / 총괄 또는 현재 배정 부서 |
+
+- 업로드: `multipart/form-data`의 `file` 필드에 정확히 1개. 브라우저 `FormData` 사용 시 Content-Type을 직접 지정하지 않는다. 기존 JSON용 공통 요청 함수를 그대로 쓰면 안 된다.
+- JPEG/PNG만 허용(내용 검사), 파일당 5MB·요청 6MB·신고당 3장·최대 4,000만 화소. 완료된 신고에는 추가할 수 없다. EXIF/GPS/원본 파일명은 보존하지 않으며 JPEG 방향을 픽셀에 반영한다.
+- 첨부 정보: `id`, `reportId`, `contentType`, `sizeBytes`, `width`, `height`, `createdAt`, `contentPath`. 저장 키·원본 파일명은 반환하지 않는다. `contentPath`를 같은 출처의 이미지 주소로 사용한다. 관리자에게는 관리자 경로가 반환된다.
+- 이미지 응답은 private/no-store. 다른 학생이나 이관 후 이전 부서는 404로 접근이 차단된다. 일반 역할·CSRF 오류는 기존 403 규칙을 따른다.
+- 주요 오류: 400 `ATTACHMENT_ONE_PER_REQUEST`/`ATTACHMENT_INVALID_IMAGE`/`ATTACHMENT_TOO_MANY_PIXELS`, 413 `ATTACHMENT_TOO_LARGE`, 415 `ATTACHMENT_UNSUPPORTED_TYPE`, 409 `ATTACHMENT_LIMIT_EXCEEDED`/`ATTACHMENT_REPORT_CLOSED`, 503 `ATTACHMENT_STORAGE_FAILED`.
+- 삭제 204는 첨부 접근 차단과 DB 삭제가 확정됐다는 뜻이다. 디스크 삭제 실패 시 V6 장부에 남겨 재처리하며 신고 내용·처리 결과는 유지한다. 실제 파일 정리 시점과 제한은 [운영 메모](report-attachments.md)를 따른다.
+- API 통신 단절 시 업로드 결과가 불명확할 수 있으므로 목록을 다시 확인한 뒤 재시도를 안내한다. 사진 업로드 자체의 멱등성 키는 현재 없다.

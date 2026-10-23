@@ -1,0 +1,468 @@
+{
+  "fixtureSha256" : "6ba6fa23b49a918ebdd51c783fe58bdcaae9cfc2f815f51963c4eb425e132b36",
+  "sourceHashes" : {
+    "AiService.java" : "41d26a613f4d6f330a5a97697005d1599906461b97cb75bf762e834a2325f657",
+    "ClarificationPolicy.java" : "ce8e3944f1186953abcea99d214057e7656205a7b4c90da8b3db69c480816521",
+    "EmergencySignals.java" : "1866dc34cc23629a0b9af8b106b136f2148d45157ef20d79f058761a1d17fe07",
+    "FollowUpPolicy.java" : "54b21fd92b7cbca66c4fd5a3918d2a21463324730d7b3ff51d1ac4aff4d80d23"
+  },
+  "promptVersion" : "hybrid-intake-v1",
+  "policyVersion" : "hybrid-check-v2",
+  "mode" : "PREPARE_NO_NETWORK",
+  "preflight" : {
+    "maxNewCalls" : 12,
+    "maxEmbeddings" : 0,
+    "maxRetries" : 0,
+    "budgetUsd" : 0.1,
+    "conservativeReservationUsd" : 0.084576,
+    "maxInputTokenProxy" : 25000,
+    "maxCompletionTokens" : 2048,
+    "model" : "gpt-6-luna",
+    "serviceTier" : "default",
+    "inputUsdPerMillion" : 0.1,
+    "outputUsdPerMillion" : 0.5,
+    "priceChecked" : "2026-10-18",
+    "pricingSource" : "https://developers.openai.com/api/docs/models/gpt-6-luna"
+  },
+  "labelLimitation" : "Codex-authored targeted synthetic diagnostic cases, frozen before new LIVE outputs; not independently human-reviewed or representative accuracy. Replayed cases were already inspected and are development reproductions.",
+  "evaluatedAt" : "2026-10-18T18:00:48.011781+09:00",
+  "rows" : [ {
+    "id" : "R01",
+    "sourceId" : "S04-1",
+    "expected" : "Preserve unspecified Wi-Fi malfunction and uncertainty about password cause. Do not assert association/connection failure, wrong password or router fault.",
+    "input" : {
+      "hybrid" : true,
+      "text" : "해솔관 411호 와이파이가 안 돼요. 비밀번호 문제인지는 모르겠어요.",
+      "preferredIntent" : "AUTO"
+    },
+    "rawAi" : {
+      "intent" : "REPORT",
+      "report" : {
+        "category" : "IT",
+        "subcategory" : "WIFI",
+        "locationText" : "해솔관 411호",
+        "building" : "해솔관",
+        "floor" : "4",
+        "symptom" : "와이파이가 연결되지 않음",
+        "occurredAtText" : null,
+        "followUpQuestion" : "와이파이가 아예 연결되지 않나요, 연결은 되지만 인터넷이 되지 않나요, 아니면 연결이 끊기거나 느린가요?",
+        "missingFields" : [ ],
+        "emergencyHint" : false
+      },
+      "assessment" : {
+        "reason" : "SYMPTOM_DETAIL",
+        "evidence" : "와이파이가 안 돼요",
+        "rationale" : "연결 자체가 되지 않는지, 연결 후 인터넷이 안 되는지, 연결이 불안정한지에 따라 확인할 내용이 달라집니다.",
+        "question" : "와이파이가 아예 연결되지 않나요, 연결은 되지만 인터넷이 되지 않나요, 아니면 연결이 끊기거나 느린가요?",
+        "known" : {
+          "locationEvidence" : "해솔관 411호",
+          "scopeEvidence" : null,
+          "symptomEvidence" : null,
+          "targetEvidence" : null,
+          "workflowEvidence" : null
+        }
+      }
+    },
+    "actual" : {
+      "intent" : "REPORT",
+      "report" : {
+        "category" : "IT",
+        "subcategory" : "WIFI",
+        "locationText" : "해솔관 411호",
+        "building" : "해솔관",
+        "floor" : "4",
+        "symptom" : "와이파이가 연결되지 않음",
+        "occurredAtText" : null,
+        "followUpQuestion" : "와이파이 연결 자체가 안 되나요, 연결 후 인터넷이 안 되나요? 끊기거나 느린 경우도 알려주세요.",
+        "missingFields" : [ ],
+        "emergencyHint" : false
+      },
+      "clarification" : {
+        "reason" : "SYMPTOM_DETAIL",
+        "neededReasons" : [ "SYMPTOM_DETAIL" ],
+        "message" : "어떻게 문제가 나타나는지에 따라 확인 방법이 달라져요.",
+        "source" : "AI_AND_RULES"
+      },
+      "followUpState" : {
+        "turns" : 0,
+        "noProgress" : 0,
+        "askedFields" : [ ],
+        "reviewFields" : [ ],
+        "status" : "CONTINUE",
+        "nextField" : "SYMPTOM",
+        "nextReason" : "SYMPTOM_DETAIL",
+        "askedReasons" : [ ],
+        "unavailableReasons" : [ ],
+        "knownEvidence" : {
+          "locationEvidence" : "해솔관 411호"
+        },
+        "neededReasons" : [ "SYMPTOM_DETAIL" ],
+        "urgentReview" : false
+      },
+      "aiMode" : "LIVE"
+    },
+    "source" : "EXISTING_LIVE_REPLAY",
+    "status" : "OUTPUT_AVAILABLE_PENDING_SEMANTIC_REVIEW"
+  }, {
+    "id" : "R02",
+    "sourceId" : "S28-1",
+    "expected" : "Preserve whole-building scope and unspecified Wi-Fi malfunction. Do not assert association/connection failure or root cause.",
+    "input" : {
+      "hybrid" : true,
+      "text" : "다솜관 전체에서 와이파이가 안 돼요.",
+      "preferredIntent" : "AUTO"
+    },
+    "rawAi" : {
+      "intent" : "REPORT",
+      "report" : {
+        "category" : "IT",
+        "subcategory" : "WIFI",
+        "locationText" : "다솜관 전체",
+        "building" : "다솜관",
+        "floor" : null,
+        "symptom" : "다솜관 전체에서 와이파이가 연결되지 않음",
+        "occurredAtText" : null,
+        "followUpQuestion" : null,
+        "missingFields" : [ ],
+        "emergencyHint" : false
+      },
+      "assessment" : {
+        "reason" : "NONE",
+        "evidence" : null,
+        "rationale" : null,
+        "question" : null,
+        "known" : {
+          "locationEvidence" : "다솜관 전체",
+          "scopeEvidence" : "다솜관 전체",
+          "symptomEvidence" : null,
+          "targetEvidence" : null,
+          "workflowEvidence" : null
+        }
+      }
+    },
+    "actual" : {
+      "intent" : "REPORT",
+      "report" : {
+        "category" : "IT",
+        "subcategory" : "WIFI",
+        "locationText" : "다솜관 전체",
+        "building" : "다솜관",
+        "floor" : null,
+        "symptom" : "다솜관 전체에서 와이파이가 연결되지 않음",
+        "occurredAtText" : null,
+        "followUpQuestion" : "와이파이 연결 자체가 안 되나요, 연결 후 인터넷이 안 되나요? 끊기거나 느린 경우도 알려주세요.",
+        "missingFields" : [ ],
+        "emergencyHint" : false
+      },
+      "clarification" : {
+        "reason" : "SYMPTOM_DETAIL",
+        "neededReasons" : [ "SYMPTOM_DETAIL" ],
+        "message" : "어떻게 문제가 나타나는지에 따라 확인 방법이 달라져요.",
+        "source" : "SERVER_RULES"
+      },
+      "followUpState" : {
+        "turns" : 0,
+        "noProgress" : 0,
+        "askedFields" : [ ],
+        "reviewFields" : [ ],
+        "status" : "CONTINUE",
+        "nextField" : "SYMPTOM",
+        "nextReason" : "SYMPTOM_DETAIL",
+        "askedReasons" : [ ],
+        "unavailableReasons" : [ ],
+        "knownEvidence" : {
+          "locationEvidence" : "다솜관 전체",
+          "scopeEvidence" : "다솜관 전체"
+        },
+        "neededReasons" : [ "SYMPTOM_DETAIL" ],
+        "urgentReview" : false
+      },
+      "aiMode" : "LIVE"
+    },
+    "source" : "EXISTING_LIVE_REPLAY",
+    "status" : "OUTPUT_AVAILABLE_PENDING_SEMANTIC_REVIEW"
+  }, {
+    "id" : "R03",
+    "sourceId" : "S25-3",
+    "expected" : "Preserve prior 늘봄관 316호/floor 3 and latest symptom: connected to Wi-Fi but web pages do not open. Do not revert to inability to connect or erase known location.",
+    "input" : {
+      "hybrid" : true,
+      "text" : "늘봄관 와이파이가 안 돼요.",
+      "preferredIntent" : "AUTO",
+      "followUp" : {
+        "field" : "SYMPTOM",
+        "previousReport" : {
+          "category" : "IT",
+          "subcategory" : "WIFI",
+          "locationText" : "늘봄관 316호",
+          "building" : "늘봄관",
+          "floor" : "3",
+          "symptom" : "와이파이 연결이 되지 않음",
+          "occurredAtText" : null,
+          "followUpQuestion" : "와이파이 연결 자체가 안 되나요, 연결 후 인터넷이 안 되나요? 끊기거나 느린 경우도 알려주세요.",
+          "missingFields" : [ ],
+          "emergencyHint" : false
+        },
+        "answer" : "연결은 되는데 인터넷 페이지가 열리지 않아요.",
+        "state" : {
+          "turns" : 1,
+          "noProgress" : 0,
+          "askedFields" : [ "LOCATION" ],
+          "reviewFields" : [ ],
+          "status" : "CONTINUE",
+          "nextField" : "SYMPTOM",
+          "nextReason" : "SYMPTOM_DETAIL",
+          "askedReasons" : [ "LOCATION_DETAIL" ],
+          "unavailableReasons" : [ ],
+          "knownEvidence" : {
+            "locationEvidence" : "늘봄관 316호"
+          },
+          "neededReasons" : [ "SYMPTOM_DETAIL" ],
+          "urgentReview" : false
+        }
+      }
+    },
+    "rawAi" : {
+      "intent" : "REPORT",
+      "report" : {
+        "category" : "IT",
+        "subcategory" : "WIFI",
+        "locationText" : "늘봄관",
+        "building" : "늘봄관",
+        "floor" : null,
+        "symptom" : "Wi-Fi에 연결되지만 인터넷 페이지가 열리지 않음",
+        "occurredAtText" : null,
+        "followUpQuestion" : "늘봄관 전체에서 발생하나요, 아니면 특정 공간에서 발생하나요?",
+        "missingFields" : [ "LOCATION" ],
+        "emergencyHint" : false
+      },
+      "assessment" : {
+        "reason" : "LOCATION_DETAIL",
+        "evidence" : "늘봄관",
+        "rationale" : "건물은 확인됐지만 영향을 받는 공간이 특정되지 않았습니다.",
+        "question" : "늘봄관 전체에서 발생하나요, 아니면 특정 공간에서 발생하나요?",
+        "known" : {
+          "locationEvidence" : null,
+          "scopeEvidence" : null,
+          "symptomEvidence" : "연결은 되는데 인터넷 페이지가 열리지 않아요.",
+          "targetEvidence" : null,
+          "workflowEvidence" : null
+        }
+      },
+      "updates" : {
+        "LOCATION" : {
+          "action" : "KEEP",
+          "evidence" : null
+        },
+        "SYMPTOM" : {
+          "action" : "SET",
+          "evidence" : "연결은 되는데 인터넷 페이지가 열리지 않아요."
+        },
+        "OCCURRED_AT" : {
+          "action" : "KEEP",
+          "evidence" : null
+        },
+        "CATEGORY" : {
+          "action" : "KEEP",
+          "evidence" : null
+        }
+      }
+    },
+    "actual" : {
+      "intent" : "REPORT",
+      "report" : {
+        "category" : "IT",
+        "subcategory" : "WIFI",
+        "locationText" : "늘봄관 316호",
+        "building" : "늘봄관",
+        "floor" : "3",
+        "symptom" : "Wi-Fi에 연결되지만 인터넷 페이지가 열리지 않음",
+        "occurredAtText" : null,
+        "followUpQuestion" : null,
+        "missingFields" : [ ],
+        "emergencyHint" : false
+      },
+      "clarification" : {
+        "reason" : null,
+        "neededReasons" : [ ],
+        "message" : null,
+        "source" : "SERVER_RULES"
+      },
+      "followUpState" : {
+        "turns" : 2,
+        "noProgress" : 0,
+        "askedFields" : [ "LOCATION", "SYMPTOM" ],
+        "reviewFields" : [ ],
+        "status" : "COMPLETE",
+        "nextField" : null,
+        "nextReason" : null,
+        "askedReasons" : [ "LOCATION_DETAIL", "SYMPTOM_DETAIL" ],
+        "unavailableReasons" : [ ],
+        "knownEvidence" : {
+          "locationEvidence" : "늘봄관 316호",
+          "symptomEvidence" : "연결은 되는데 인터넷 페이지가 열리지 않아요"
+        },
+        "neededReasons" : [ ],
+        "urgentReview" : false
+      },
+      "aiMode" : "LIVE"
+    },
+    "source" : "EXISTING_LIVE_REPLAY",
+    "status" : "OUTPUT_AVAILABLE_PENDING_SEMANTIC_REVIEW"
+  }, {
+    "id" : "G01",
+    "expected" : "Preserve 가온관 214호 and unspecified Wi-Fi malfunction. Connection failure versus slowness is explicitly unknown: neither may become an asserted symptom. Null symptom or generic malfunction is acceptable; no invented cause or occurrence time.",
+    "input" : {
+      "hybrid" : true,
+      "text" : "가온관 214호 와이파이가 잘 안 돼요. 연결 문제인지 속도 문제인지는 모르겠어요.",
+      "preferredIntent" : "AUTO"
+    },
+    "status" : "UNVERIFIED_PREFLIGHT_ONLY",
+    "cause" : "AI_UNAVAILABLE",
+    "cacheKey" : "e07af3ea45b88e82a38b30e49896e1d456fe9c73cd3d00f3f76ef815a406ef90",
+    "requestBytes" : 8409
+  }, {
+    "id" : "G02",
+    "expected" : "Preserve 가온관 214호 and BOTH successful Wi-Fi connection and inability to open web pages. Do not say Wi-Fi cannot connect, is slow, has wrong password or is caused by router failure. Time unknown.",
+    "input" : {
+      "hybrid" : true,
+      "text" : "가온관 214호에서 와이파이 연결은 되는데 웹페이지가 하나도 열리지 않아요.",
+      "preferredIntent" : "AUTO"
+    },
+    "status" : "UNVERIFIED_PREFLIGHT_ONLY",
+    "cause" : "AI_UNAVAILABLE",
+    "cacheKey" : "a6e6c6c34b9980d41eca4c1ad169112c66a2d01cfb58127fc110ce4b2aa1f94f",
+    "requestBytes" : 8403
+  }, {
+    "id" : "G03",
+    "expected" : "Preserve 온유관 1층 복도 and wet floor. Spillage/leak origin is unknown. Do not assert a ceiling/pipe leak, a person spilling water, or invented start time. Routing to LEAK alone is not a factual cause assertion.",
+    "input" : {
+      "hybrid" : true,
+      "text" : "온유관 1층 복도 바닥이 젖어 있어요. 누가 물을 쏟았는지 어디서 새는 건지는 모르겠어요.",
+      "preferredIntent" : "AUTO"
+    },
+    "status" : "UNVERIFIED_PREFLIGHT_ONLY",
+    "cause" : "AI_UNAVAILABLE",
+    "cacheKey" : "c7a3ac426920f6302dc0e8788431305f938d6e98319efc28d063e4f1fdc4f086",
+    "requestBytes" : 8421
+  }, {
+    "id" : "G04",
+    "expected" : "Preserve 온유관 218호, ceiling stain, and no currently dripping water. Do not assert active dripping, ongoing leak, or a known onset date. Unknown time may be null.",
+    "input" : {
+      "hybrid" : true,
+      "text" : "온유관 218호 천장에 얼룩이 있어요. 지금 물이 떨어지지는 않고 언제 생긴 얼룩인지도 몰라요.",
+      "preferredIntent" : "AUTO"
+    },
+    "status" : "UNVERIFIED_PREFLIGHT_ONLY",
+    "cause" : "AI_UNAVAILABLE",
+    "cacheKey" : "5e77c4d0d96e01d691b127fc6dd2a4295229962d667e7e31217b1283bacbf314",
+    "requestBytes" : 8426
+  }, {
+    "id" : "G05",
+    "expected" : "Preserve 서림관 305호 and charging failure with cause uncertain. No smoke/sparks, no asserted outlet failure, charger breakage, short circuit or fire. emergencyHint must be false.",
+    "input" : {
+      "hybrid" : true,
+      "text" : "서림관 305호 콘센트에 충전기를 꽂아도 휴대폰 충전이 안 돼요. 연기나 불꽃은 없고 콘센트 문제인지 충전기 문제인지는 모르겠어요.",
+      "preferredIntent" : "AUTO"
+    },
+    "status" : "UNVERIFIED_PREFLIGHT_ONLY",
+    "cause" : "AI_UNAVAILABLE",
+    "cacheKey" : "af4d4d95512fa4d0e34b237b1748eed81b331cd985aa9a52338128d5e62ddcdf",
+    "requestBytes" : 8478
+  }, {
+    "id" : "G06",
+    "expected" : "Preserve 서림관 306호 and currently observed smoke despite no visible sparks. Do not invent visible flames, confirmed fire or short-circuit cause. emergencyHint must be true.",
+    "input" : {
+      "hybrid" : true,
+      "text" : "서림관 306호 콘센트에서 지금 연기가 나고 있어요. 불꽃은 보이지 않아요.",
+      "preferredIntent" : "AUTO"
+    },
+    "status" : "UNVERIFIED_PREFLIGHT_ONLY",
+    "cause" : "AI_UNAVAILABLE",
+    "cacheKey" : "bfc63186953f3da66e2f3f277c514bad7eeae817cd7176c138396133725b88b3",
+    "requestBytes" : 8399
+  }, {
+    "id" : "G07",
+    "expected" : "Preserve 해든관 402호 and excessive room heat. Air-conditioner running state and failure are unknown. Do not assert broken AC, no power, cooling failure, refrigerant issue or outage.",
+    "input" : {
+      "hybrid" : true,
+      "text" : "해든관 402호 강의실이 너무 더워요. 에어컨이 켜져 있는지는 확인하지 못했어요.",
+      "preferredIntent" : "AUTO"
+    },
+    "status" : "UNVERIFIED_PREFLIGHT_ONLY",
+    "cause" : "AI_UNAVAILABLE",
+    "cacheKey" : "e86e7830ec1b20e80b6c8b067a73c83b52976343819da1a2df73af84edd4b79d",
+    "requestBytes" : 8408
+  }, {
+    "id" : "G08",
+    "expected" : "Preserve 해든관 403호, AC switched on and persistent warm airflow. Do not change to unable to power on or invent refrigerant shortage or component failure.",
+    "input" : {
+      "hybrid" : true,
+      "text" : "해든관 403호 에어컨은 켜져 있는데 계속 따뜻한 바람만 나와요.",
+      "preferredIntent" : "AUTO"
+    },
+    "status" : "UNVERIFIED_PREFLIGHT_ONLY",
+    "cause" : "AI_UNAVAILABLE",
+    "cacheKey" : "d3b60f6644bea13cb7462175dda8a19846b85ebbd956fdd7f0186b3aa3b1f940",
+    "requestBytes" : 8385
+  }, {
+    "id" : "G09",
+    "expected" : "Preserve flickering light in a second-floor corridor. Building must remain unresolved (null or explicitly uncertain alternatives), never a definite 가온관/온유관. No room or date supplied; do not invent either.",
+    "input" : {
+      "hybrid" : true,
+      "text" : "가온관인지 온유관인지 확실하지 않은 2층 복도에서 전등이 깜빡였어요.",
+      "preferredIntent" : "AUTO"
+    },
+    "status" : "UNVERIFIED_PREFLIGHT_ONLY",
+    "cause" : "AI_UNAVAILABLE",
+    "cacheKey" : "fb871d8c9af12a2fb2a8d250ce47798ec506b2699ccdac84abc3c11dd8d9cf6c",
+    "requestBytes" : 8397
+  }, {
+    "id" : "G10",
+    "expected" : "Final location is 온유관 2층 218호, not 가온관. Preserve window handle spinning ineffectively. Do not invent broken glass, fallen window or cause; time unspecified.",
+    "input" : {
+      "hybrid" : true,
+      "text" : "가온관이 아니라 온유관 2층 218호예요. 창문 손잡이가 헛돌아요.",
+      "preferredIntent" : "AUTO"
+    },
+    "status" : "UNVERIFIED_PREFLIGHT_ONLY",
+    "cause" : "AI_UNAVAILABLE",
+    "cacheKey" : "f2555413829cdee81de6d152235b34ae4a53f4ff814b2cc7ac4ec34631742531",
+    "requestBytes" : 8386
+  }, {
+    "id" : "G11",
+    "expected" : "Preserve 새롬관 109호 and current dripping below washbasin. Do not assert pipe rupture or onset today/now/at report time. An explicit ongoing observation is allowed, but occurredAtText must remain null or explicitly unknown without invented onset.",
+    "input" : {
+      "hybrid" : true,
+      "text" : "새롬관 109호 세면대 아래에서 물이 떨어지고 있어요. 언제부터인지는 모르겠어요.",
+      "preferredIntent" : "AUTO"
+    },
+    "status" : "UNVERIFIED_PREFLIGHT_ONLY",
+    "cause" : "AI_UNAVAILABLE",
+    "cacheKey" : "b69ddb1efa1c664a61a0c771a9e6c8ffcab3c8e0587addb164fcd39818522775",
+    "requestBytes" : 8410
+  }, {
+    "id" : "G12",
+    "expected" : "Preserve inquiry about how/where to check scholarship application result. Do not assert rejection, missing payment, pending processing, inaccessible website or a failed result lookup. No building/floor/time may be invented.",
+    "input" : {
+      "hybrid" : true,
+      "text" : "장학금 신청 결과는 어디서 확인하나요? 아직 결과를 조회해 보지는 않았어요.",
+      "preferredIntent" : "AUTO"
+    },
+    "status" : "UNVERIFIED_PREFLIGHT_ONLY",
+    "cause" : "AI_UNAVAILABLE",
+    "cacheKey" : "0552aa143779eceea64aaede398984bb2d4e5f03a61245f6f17fd714438c485b",
+    "requestBytes" : 8405
+  } ],
+  "measurement" : {
+    "embeddingCalls" : 0,
+    "cacheHits" : 0,
+    "inputTokens" : 0,
+    "estimatedNewCostUsd" : 0.0,
+    "newLlmCalls" : 0,
+    "cumulativeAttempts" : 0,
+    "outputTokens" : 0,
+    "automaticRetries" : 0
+  },
+  "evidenceIntegrity" : "PASS"
+}

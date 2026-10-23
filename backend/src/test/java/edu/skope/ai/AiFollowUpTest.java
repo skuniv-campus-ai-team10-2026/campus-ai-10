@@ -47,8 +47,8 @@ class AiFollowUpTest {
         for (Map<String,Object> state : List.of(
                 state(3, 0, "LIMIT"), state(2, 2, "NO_PROGRESS"))) {
             var prior = prior(); prior.put("building", null); prior.put("locationText", null); prior.put("floor", null);
-            var ai = new Stub(prior, changes("LOCATION", "SET", "미래관"));
-            var result = ai.analyze(input(prior, "미래관이에요", state));
+            var ai = new Stub(prior, changes("LOCATION", "SET", "유담관"));
+            var result = ai.analyze(input(prior, "유담관이에요", state));
             assertEquals(0, ai.calls);
             assertNull(AiServiceTest.report(result).get("building"));
             assertNull(AiServiceTest.report(result).get("followUpQuestion"));

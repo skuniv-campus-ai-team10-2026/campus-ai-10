@@ -121,6 +121,42 @@ class AttachmentApiIntegrationTest {
     }
     static String base(long reportId) { return "/reports/" + reportId + "/attachments"; }
 
+    @Test void naturalLanguageIntakePhotoTransferAndStudentResultWorkTogether() throws Exception {
+        var student = new Session().login("student1");
+        String requestId = UUID.randomUUID().toString();
+        var accepted = student.ok("POST", "/assistant/intake", Map.of("clientRequestId", requestId,
+            "text", "북악관 608호에서 와이파이가 10분마다 끊겨요.", "preferredIntent", "AUTO"), 200);
+        assertEquals("ACCEPTED", accepted.get("status").asText());
+        long r = accepted.at("/report/id").asLong();
+        assertTrue(r > 0);
+        var uploaded = student.upload(base(r), jpeg());
+        expect(201, null, uploaded);
+        long a = json(uploaded).get("id").asLong();
+        assertEquals(r, student.ok("POST", "/assistant/intake", Map.of("clientRequestId", requestId,
+            "resume", true), 200).at("/report/id").asLong());
+        assertEquals(1, reportCount(), "resuming intake must not duplicate a report with a photo");
+
+        String content = "/admin" + base(r) + "/" + a + "/content";
+        var it = staff("WIFI");
+        assertEquals(200, it.call("GET", content, null, false).statusCode());
+        new Session().login("admin").ok("PATCH", "/admin/reports/" + r + "/routing",
+            Map.of("routingRuleId", rule("ELECTRIC"), "reason", "합성 통합 검증: 전원 점검 부서로 재배정"), 200);
+        expect(404, "REPORT_NOT_FOUND", it.call("GET", content, null, false));
+        var electric = staff("ELECTRIC");
+        assertEquals(200, electric.call("GET", content, null, false).statusCode());
+        electric.ok("PATCH", "/admin/reports/" + r + "/status", Map.of("status", "IN_PROGRESS"), 200);
+        String resolution = "합성 통합 검증: 전원과 연결 상태를 확인했습니다.";
+        electric.ok("PATCH", "/admin/reports/" + r + "/status",
+            Map.of("status", "RESOLVED", "resolutionText", resolution), 200);
+        var result = student.ok("GET", "/reports/" + r, null, 200);
+        assertEquals("RESOLVED", result.get("status").asText());
+        assertEquals(resolution, result.get("resolutionText").asText());
+        student.ok("DELETE", base(r) + "/" + a, null, 204);
+        assertEquals(0, rows()); assertEquals(0, files());
+        assertEquals(0, Db.id(db.one("SELECT COUNT(*) c FROM attachment_cleanup"), "c"));
+        assertEquals(resolution, student.ok("GET", "/reports/" + r, null, 200).get("resolutionText").asText());
+    }
+
     @Test void studentUploadsListsViewsAndDeletesOverHttp() throws Exception {
         var student = new Session().login("student1"); long r = createReport(student);
         var created = student.upload(base(r), jpeg());

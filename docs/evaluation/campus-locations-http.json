@@ -1,0 +1,45 @@
+{
+  "rows": [
+    {
+      "provenance": "MANUAL_SYNTHETIC_NOT_LIVE",
+      "status": "PASS",
+      "id": 1,
+      "locationText": "북악관 608호",
+      "floor": null,
+      "building": "북악관",
+      "source": "https://comso.skuniv.ac.kr/index.php?document_srl=25893"
+    },
+    {
+      "provenance": "MANUAL_SYNTHETIC_NOT_LIVE",
+      "status": "PASS",
+      "id": 2,
+      "locationText": "은주2관 2층 205호",
+      "floor": "2",
+      "building": "은주2관",
+      "source": "https://ur.skuniv.ac.kr/ur_main"
+    },
+    {
+      "provenance": "MANUAL_SYNTHETIC_NOT_LIVE",
+      "status": "PASS",
+      "id": 3,
+      "locationText": "유담관 12층 1202호",
+      "floor": "12",
+      "building": "유담관",
+      "source": "https://ucon.skuniv.ac.kr/graduate_contract_manage"
+    },
+    {
+      "provenance": "MANUAL_SYNTHETIC_NOT_LIVE",
+      "status": "PASS",
+      "id": 4,
+      "locationText": "유담관 14층 1404호",
+      "floor": "14",
+      "building": "유담관",
+      "source": "https://ucon.skuniv.ac.kr/graduate_contract_manage"
+    }
+  ],
+  "newApiCalls": 0,
+  "database": "H2 memory campus_locations",
+  "checkedAt": "2026-10-20T02:47:21.6248785+09:00",
+  "browserVisualCheck": "NOT_RUN",
+  "mode": "DEMO / manual synthetic reports with officially published locations; no paid API"
+}

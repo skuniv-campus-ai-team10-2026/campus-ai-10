@@ -1,0 +1,403 @@
+{
+  "source": "HTTP through Vite proxy, Spring Boot, exact saved LIVE response, H2",
+  "newApiCalls": 0,
+  "testedAt": "2026-10-20T02:14:17.9259176+09:00",
+  "rows": [
+    {
+      "expectedStatus": "ACCEPTED",
+      "id": "D1",
+      "status": "PASS",
+      "actual": {
+        "report": {
+          "id": 1,
+          "studentId": 1,
+          "originalText": "다온관 410호 와파 connected는 됨 근데 인터넷 먹통임.",
+          "category": "IT",
+          "subcategory": "WIFI",
+          "locationText": "다온관 410호",
+          "building": "다온관",
+          "floor": "4",
+          "symptom": "Wi-Fi에는 연결되지만 인터넷이 되지 않음",
+          "occurredAtText": null,
+          "routingRuleId": 1,
+          "assignedDepartmentId": 1,
+          "routeStatus": "MATCHED",
+          "status": "RECEIVED",
+          "emergencyHint": false,
+          "resolutionText": null,
+          "embeddingModel": null,
+          "createdAt": "2026-10-20T02:14:17.080792+09:00",
+          "updatedAt": "2026-10-20T02:14:17.080792+09:00",
+          "occurredOn": null,
+          "incidentId": null,
+          "requestKind": "REPORT",
+          "reviewNote": null,
+          "assignedDepartment": {
+            "id": 1,
+            "name": "정보전산원",
+            "contactPhone": "02-940-7043",
+            "sourceUrl": "https://www.skuniv.ac.kr/campus-network",
+            "verified": true,
+            "demoOnly": false,
+            "assignmentBasis": "VERIFIED",
+            "warning": null
+          }
+        },
+        "aiMode": "LIVE",
+        "status": "ACCEPTED"
+      },
+      "studentDetail": {
+        "id": 1,
+        "studentId": 1,
+        "originalText": "다온관 410호 와파 connected는 됨 근데 인터넷 먹통임.",
+        "category": "IT",
+        "subcategory": "WIFI",
+        "locationText": "다온관 410호",
+        "building": "다온관",
+        "floor": "4",
+        "symptom": "Wi-Fi에는 연결되지만 인터넷이 되지 않음",
+        "occurredAtText": null,
+        "routingRuleId": 1,
+        "assignedDepartmentId": 1,
+        "routeStatus": "MATCHED",
+        "status": "RECEIVED",
+        "emergencyHint": false,
+        "resolutionText": null,
+        "embeddingModel": null,
+        "createdAt": "2026-10-20T02:14:17.080792+09:00",
+        "updatedAt": "2026-10-20T02:14:17.080792+09:00",
+        "occurredOn": null,
+        "incidentId": null,
+        "requestKind": "REPORT",
+        "reviewNote": null,
+        "assignedDepartment": {
+          "id": 1,
+          "name": "정보전산원",
+          "contactPhone": "02-940-7043",
+          "sourceUrl": "https://www.skuniv.ac.kr/campus-network",
+          "verified": true,
+          "demoOnly": false,
+          "assignmentBasis": "VERIFIED",
+          "warning": null
+        }
+      }
+    },
+    {
+      "expectedStatus": "ACCEPTED",
+      "id": "D2",
+      "status": "PASS",
+      "actual": {
+        "report": {
+          "id": 2,
+          "studentId": 1,
+          "originalText": "아 진짜 해든관502호 개더움;;",
+          "category": "OTHER",
+          "subcategory": "UNKNOWN",
+          "locationText": "해든관502호",
+          "building": "해든관",
+          "floor": "5",
+          "symptom": "매우 더움",
+          "occurredAtText": null,
+          "routingRuleId": null,
+          "assignedDepartmentId": null,
+          "routeStatus": "NEEDS_REVIEW",
+          "status": "RECEIVED",
+          "emergencyHint": false,
+          "resolutionText": null,
+          "embeddingModel": null,
+          "createdAt": "2026-10-20T02:14:17.316389+09:00",
+          "updatedAt": "2026-10-20T02:14:17.316389+09:00",
+          "occurredOn": null,
+          "incidentId": null,
+          "requestKind": "REPORT",
+          "reviewNote": null,
+          "assignedDepartment": null
+        },
+        "aiMode": "LIVE",
+        "status": "ACCEPTED"
+      },
+      "studentDetail": {
+        "id": 2,
+        "studentId": 1,
+        "originalText": "아 진짜 해든관502호 개더움;;",
+        "category": "OTHER",
+        "subcategory": "UNKNOWN",
+        "locationText": "해든관502호",
+        "building": "해든관",
+        "floor": "5",
+        "symptom": "매우 더움",
+        "occurredAtText": null,
+        "routingRuleId": null,
+        "assignedDepartmentId": null,
+        "routeStatus": "NEEDS_REVIEW",
+        "status": "RECEIVED",
+        "emergencyHint": false,
+        "resolutionText": null,
+        "embeddingModel": null,
+        "createdAt": "2026-10-20T02:14:17.316389+09:00",
+        "updatedAt": "2026-10-20T02:14:17.316389+09:00",
+        "occurredOn": null,
+        "incidentId": null,
+        "requestKind": "REPORT",
+        "reviewNote": null,
+        "assignedDepartment": null
+      }
+    },
+    {
+      "expectedStatus": "ACCEPTED",
+      "id": "H1",
+      "status": "PASS",
+      "actual": {
+        "report": {
+          "id": 3,
+          "studentId": 1,
+          "originalText": "솔빛관 608호 개추움ㅠ 손 시려서 수업 듣기 힘듦",
+          "category": "OTHER",
+          "subcategory": "UNKNOWN",
+          "locationText": "솔빛관 608호",
+          "building": "솔빛관",
+          "floor": "6",
+          "symptom": "강의실이 지나치게 추워 손이 시리고 수업을 듣기 어려움",
+          "occurredAtText": null,
+          "routingRuleId": null,
+          "assignedDepartmentId": null,
+          "routeStatus": "NEEDS_REVIEW",
+          "status": "RECEIVED",
+          "emergencyHint": false,
+          "resolutionText": null,
+          "embeddingModel": null,
+          "createdAt": "2026-10-20T02:14:17.520127+09:00",
+          "updatedAt": "2026-10-20T02:14:17.520127+09:00",
+          "occurredOn": null,
+          "incidentId": null,
+          "requestKind": "REPORT",
+          "reviewNote": null,
+          "assignedDepartment": null
+        },
+        "aiMode": "LIVE",
+        "status": "ACCEPTED"
+      },
+      "studentDetail": {
+        "id": 3,
+        "studentId": 1,
+        "originalText": "솔빛관 608호 개추움ㅠ 손 시려서 수업 듣기 힘듦",
+        "category": "OTHER",
+        "subcategory": "UNKNOWN",
+        "locationText": "솔빛관 608호",
+        "building": "솔빛관",
+        "floor": "6",
+        "symptom": "강의실이 지나치게 추워 손이 시리고 수업을 듣기 어려움",
+        "occurredAtText": null,
+        "routingRuleId": null,
+        "assignedDepartmentId": null,
+        "routeStatus": "NEEDS_REVIEW",
+        "status": "RECEIVED",
+        "emergencyHint": false,
+        "resolutionText": null,
+        "embeddingModel": null,
+        "createdAt": "2026-10-20T02:14:17.520127+09:00",
+        "updatedAt": "2026-10-20T02:14:17.520127+09:00",
+        "occurredOn": null,
+        "incidentId": null,
+        "requestKind": "REPORT",
+        "reviewNote": null,
+        "assignedDepartment": null
+      }
+    },
+    {
+      "expectedStatus": "ACCEPTED",
+      "id": "H2",
+      "status": "PASS",
+      "actual": {
+        "report": {
+          "id": 4,
+          "studentId": 1,
+          "originalText": "푸른관 207호 wifi connected but no internet",
+          "category": "IT",
+          "subcategory": "WIFI",
+          "locationText": "푸른관 207호",
+          "building": "푸른관",
+          "floor": "2",
+          "symptom": "와이파이에 연결되지만 인터넷이 되지 않음",
+          "occurredAtText": null,
+          "routingRuleId": 1,
+          "assignedDepartmentId": 1,
+          "routeStatus": "MATCHED",
+          "status": "RECEIVED",
+          "emergencyHint": false,
+          "resolutionText": null,
+          "embeddingModel": null,
+          "createdAt": "2026-10-20T02:14:17.721523+09:00",
+          "updatedAt": "2026-10-20T02:14:17.721523+09:00",
+          "occurredOn": null,
+          "incidentId": null,
+          "requestKind": "REPORT",
+          "reviewNote": null,
+          "assignedDepartment": {
+            "id": 1,
+            "name": "정보전산원",
+            "contactPhone": "02-940-7043",
+            "sourceUrl": "https://www.skuniv.ac.kr/campus-network",
+            "verified": true,
+            "demoOnly": false,
+            "assignmentBasis": "VERIFIED",
+            "warning": null
+          }
+        },
+        "aiMode": "LIVE",
+        "status": "ACCEPTED"
+      },
+      "studentDetail": {
+        "id": 4,
+        "studentId": 1,
+        "originalText": "푸른관 207호 wifi connected but no internet",
+        "category": "IT",
+        "subcategory": "WIFI",
+        "locationText": "푸른관 207호",
+        "building": "푸른관",
+        "floor": "2",
+        "symptom": "와이파이에 연결되지만 인터넷이 되지 않음",
+        "occurredAtText": null,
+        "routingRuleId": 1,
+        "assignedDepartmentId": 1,
+        "routeStatus": "MATCHED",
+        "status": "RECEIVED",
+        "emergencyHint": false,
+        "resolutionText": null,
+        "embeddingModel": null,
+        "createdAt": "2026-10-20T02:14:17.721523+09:00",
+        "updatedAt": "2026-10-20T02:14:17.721523+09:00",
+        "occurredOn": null,
+        "incidentId": null,
+        "requestKind": "REPORT",
+        "reviewNote": null,
+        "assignedDepartment": {
+          "id": 1,
+          "name": "정보전산원",
+          "contactPhone": "02-940-7043",
+          "sourceUrl": "https://www.skuniv.ac.kr/campus-network",
+          "verified": true,
+          "demoOnly": false,
+          "assignmentBasis": "VERIFIED",
+          "warning": null
+        }
+      }
+    },
+    {
+      "expectedStatus": "NEEDS_INPUT",
+      "id": "H3",
+      "status": "PASS",
+      "actual": {
+        "status": "NEEDS_INPUT",
+        "revision": 1,
+        "analysis": {
+          "intent": "UNKNOWN",
+          "report": {
+            "category": "OTHER",
+            "subcategory": "UNKNOWN",
+            "locationText": "가온관 309호",
+            "building": "가온관",
+            "floor": "3",
+            "symptom": null,
+            "occurredAtText": null,
+            "followUpQuestion": "어떤 점이 불편한가요? 냉난방, 책상·의자, 소음처럼 실제 문제를 알려주세요.",
+            "missingFields": [
+              "SYMPTOM"
+            ],
+            "emergencyHint": false
+          },
+          "clarification": {
+            "reason": "ISSUE_UNCLEAR",
+            "neededReasons": [
+              "ISSUE_UNCLEAR",
+              "CONFLICT"
+            ],
+            "message": "담당자가 어떤 문제를 처리해야 하는지 알아야 해요.",
+            "source": "AI_AND_RULES"
+          },
+          "followUpState": {
+            "turns": 0,
+            "noProgress": 0,
+            "askedFields": [],
+            "reviewFields": [
+              "SYMPTOM"
+            ],
+            "status": "CONTINUE",
+            "nextField": "SYMPTOM",
+            "nextReason": "ISSUE_UNCLEAR",
+            "askedReasons": [],
+            "unavailableReasons": [],
+            "knownEvidence": {
+              "locationEvidence": "가온관 309호"
+            },
+            "neededReasons": [
+              "ISSUE_UNCLEAR",
+              "CONFLICT"
+            ],
+            "urgentReview": false
+          },
+          "aiMode": "LIVE"
+        },
+        "latestAnswer": null,
+        "message": "추가로 확정하기 어려운 정보는 관리자에게 검토를 요청할 수 있습니다.",
+        "aiMode": "LIVE"
+      },
+      "studentDetail": null
+    },
+    {
+      "expectedStatus": "NEEDS_INPUT",
+      "id": "H4",
+      "status": "PASS",
+      "actual": {
+        "status": "NEEDS_INPUT",
+        "revision": 1,
+        "analysis": {
+          "intent": "REPORT",
+          "report": {
+            "category": "IT",
+            "subcategory": "WIFI",
+            "locationText": "누리관 415호",
+            "building": "누리관",
+            "floor": "4",
+            "symptom": "와이파이가 작동하지 않음",
+            "occurredAtText": null,
+            "followUpQuestion": "와이파이 연결 자체가 안 되나요, 연결 후 인터넷이 안 되나요? 끊기거나 느린 경우도 알려주세요.",
+            "missingFields": [],
+            "emergencyHint": false
+          },
+          "clarification": {
+            "reason": "SYMPTOM_DETAIL",
+            "neededReasons": [
+              "SYMPTOM_DETAIL"
+            ],
+            "message": "어떻게 문제가 나타나는지에 따라 확인 방법이 달라져요.",
+            "source": "AI_AND_RULES"
+          },
+          "followUpState": {
+            "turns": 0,
+            "noProgress": 0,
+            "askedFields": [],
+            "reviewFields": [],
+            "status": "CONTINUE",
+            "nextField": "SYMPTOM",
+            "nextReason": "SYMPTOM_DETAIL",
+            "askedReasons": [],
+            "unavailableReasons": [],
+            "knownEvidence": {
+              "locationEvidence": "누리관 415호"
+            },
+            "neededReasons": [
+              "SYMPTOM_DETAIL"
+            ],
+            "urgentReview": false
+          },
+          "aiMode": "LIVE"
+        },
+        "latestAnswer": null,
+        "message": "추가로 확정하기 어려운 정보는 관리자에게 검토를 요청할 수 있습니다.",
+        "aiMode": "LIVE"
+      },
+      "studentDetail": null
+    }
+  ]
+}

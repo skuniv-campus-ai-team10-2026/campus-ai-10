@@ -45,13 +45,52 @@ class ClarificationPolicyTest {
     }
     @Test void buildingCorrectionDropsOldRoomAndScope(){
         var prior=initial("북악관 전체에서 와이파이가 끊겨요");
-        var result=reply("북악관 전체에서 와이파이가 끊겨요",prior,"북악관이 아니라 미래관이에요");
+        var result=reply("북악관 전체에서 와이파이가 끊겨요",prior,"북악관이 아니라 유담관이에요");
         assertEquals("LOCATION_DETAIL",state(result).get("nextReason"));assertNull(report(result).get("floor"));
     }
     @Test void groundedButGenericWifiEvidenceCannotSkipQuestion(){
         var r=new LinkedHashMap<>(Map.<String,Object>of("category","IT","subcategory","WIFI","locationText","은주2관 403호","building","은주2관","floor","4","symptom","와이파이가 안되는 거 같습니다","missingFields",List.of()));
         var d=ClarificationPolicy.decide("REPORT","은주2관 403호 와이파이가 안되는 거 같습니다","",null,Map.of(),r,base(0),Map.of(),Map.of(),Map.of("reason","NONE","known",Map.of("symptomEvidence","와이파이가 안되는 거 같습니다")));
         assertEquals("SYMPTOM_DETAIL",d.state().get("nextReason"));
+    }
+    @ParameterizedTest
+    @CsvSource({
+        "와파 connected는 됨 근데 인터넷 먹통임,COMPLETE",
+        "WiFi CONNECTED but NO INTERNET,COMPLETE",
+        "와파 연결됨 근데 인터넷이 먹통임,COMPLETE",
+        "와파 접속됨 인터넷 안됨,COMPLETE",
+        "와파 먹통임,SYMPTOM_DETAIL",
+        "와파 connected,SYMPTOM_DETAIL",
+        "와파 connected인지 모르겠고 인터넷 먹통임,SYMPTOM_DETAIL",
+        "와파 maybe connected but no internet,SYMPTOM_DETAIL",
+        "와파 not connected but no internet,SYMPTOM_DETAIL",
+        "와파 disconnected but no internet,SYMPTOM_DETAIL",
+        "와파 connected는 아님 인터넷 먹통임,SYMPTOM_DETAIL",
+        "와파 connected 인터넷 먹통은 아님,SYMPTOM_DETAIL"
+    })
+    void mixedLanguageRequiresBothExplicitObservations(String text,String expected){
+        var d=mixedWifi(text,text);
+        assertEquals(expected,expected.equals("COMPLETE")?d.state().get("status"):d.state().get("nextReason"));
+    }
+    @Test void croppedEnglishEvidenceCannotDropNegationOrUncertainty(){
+        for(String prefix:List.of("not ","maybe ")) {
+            var d=mixedWifi(prefix+"connected but no internet","connected but no internet");
+            assertEquals("SYMPTOM_DETAIL",d.state().get("nextReason"));
+        }
+    }
+    @Test void inventedMixedEvidenceCannotSatisfyGenericInput(){
+        assertEquals("SYMPTOM_DETAIL",mixedWifi("와파 먹통임","connected but no internet").state().get("nextReason"));
+    }
+    @Test void mixedEvidenceSurvivesLocationReplyButNotSymptomCorrection(){
+        var first=mixedWifi("와파 connected는 됨 근데 인터넷 먹통임","connected는 됨 근데 인터넷 먹통임");
+        var retained=ClarificationPolicy.decide("REPORT","북악관 와파 connected는 됨 근데 인터넷 먹통임","410호예요","LOCATION",first.report(),first.report(),base(1),first.state(),Map.of("LOCATION",Map.of("action","SET")),Map.of());
+        assertEquals("COMPLETE",retained.state().get("status"));
+        var corrected=ClarificationPolicy.decide("REPORT","북악관 와파 connected는 됨 근데 인터넷 먹통임","정정할게요. 그냥 와파 먹통이고 연결 상태는 몰라요","SYMPTOM",first.report(),first.report(),base(1),first.state(),Map.of("SYMPTOM",Map.of("action","SET")),Map.of());
+        assertEquals("SYMPTOM_DETAIL",corrected.state().get("nextReason"));
+    }
+    private ClarificationPolicy.Decision mixedWifi(String text,String evidence){
+        var r=new LinkedHashMap<>(Map.<String,Object>of("category","IT","subcategory","WIFI","locationText","북악관 410호","building","북악관","floor","4","symptom","와이파이는 연결되지만 인터넷이 되지 않음","missingFields",List.of()));
+        return ClarificationPolicy.decide("REPORT","북악관 410호 "+text,"",null,Map.of(),r,base(0),Map.of(),Map.of(),Map.of("reason","NONE","known",Map.of("symptomEvidence",evidence)));
     }
     @Test void ungroundedModelEvidenceCannotSatisfyLocationOrOverrideRules(){
         var r=new LinkedHashMap<>(Map.<String,Object>of("category","FACILITY","subcategory","LEAK","locationText","은주2관","building","은주2관","symptom","물이 떨어짐","missingFields",List.of()));
