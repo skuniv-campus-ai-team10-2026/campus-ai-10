@@ -6,6 +6,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 @Component
 public class SeedData implements CommandLineRunner {
+    @Value("${app.demo.reset-password:false}") private boolean resetPassword;
     private final Db db; private final PasswordEncoder encoder; private final String password; private final boolean demoRouting;
     public SeedData(Db db,PasswordEncoder encoder,@Value("${DEMO_PASSWORD:}") String password,@Value("${app.routing.demo-enabled:false}") boolean demoRouting){this.db=db;this.encoder=encoder;this.password=password;this.demoRouting=demoRouting;}
     @Override public void run(String...args){
@@ -15,6 +16,10 @@ public class SeedData implements CommandLineRunner {
                 if(db.one("SELECT id FROM users WHERE username=?",username)==null)
                     db.insert("INSERT INTO users(username,password_hash,display_name,role) VALUES(?,?,?,?)",username,encoder.encode(password),username.equals("admin")?"시연 관리자":"시연 학생 "+username.substring(7),username.equals("admin")?"ADMIN":"STUDENT");
             }
+        }
+        if(resetPassword&&!password.isBlank()) {
+            for(String username:new String[]{"student1","student2","admin"})
+                db.update("UPDATE users SET password_hash=? WHERE username=?",encoder.encode(password),username);
         }
         if(db.one("SELECT id FROM departments LIMIT 1")==null)seedDirectory();
         // Upgrade only the original unverified sample. Never relabel a verified/custom route

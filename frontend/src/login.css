@@ -1,0 +1,64 @@
+:root{--sk-lime:#23c51b;--sk-ink:#053b35}
+@font-face{font-family:Pretendard;src:url('/fonts/PretendardVariable.woff2') format('woff2');font-weight:100 900;font-display:swap}
+@font-face{font-family:Nunito;src:url('/fonts/Nunito.ttf') format('truetype');font-weight:200 1000;font-display:swap;unicode-range:U+0000-024F}
+.sk-login,.sk-splash,.sk-login input,.sk-login button{font-family:Nunito,Pretendard,sans-serif}
+.sk-login{min-height:100dvh;background:radial-gradient(ellipse at 3% 80%,#d5fbdc 0,transparent 45%),radial-gradient(ellipse at 100% 48%,#d9ffe2 0,transparent 38%),#f2fcf6;color:var(--sk-ink);padding:38px 6vw 55px;position:relative;overflow:hidden}
+.sk-login:before,.sk-login:after{content:'';position:absolute;width:720px;height:720px;border-radius:46%;background:linear-gradient(145deg,#b6f5c6aa,#e4ffec22);pointer-events:none;transform:rotate(-25deg);left:-460px;top:45%}
+.sk-login:after{left:auto;right:-480px;top:20%;transform:rotate(25deg)}
+.sk-login-brand{display:flex;align-items:center;gap:15px;position:relative;z-index:1;font-size:28px;font-weight:850;letter-spacing:4px}
+.sk-login-brand img{width:66px;height:66px;object-fit:contain}
+.sk-login-content{max-width:1080px;margin:35px auto 0;position:relative;z-index:1;display:grid;grid-template-columns:1fr 1fr;gap:25px 70px;align-items:center}
+
+.sk-login-heading{align-self:start;padding-top:65px}.sk-login-heading h1{font-size:clamp(32px,3.4vw,49px);font-weight:850;line-height:1.5;letter-spacing:-2px;margin:0 0 22px;color:var(--sk-ink)}
+.sk-login-heading p{font-size:18px;color:#496368;line-height:1.8;margin:0}
+.sk-login-form-wrap{padding-top:130px;position:relative}.sk-mascot{position:absolute;width:255px;height:auto;top:-39px;left:50%;transform:translateX(-50%);z-index:2;filter:drop-shadow(0 7px 6px #38654413);pointer-events:none}
+.sk-login-form{background:#ffffffed;border-radius:30px;padding:37px 30px 29px;box-shadow:0 14px 45px #2b6a3b08;position:relative}
+.sk-login-form label{font-size:16px;color:#506568;margin-bottom:22px;gap:10px}.sk-login-form input{height:60px;border:1px solid #dce2e4;border-radius:13px;background:white;padding:16px 18px;font-size:17px;color:var(--sk-ink)}
+.sk-login-form input:focus{outline:3px solid #23c51b22;border-color:var(--sk-lime)}.sk-login-form input::placeholder{color:#8a979f}
+.sk-login-form .button.primary{background:#b9ed76;color:var(--sk-ink);border:0;height:58px;border-radius:14px;font-size:20px;font-weight:750;margin-top:7px;box-shadow:none}.sk-login-form .button.primary:hover{background:#a9e862}.sk-login-form .button:disabled{opacity:.6}
+.sk-login-help{text-align:center;font-size:13px;color:#6f8087;margin:23px 0 0}.sk-splash{position:fixed;inset:0;z-index:1000;display:flex;flex-direction:column;align-items:center;justify-content:center;background:#88dda4;opacity:1;transition:opacity .7s ease;pointer-events:none;padding:24px}
+.sk-splash img{width:clamp(180px,30vw,300px);aspect-ratio:1;border-radius:50%;border:0;object-fit:cover;clip-path:circle(50%)}.sk-splash p{color:white;font-size:clamp(17px,2.3vw,25px);font-weight:650;text-align:center;letter-spacing:-.5px;margin:16px 0}.sk-splash.is-fading{opacity:0}
+@media(max-width:700px){.sk-login{padding:30px 22px 32px}.sk-login-brand{gap:12px;font-size:27px}.sk-login-brand img{width:56px;height:56px}.sk-login-content{display:block;margin-top:28px;max-width:460px}.sk-login-demo{padding:15px 17px;font-size:14px;border-radius:12px}.sk-login-heading{padding:33px 7px 0}.sk-login-heading h1{font-size:clamp(29px,7.6vw,39px);line-height:1.5;letter-spacing:-1.5px;margin-bottom:12px}.sk-login-heading p{font-size:16px}.sk-login-form-wrap{margin-top:26px;padding-top:143px}.sk-mascot{width:275px;top:-37px}.sk-login-form{border-radius:27px;padding:30px 23px}.sk-login-form label{font-size:15px;margin-bottom:23px}.sk-login-form input{height:60px}.sk-login-form .button.primary{height:56px}.sk-login-help{font-size:12px}.sk-login:before{top:36%}.sk-login:after{top:30%}}
+.sk-splash-mark{width:clamp(180px,30vw,300px);aspect-ratio:1;position:relative;border-radius:50%;overflow:hidden;border:clamp(4.5px,.75vw,7.5px) solid white;flex-shrink:0}.sk-splash .sk-splash-mark img{position:absolute;max-width:none;width:119%;height:119%;left:-9.5%;top:-9.5%;border:0;outline:0;clip-path:none;border-radius:0;object-fit:contain}
+@media(prefers-reduced-motion:reduce){.sk-splash{transition:none}}
+
+.sk-mascot{width:320px;max-width:100%;height:auto;object-fit:contain;aspect-ratio:auto;top:-37px}.sk-login-form-wrap{padding-top:130px}
+
+/* Match the splash ring to the internal logo stroke (about 2.5% of its diameter). */
+.sk-splash img{box-sizing:content-box;border-radius:50%;clip-path:circle(50%);outline:clamp(4.5px,.75vw,7.5px) solid #fff;outline-offset:-1px}.sk-login-brand img{object-fit:contain;clip-path:circle(50%);transform:none}
+.sk-splash-mark{border:0;overflow:visible}.sk-splash .sk-splash-mark img{width:100%;height:100%;left:0;top:0;outline:0;clip-path:none}
+.sk-login-form-wrap{padding-top:0;margin-top:200px}.sk-mascot{width:calc(320px + 1cm);max-width:100%;top:auto;bottom:calc(100% - 12px);height:auto;object-fit:contain;transform:translateX(-50%)}
+.sk-login-form{box-shadow:0 12px 32px rgba(28,83,60,.10),0 2px 7px rgba(28,83,60,.035)}
+@media(max-width:700px){.sk-login-form-wrap{padding-top:0;margin-top:200px}.sk-mascot{top:auto;bottom:calc(100% - 12px)}}
+.sk-splash{background:radial-gradient(ellipse at 3% 80%,#d5fbdc 0,transparent 45%),radial-gradient(ellipse at 100% 48%,#d9ffe2 0,transparent 38%),#f2fcf6;overflow:hidden}
+.sk-splash-mark{overflow:hidden;border:0;animation:sk-roll-and-hop 1.55s both cubic-bezier(.22,.65,.32,1)}
+.sk-splash .sk-splash-mark img{width:100%;height:100%;left:0;top:0;border:0;outline:0;object-fit:contain}
+.sk-splash p{color:var(--sk-ink);font-size:clamp(22px,3vw,34px);font-weight:750;margin-top:28px;line-height:1.55;max-width:90vw;text-wrap:balance}
+@keyframes sk-roll-and-hop{0%{transform:translateX(calc(-50vw - 180px)) rotate(-540deg)}65%{transform:translateX(0) rotate(0)}75%{transform:translateY(0) rotate(0)}86%{transform:translateY(-24px) rotate(0)}96%{transform:translateY(0) rotate(0)}100%{transform:translateY(0) rotate(0)}}
+@media(prefers-reduced-motion:reduce){.sk-splash-mark{animation:none}}
+.sk-splash.is-fading .sk-splash-mark{animation:none;transform-origin:center;will-change:transform}
+
+/* Soft mint depth and edge shapes echo the login screen. */
+.sk-splash{background:radial-gradient(ellipse at 50% 42%,#f5fff8 0%,transparent 58%),linear-gradient(135deg,#e0f9e9 0%,#f2fcf6 45%,#d7f8df 100%);isolation:isolate}
+.sk-splash::before,.sk-splash::after{content:'';position:absolute;z-index:-1;pointer-events:none;width:clamp(420px,55vw,880px);aspect-ratio:1;border-radius:46%;background:linear-gradient(145deg,#a8efbb80,#d4fbe744);transform:rotate(-25deg);left:-32%;bottom:-48%;box-shadow:0 0 90px #b6f5c633}
+.sk-splash::after{left:auto;right:-32%;bottom:auto;top:-30%;transform:rotate(25deg);background:linear-gradient(145deg,#b1f2c466,#e4ffec33)}
+.sk-splash-mark,.sk-splash p{position:relative;z-index:1}
+@media(max-width:700px){.sk-splash::before{left:-75%;bottom:-18%}.sk-splash::after{right:-80%;top:-12%}}
+
+/* Keep the mobile login compact while leaving the desktop layout intact. */
+@media(max-width:700px){
+  .sk-login{padding:20px 22px 24px}
+  .sk-login-brand{gap:10px;font-size:22px;letter-spacing:3px}
+  .sk-login-brand img{width:40px;height:40px}
+  .sk-login-content{margin-top:46px;max-width:360px}
+  .sk-login-heading{padding:12px 4px 0}
+  .sk-login-heading h1{font-size:clamp(29px,7.8vw,34px);line-height:1.4;margin-bottom:8px}
+  .sk-login-heading p{font-size:16px}
+  .sk-login-form-wrap{margin-top:165px;padding-top:0}
+  .sk-mascot{width:250px;bottom:calc(100% - 10px)}
+  .sk-login-form{border-radius:23px;padding:23px 20px 20px}
+  .sk-login-form label{font-size:14px;gap:7px;margin-bottom:16px}
+  .sk-login-form input{height:48px;padding:11px 14px;font-size:16px;border-radius:11px}
+  .sk-login-form .button.primary{height:48px;margin-top:3px;font-size:18px;border-radius:12px}
+  .sk-login-help{font-size:11px;line-height:1.6;margin-top:15px}
+}
