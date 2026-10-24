@@ -11,9 +11,9 @@ vi.mock('./api',async original=>({...await original<typeof import('./api')>(),po
 const pending:IntakeResult={status:'NEEDS_INPUT',revision:1,aiMode:'LIVE',analysis:{intent:'UNKNOWN',aiMode:'LIVE',report:{category:'OTHER',subcategory:'UNKNOWN',symptom:null,followUpQuestion:'어떤 점이 불편한가요?'},questionAnswer:null,routingPreview:null}};
 const draft:Draft={originalText:'강의실이 너무 불편해요',preferredIntent:'AUTO',clientRequestId:'test-request',intake:true,intakeResult:pending};
 beforeEach(()=>{cleanup();sessionStorage.clear();vi.clearAllMocks();});
-it('explains why the particular clarification is needed',async()=>{
+it('hides the redundant issue clarification hint',async()=>{
  vi.mocked(post).mockResolvedValueOnce({...pending,analysis:{...pending.analysis!,clarification:{reason:'ISSUE_UNCLEAR',message:'담당자가 어떤 문제를 처리해야 하는지 알아야 해요.',neededReasons:['ISSUE_UNCLEAR'],source:'SERVER_RULES'}}});
- mount();expect(await screen.findByText('담당자가 어떤 문제를 처리해야 하는지 알아야 해요.')).toBeInTheDocument();
+ mount();await screen.findByRole('button',{name:'답변 보내기'});await waitFor(()=>expect(screen.getByRole('button',{name:'답변 보내기'})).toBeEnabled());expect(screen.queryByText('담당자가 어떤 문제를 처리해야 하는지 알아야 해요.')).not.toBeInTheDocument();
 });
 it('retains the safety warning after urgent automatic intake',()=>{
  render(<MemoryRouter initialEntries={[{pathname:'/reports/success',state:{report:{id:90,status:'RECEIVED',emergencyHint:true}}}]}><SuccessPage/></MemoryRouter>);
@@ -39,7 +39,7 @@ it('keeps the answer on network failure and does not retry automatically',async(
 it('uses explicit administrator review when AI fails without claiming demo analysis',async()=>{
  vi.mocked(post).mockResolvedValueOnce({status:'REVIEW_REQUIRED',revision:1,analysis:null,aiMode:'LIVE',message:'AI 분석을 완료하지 못했습니다.'}).mockResolvedValueOnce({status:'ACCEPTED',aiMode:'LIVE',report:{id:22}});
  mount();const user=userEvent.setup();expect(await screen.findByText('AI 분석을 완료하지 못했습니다.')).toBeInTheDocument();
- expect(screen.queryByLabelText('추가 답변')).not.toBeInTheDocument();await user.click(screen.getByRole('button',{name:'관리자 검토로 접수'}));
+ expect(screen.queryByLabelText('추가 답변')).not.toBeInTheDocument();await user.click(screen.getByRole('button',{name:'더 설명하기 어려워요 · 관리자 검토로 접수'}));
  expect(await screen.findByText('접수 완료 화면')).toBeInTheDocument();expect(vi.mocked(post).mock.calls[1][1]).toMatchObject({submitForReview:true,revision:1});
 });
 it('accepts a sufficient initial input directly from Home',async()=>{
