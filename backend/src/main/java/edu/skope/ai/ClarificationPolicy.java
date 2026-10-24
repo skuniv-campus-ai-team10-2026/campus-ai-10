@@ -146,5 +146,5 @@ final class ClarificationPolicy {
         case "TARGET_UNCLEAR"->"어떤 설비나 물건에 문제가 있나요? 담당자가 찾을 수 있게 알려주세요.";
         case "WORKFLOW_UNCLEAR"->"신청 방법이 궁금한가요, 신청 중 오류가 나나요, 아니면 제출 후 처리가 진행되지 않나요?";
         case "CONFLICT"->"앞서 알려주신 정보와 다른 부분이 있어요. 확실한 장소나 문제 내용만 다시 알려주세요.";
-        default->academic||intent.equals("QUESTION")?"어떤 내용을 문의하고 싶으신가요? 궁금한 점이나 겪고 있는 문제를 조금만 구체적으로 알려주세요.":"어떤 점이 불편한가요? 실제 문제를 알려주세요.\n예: 냉난방, 책상의자, 소음";};}
+        default->academic||intent.equals("QUESTION")?"어떤 내용을 문의하고 싶으신가요? 궁금한 점이나 겪고 있는 문제를 조금만 구체적으로 알려주세요.":"어떤 점이 불편한가요? 냉난방, 책상·의자, 소음처럼 실제 문제를 알려주세요.";};}
 }

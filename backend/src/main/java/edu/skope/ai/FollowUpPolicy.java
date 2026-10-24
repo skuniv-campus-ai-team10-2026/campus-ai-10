@@ -104,7 +104,7 @@ final class FollowUpPolicy {
             next = missing.getFirst();
             question = next.equals("LOCATION") ? (review.contains("LOCATION") ? "장소 정보가 서로 달라 확인이 필요해요. 확실한 건물이나 장소를 알려주세요." : "어느 건물이나 장소에서 발생했나요?")
                     : "QUESTION".equals(intent) || "ACADEMIC".equals(report.get("category")) ? "어떤 내용을 문의하고 싶으신가요? 궁금한 점이나 겪고 있는 문제를 조금만 구체적으로 알려주세요."
-                    : "어떤 점이 불편한가요? 실제 문제를 알려주세요.\n예: 냉난방, 책상의자, 소음";
+                    : "어떤 점이 불편한가요? 냉난방, 책상·의자, 소음처럼 실제 문제를 알려주세요.";
         }
         report.put("followUpQuestion",question);
         var state = new LinkedHashMap<String,Object>(); state.put("turns",turns); state.put("noProgress",noProgress);
