@@ -13,6 +13,10 @@ import static org.junit.jupiter.api.Assertions.*;
 
 /** Deterministic policy tests. These do not measure LLM extraction accuracy. */
 class FollowUpPolicyTest {
+    @Test void vagueProblemQuestionUsesTheStudentScreenWording(){
+        var outcome=FollowUpPolicy.apply("UNKNOWN",report("symptom","강의실이 너무 불편해요","building",null,"locationText",null),Map.of(),Map.of(),"",null,FollowUpPolicy.state(null));
+        assertEquals("어떤 점이 불편한가요? 실제 문제를 알려주세요.\n예: 냉난방, 책상의자, 소음",outcome.report().get("followUpQuestion"));
+    }
     @ParameterizedTest @ValueSource(strings={"강의실이 너무 불편해요","은주2관에 문제가 있어요","불편해요","시설이 이상해요"})
     void vagueComplaintNeedsActualProblemBeforePlace(String symptom){
         var outcome=FollowUpPolicy.apply("UNKNOWN",report("symptom",symptom,"building",null,"locationText",null),Map.of(),Map.of(),"",null,FollowUpPolicy.state(null));

@@ -48,3 +48,28 @@ it('accepts a sufficient initial input directly from Home',async()=>{
  const user=userEvent.setup();await user.type(screen.getByLabelText('캠퍼스 문제 또는 질문'),'은주2관 403호에서 물이 떨어져요');await user.click(screen.getByRole('button',{name:'문의·신고 보내기'}));
  expect(await screen.findByText('접수 완료 화면')).toBeInTheDocument();expect(post).toHaveBeenCalledTimes(1);expect(vi.mocked(post).mock.calls[0][0]).toBe('/assistant/intake');
 });
+
+it('allows administrator review during a question without an answer and preserves the original draft on failure',async()=>{
+ vi.mocked(post).mockResolvedValueOnce(pending).mockRejectedValueOnce(new Error('연결 실패')).mockResolvedValueOnce({status:'ACCEPTED',aiMode:'LIVE',report:{id:24}});
+ mount();const user=userEvent.setup();
+ const review=await screen.findByRole('button',{name:'더 설명하기 어려워요 · 관리자 검토로 접수'});
+ await waitFor(()=>expect(review).toBeEnabled());
+ expect(screen.getByRole('button',{name:'내용 직접 수정'})).toBeEnabled();
+ await user.click(review);
+ expect(await screen.findByText('연결 실패')).toBeInTheDocument();
+ expect(screen.getByText(draft.originalText)).toBeInTheDocument();
+ expect(JSON.parse(sessionStorage.getItem('skope-draft')!).originalText).toBe(draft.originalText);
+ expect(post).toHaveBeenNthCalledWith(2,'/assistant/intake',{clientRequestId:draft.clientRequestId,revision:1,submitForReview:true});
+ await user.click(review);expect(await screen.findByText('접수 완료 화면')).toBeInTheDocument();
+ expect(post).toHaveBeenNthCalledWith(3,'/assistant/intake',{clientRequestId:draft.clientRequestId,revision:1,submitForReview:true});
+});
+
+it('allows editing the existing input while a follow-up question is shown',async()=>{
+ vi.mocked(post).mockResolvedValueOnce(pending);const edit=vi.fn();
+ render(<MemoryRouter><IntakeFlow draft={draft} onEdit={edit}/></MemoryRouter>);
+ await waitFor(()=>expect(screen.getByRole('button',{name:'내용 직접 수정'})).toBeEnabled());
+ await userEvent.click(screen.getByRole('button',{name:'내용 직접 수정'}));
+ expect(edit).toHaveBeenCalledTimes(1);
+ expect(JSON.parse(sessionStorage.getItem('skope-draft')!).originalText).toBe(draft.originalText);
+ expect(post).toHaveBeenCalledTimes(1);
+});

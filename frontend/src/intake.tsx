@@ -32,7 +32,7 @@ export function IntakeFlow({draft,onEdit}:{draft:Draft;onEdit:()=>void}) {
    {analysis?.report?.emergencyHint&&<Emergency/>}<ErrorBox error={error}/>
    {busy&&<Loading text="내용을 확인하고 있어요"/>}
    {result?.status==='NEEDS_INPUT'&&question?<form onSubmit={e=>{e.preventDefault();void send();}}>{analysis?.clarification?.message&&analysis.clarification.message!=='담당자가 어떤 문제를 처리해야 하는지 알아야 해요.'&&<p className="field-hint">{analysis.clarification.message}</p>}<label>추가 답변<textarea required maxLength={500} value={answer} onChange={e=>setAnswer(e.target.value)} placeholder={question?.startsWith('어떤 점이 불편한가요?')?'어떤점이 불편한가요? 실제 문제를 알려주세요.\n예: 냉난방, 책상·의자, 소음':question} rows={3}/></label><button className="button primary" disabled={busy}><Send size={16} aria-hidden="true"/>답변 보내기</button></form>:<p>{result?.message}</p>}
-   {result&&result.status!=='NEEDS_INPUT'&&<div className="intake-actions">
+   {result&&<div className="intake-actions">
     <button className="button intake-outline" disabled={busy} onClick={onEdit}><FilePenLine size={16} aria-hidden="true"/>내용 직접 수정</button>
     <button className="button intake-outline" disabled={busy} onClick={()=>void send(true)}><ClipboardCheck size={16} aria-hidden="true"/>더 설명하기 어려워요 · 관리자 검토로 접수</button>
    </div>}
