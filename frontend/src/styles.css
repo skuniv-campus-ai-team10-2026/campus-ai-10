@@ -245,3 +245,37 @@
 @media(max-width:700px){.page-heading:has(>.new-report-button) h1{font-size:28px}}
 
 @media(max-width:700px){.intake-progress{transform:translateX(8px)}}
+
+.app-shell main .repeated-heading+.notice p{font-size:13px}
+
+@media(max-width:700px){.admin-reports-heading>.button{flex-shrink:0;white-space:nowrap}.admin-reports-heading>div{min-width:0}.app-shell main .admin-reports-heading p{font-size:clamp(10px,3.3vw,13px);white-space:nowrap}}
+
+@media(max-width:700px){.app-shell main .admin-reports-heading+.list-card .list-toolbar{display:flex;flex-direction:column;align-items:stretch;gap:16px}.app-shell main .admin-reports-heading+.list-card .filter-tabs{flex-wrap:nowrap;width:100%;justify-content:center}.app-shell main .admin-reports-heading+.list-card .filter-tabs button{white-space:nowrap;flex:1 1 0;text-align:center;font-size:clamp(13px,4.2vw,16px)}.app-shell main .admin-reports-heading+.list-card .list-toolbar>.count{width:100%;display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:center;gap:12px}.app-shell main .admin-reports-heading+.list-card .count>label:not(.transfer-filter){grid-column:1/-1;font-size:13px}.app-shell main .admin-reports-heading+.list-card .count>.transfer-filter{display:flex;flex-direction:row;align-items:center;gap:6px;margin:0;white-space:nowrap;justify-self:start}.app-shell main .admin-reports-heading+.list-card .count>.count-total{justify-self:end}}
+
+@media(min-width:701px){.app-shell main .admin-reports-heading+.list-card .list-toolbar{display:grid;grid-template-columns:auto auto auto 1fr;align-items:center;column-gap:24px}.app-shell main .admin-reports-heading+.list-card .filter-tabs{display:none}.app-shell main .admin-reports-heading+.list-card .list-toolbar>.count{display:contents}.app-shell main .admin-reports-heading+.list-card .list-toolbar::after{content:'';grid-column:1/-1;grid-row:1;min-height:58px;background:#f6f9f3;border:1px solid var(--line);border-radius:10px}.app-shell main .admin-reports-heading+.list-card .count>label{grid-row:1;display:flex;flex-direction:row;align-items:center;gap:10px;margin:0;position:relative;z-index:1;font-size:13px;white-space:nowrap}.app-shell main .admin-reports-heading+.list-card .count>.status-filter{grid-column:1;margin-left:16px}.app-shell main .admin-reports-heading+.list-card .count>label:not(.transfer-filter):not(.status-filter){grid-column:2}.app-shell main .admin-reports-heading+.list-card .count>.transfer-filter{grid-column:3;gap:8px}.app-shell main .admin-reports-heading+.list-card .count>label select{width:auto;min-width:160px;height:38px;margin:0;padding:0 34px 0 12px;font-size:14px}.app-shell main .admin-reports-heading+.list-card .count>.count-total{grid-column:4;grid-row:1;justify-self:end;margin-right:16px;position:relative;z-index:1}}
+
+@media(max-width:700px){.app-shell main .admin-reports-heading+.list-card .filter-tabs{display:none}.app-shell main .admin-reports-heading+.list-card .list-toolbar>.count{grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:12px 10px}.app-shell main .admin-reports-heading+.list-card .count>label:not(.transfer-filter){grid-column:auto;display:flex;flex-direction:column;align-items:stretch;gap:6px;min-width:0;margin:0;font-size:11px}.app-shell main .admin-reports-heading+.list-card .count>label:not(.transfer-filter) select{width:100%;min-width:0;height:36px;margin:0;padding:0 28px 0 10px;font-size:13px}.app-shell main .admin-reports-heading+.list-card .count>.transfer-filter{font-size:11px}.app-shell main .admin-reports-heading+.list-card .count>.count-total,.app-shell main .admin-reports-heading+.list-card .count>.count-total strong{font-size:11px}.app-shell main .admin-reports-heading+.list-card .count>label:not(.transfer-filter){width:100%}}
+
+@media(min-width:701px){.app-shell main .routing-reason::placeholder,.app-shell main .resolution-input::placeholder{font-size:12px}}
+
+@media(min-width:701px){.app-shell main .resolution p.resolution-waiting{font-size:12px;white-space:nowrap}.app-shell main .resolution p.resolution-answer{font-size:14px}}
+
+@media(min-width:701px){.app-shell main p.similar-intro,.app-shell main p.incident-close-hint{font-size:12px;white-space:nowrap}}
+
+@media(max-width:700px){.app-shell main .resolution p.resolution-waiting,.app-shell main p.similar-intro,.app-shell main .similar-section .empty p{font-size:11px}}
+
+.app-shell main .recurrence-card>p{font-size:11px}
+
+.app-shell main .timeline-item p{font-size:13px}.incident-timeline .timeline-item p{white-space:pre-line}
+
+.incident-timeline .recurrence-note{display:block;margin:7px 0}.incident-timeline .recurrence-note .inline-link{font-size:13px;font-weight:700}.incident-timeline .recurrence-note summary{margin-top:4px;font-size:11px;color:var(--muted);cursor:pointer}.app-shell main .incident-timeline .recurrence-note details p{margin:6px 0 0;font-size:11px;line-height:1.7;color:var(--muted)}
+
+@media(min-width:701px){.app-shell main .admin-actions .field-hint{font-size:13px}.app-shell main .admin-actions .incident-link-hint{font-size:12px;white-space:nowrap;letter-spacing:-.3px}}
+
+.similar-reasons{list-style:none;margin:4px 0 14px;padding:12px 14px;background:#f7f9f4;border-radius:8px;display:grid;gap:4px}.similar-reasons li{position:relative;padding-left:12px;font-size:13px;line-height:1.6;color:var(--muted)}.similar-reasons li::before{content:'';position:absolute;left:0;top:.7em;width:4px;height:4px;border-radius:50%;background:#9fb29a}.app-shell main .similar-card .button-row .button{font-size:13px;padding:8px 14px}
+
+@media(max-width:700px){.app-shell main .similar-card .button-row{flex-wrap:nowrap;gap:6px}.app-shell main .similar-card .button-row .button{flex:1 1 auto;min-width:0;padding:7px 6px;font-size:clamp(10px,2.9vw,12px);white-space:nowrap}}
+
+@media(max-width:700px){.app-shell main .routing-reason::placeholder,.app-shell main .resolution-input::placeholder{font-size:12px}.app-shell main .admin-actions .incident-link-hint{font-size:12px;white-space:nowrap;letter-spacing:-.3px}}
+
+@media(max-width:700px){.repeated-heading>.button{flex-shrink:0;white-space:nowrap}.repeated-heading>div{min-width:0}.app-shell main .repeated-heading p{font-size:clamp(8px,2.9vw,11px);white-space:nowrap}.app-shell main .repeated-heading+.notice p{font-size:11px}}
