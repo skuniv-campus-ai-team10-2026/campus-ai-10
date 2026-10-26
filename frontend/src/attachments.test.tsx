@@ -6,6 +6,19 @@ import {bindPhotos,clearPendingPhotos,PhotoPicker,ReportPhotos,stagePhotos,valid
 vi.mock('./api',async(importOriginal)=>({...await importOriginal<typeof import('./api')>(),api:vi.fn()}));
 beforeEach(()=>{vi.clearAllMocks();clearPendingPhotos();URL.createObjectURL=vi.fn(()=> 'blob:preview');URL.revokeObjectURL=vi.fn();});
 afterEach(cleanup);
+it('keeps viewing and deleting photos while blocking additions on a closed report',async()=>{
+ stagePhotos('closed',[new File(['x'],'pending.png',{type:'image/png'})]);bindPhotos('closed',42);
+ vi.mocked(api).mockImplementation(async(_path,options)=>options?.method==='DELETE'?{}:{items:[{id:7,contentPath:'/photo.png'}]});
+ render(<ReportPhotos reportId={42} canUpload={false} autoUpload/>);
+ const photo=await screen.findByAltText('첨부 사진 7');
+ expect(photo.closest('a')).toHaveAttribute('href','/photo.png');
+ expect(screen.queryByRole('button',{name:'사진 추가하기'})).not.toBeInTheDocument();
+ expect(screen.queryByLabelText('첨부 사진 선택')).not.toBeInTheDocument();
+ expect(screen.queryByRole('button',{name:'선택한 사진 업로드'})).not.toBeInTheDocument();
+ fireEvent.click(screen.getByRole('button',{name:'사진 7 삭제'}));
+ await waitFor(()=>expect(api).toHaveBeenCalledWith('/reports/42/attachments/7',{method:'DELETE'}));
+ expect(vi.mocked(api).mock.calls.some(([,options])=>options?.method==='POST')).toBe(false);
+});
 it('rejects unsupported images, over-size files and excess count',()=>{
  expect(validatePhotos([new File(['x'],'a.heic',{type:'image/heic'})],0)).toContain('PNG');
  expect(validatePhotos([new File([new Uint8Array(5*1024*1024+1)],'a.png',{type:'image/png'})],0)).toContain('5MB');

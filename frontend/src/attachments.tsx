@@ -44,15 +44,15 @@ export function validatePhotos(files:File[],count:number){
  return null;
 }
 function Preview({file}:{file:File}){const [url,setUrl]=useState('');useEffect(()=>{const next=URL.createObjectURL(file);setUrl(next);return()=>URL.revokeObjectURL(next);},[file]);return url?<img src={url} alt={file.name}/>:null;}
-export function ReportPhotos({reportId,admin=false,autoUpload=false}:{reportId:number;admin?:boolean;autoUpload?:boolean}){
+export function ReportPhotos({reportId,admin=false,autoUpload=false,canUpload=true}:{reportId:number;admin?:boolean;autoUpload?:boolean;canUpload?:boolean}){
  const state=reportState(`${admin?'admin:':''}${reportId}`),base=`${admin?'/admin':''}/reports/${reportId}/attachments`;
  useSyncExternalStore(listener=>{state.listeners.add(listener);return()=>{state.listeners.delete(listener);};},()=>state.revision);
  const {photos,files,error,busy,loaded,uncertain}=state;
  useEffect(()=>{
   let active=true;const version=sessionVersion;
-  void loadPhotos(base,state,version).then(()=>{if(active&&version===sessionVersion&&autoUpload&&!admin&&!state.attempted)void uploadPhotos(base,state);}).catch(error=>{if(active&&version===sessionVersion){state.error=state.uncertain?uncertainMessage:error;notify(state);}});
+  void loadPhotos(base,state,version).then(()=>{if(active&&version===sessionVersion&&autoUpload&&canUpload&&!admin&&!state.attempted)void uploadPhotos(base,state);}).catch(error=>{if(active&&version===sessionVersion){state.error=state.uncertain?uncertainMessage:error;notify(state);}});
   return()=>{active=false;};
- },[state,base,autoUpload,admin]);
+ },[state,base,autoUpload,admin,canUpload]);
  if(loaded&&admin&&!photos.length)return null;
  async function refresh(){
   if(state.busy)return;state.busy=true;notify(state);const version=sessionVersion;
@@ -70,7 +70,7 @@ export function ReportPhotos({reportId,admin=false,autoUpload=false}:{reportId:n
   {uncertain&&<button className="button secondary" type="button" disabled={busy} onClick={()=>void refresh()}>첨부 목록 다시 확인</button>}
   {busy&&<p role="status">사진을 업로드하고 있어요. 잠시 기다려 주세요.</p>}
   <div className="photo-grid">{photos.map(photo=><figure key={photo.id}><a href={photo.contentPath} target="_blank" rel="noreferrer"><img src={photo.contentPath} alt={`첨부 사진 ${photo.id}`}/></a>{!admin&&<button type="button" disabled={busy||uncertain} aria-label={`사진 ${photo.id} 삭제`} onClick={()=>void remove(photo.id)}><Trash2 size={16}/></button>}</figure>)}</div>
-  {!admin&&loaded&&photos.length<3&&<><PhotoPicker files={files} onChange={next=>{if(state.busy||state.uncertain)return;if(state.photos.length+next.length>3){state.error='사진은 신고당 최대 3장까지 첨부할 수 있습니다.';}else{state.files=next;}notify(state);}} disabled={busy||uncertain}/>{files.length>0&&<button className="button secondary" type="button" disabled={busy||uncertain} onClick={()=>void uploadPhotos(base,state)}>선택한 사진 업로드</button>}</>}
+  {!admin&&canUpload&&loaded&&photos.length<3&&<><PhotoPicker files={files} onChange={next=>{if(state.busy||state.uncertain)return;if(state.photos.length+next.length>3){state.error='사진은 신고당 최대 3장까지 첨부할 수 있습니다.';}else{state.files=next;}notify(state);}} disabled={busy||uncertain}/>{files.length>0&&<button className="button secondary" type="button" disabled={busy||uncertain} onClick={()=>void uploadPhotos(base,state)}>선택한 사진 업로드</button>}</>}
   {!photos.length&&loaded&&!busy&&<p className="field-hint">등록된 사진이 없습니다.</p>}
  </section>;
 }
