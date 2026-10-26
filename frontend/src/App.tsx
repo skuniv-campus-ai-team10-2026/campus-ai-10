@@ -29,7 +29,7 @@ export default function App(){
 function Login({onLogin,error:initialError,expired}:{onLogin:(user:User)=>void;error:unknown;expired:boolean}){
  const [username,setUsername]=useState(''),[password,setPassword]=useState(''),[busy,setBusy]=useState(false),[error,setError]=useState<unknown>(initialError);
  async function submit(e:FormEvent){e.preventDefault();setBusy(true);setError(null);try{onLogin(await post<User>('/auth/login',{username,password}));}catch(e){setError(e);}finally{setBusy(false);}}
- return <div className="sk-login"><header className="sk-login-brand"><img src="/skope-symbol.png" alt="스코프 로고"/><span>SKOPE</span></header><div className="sk-login-content"><div className="sk-login-heading"><h1>문의부터 처리 결과<br/>확인까지, SKOPE</h1><p>서경대학교 캠퍼스 문제 신고 서비스</p></div><div className="sk-login-form-wrap"><Mascot/><section className="sk-login-form" aria-label="로그인">{expired&&<div className="notice">세션이 만료되었습니다. 다시 로그인해 주세요.</div>}<ErrorBox error={error}/><form onSubmit={submit}><label>아이디<input autoComplete="username" required value={username} onChange={e=>setUsername(e.target.value)} placeholder="아이디"/></label><label>비밀번호<input type="password" autoComplete="current-password" required value={password} onChange={e=>setPassword(e.target.value)} placeholder="비밀번호 입력"/></label><button className="button primary full" disabled={busy}>{busy?'로그인 중…':'로그인'}</button></form><p className="sk-login-help">발급받은 시연용 계정으로 로그인해 주세요.</p></section></div></div></div>;
+ return <div className="sk-login"><header className="sk-login-brand"><img src="/skope-symbol.png" alt="스코프 로고"/><span>SKOPE</span></header><div className="sk-login-content"><div className="sk-login-heading"><h1><span>캠퍼스의 궁금함과 불편함을</span><br/><span>SKOPE에 남겨주세요</span></h1><p>서경대학교 캠퍼스 문의·신고 서비스</p></div><div className="sk-login-form-wrap"><Mascot/><section className="sk-login-form" aria-label="로그인">{expired&&<div className="notice">세션이 만료되었습니다. 다시 로그인해 주세요.</div>}<ErrorBox error={error}/><form onSubmit={submit}><label>아이디<input autoComplete="username" required value={username} onChange={e=>setUsername(e.target.value)} placeholder="아이디"/></label><label>비밀번호<input type="password" autoComplete="current-password" required value={password} onChange={e=>setPassword(e.target.value)} placeholder="비밀번호 입력"/></label><button className="button primary full" disabled={busy}>{busy?'로그인 중…':'로그인'}</button></form></section></div></div></div>;
 }
 function Splash({fading}:{fading:boolean}){
  const mark=useRef<HTMLSpanElement>(null);
@@ -46,6 +46,6 @@ function Splash({fading}:{fading:boolean}){
   ],{duration:700,easing:'cubic-bezier(.4,0,.2,1)',fill:'forwards'});
   return()=>motion.cancel();
  },[fading]);
- return <div className={`sk-splash ${fading?'is-fading':''}`} aria-label="SKOPE 시작 화면"><span ref={mark} className="sk-splash-mark"><img src="/skope-splash-clean.svg" alt="SKOPE"/></span><p>서경대학교 캠퍼스 문제 신고 서비스</p></div>;
+ return <div className={`sk-splash ${fading?'is-fading':''}`} aria-label="SKOPE 시작 화면"><span ref={mark} className="sk-splash-mark"><img src="/skope-splash-clean.svg" alt="SKOPE"/></span><p>서경대학교 캠퍼스 문의·신고 서비스</p></div>;
 }
 function Mascot(){return <img className="sk-mascot" src="/skot-mascot.png" alt="" aria-hidden="true"/>;}

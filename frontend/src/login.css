@@ -62,3 +62,6 @@
   .sk-login-form .button.primary{height:48px;margin-top:3px;font-size:18px;border-radius:12px}
   .sk-login-help{font-size:11px;line-height:1.6;margin-top:15px}
 }
+
+.sk-login-heading{container-type:inline-size}.sk-login-heading h1{font-size:min(54px,8.5cqi);letter-spacing:-1px;word-break:keep-all}.sk-login-heading h1>span{white-space:nowrap}
+@media(max-width:700px){.sk-login-heading h1{font-size:min(38px,8.5cqi);letter-spacing:-.8px}}
