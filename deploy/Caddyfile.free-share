@@ -5,8 +5,12 @@
 
 http://127.0.0.1:{$SHARE_PORT:4186} {
 	bind 127.0.0.1
+	basic_auth {
+		team {env.SHARE_PASSWORD_HASH}
+	}
 	encode gzip
 	header {
+		>Cache-Control "no-store"
 		X-Content-Type-Options nosniff
 		X-Frame-Options DENY
 		Referrer-Policy no-referrer
@@ -21,6 +25,7 @@ http://127.0.0.1:{$SHARE_PORT:4186} {
 		reverse_proxy 127.0.0.1:{$BACKEND_PORT:8086} {
 			# Loopback-only origin behind an HTTPS Quick Tunnel.
 			header_up -Forwarded
+			header_up -Authorization
 			header_up X-Forwarded-Proto https
 			transport http {
 				dial_timeout 5s
