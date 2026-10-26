@@ -39,3 +39,9 @@ describe('session API client',()=>{
   expect(new Headers(fetch.mock.calls[4][1]?.headers).get('X-CSRF-TOKEN')).toBe('fresh-session-token');
  });
 });
+
+it('lets the browser set the multipart boundary while keeping CSRF protection',async()=>{
+ clearCsrf();const fetch=vi.spyOn(globalThis,'fetch').mockResolvedValueOnce(response({token:'upload-token',headerName:'X-CSRF-TOKEN'})).mockResolvedValueOnce(response({id:1}));
+ const form=new FormData();form.append('file',new File(['photo'],'photo.png',{type:'image/png'}));await api('/reports/1/attachments',{method:'POST',body:form});
+ const options=fetch.mock.calls[1][1];expect(new Headers(options?.headers).has('Content-Type')).toBe(false);expect(new Headers(options?.headers).get('X-CSRF-TOKEN')).toBe('upload-token');expect(options?.body).toBe(form);
+});

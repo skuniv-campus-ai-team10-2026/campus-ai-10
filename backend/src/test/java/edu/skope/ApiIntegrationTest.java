@@ -77,6 +77,20 @@ class ApiIntegrationTest {
         assertEquals("어제",finalResult.at("/report/occurredAtText").asText());
         assertEquals(1,Db.id(db.one("SELECT COUNT(*) total FROM reports"),"total"));
     }
+    @Test void reviewDuringAQuestionPreservesOriginalInputAndDoesNotDuplicateTheReport()throws Exception{
+        var student=new Session().login("student1");String key=UUID.randomUUID().toString();
+        String text="강의실이 너무 불편해요";
+        var question=student.ok("POST","/assistant/intake",Map.of("clientRequestId",key,"text",text),200);
+        assertEquals("NEEDS_INPUT",question.get("status").asText());
+        var review=Map.of("clientRequestId",key,"revision",question.get("revision").asInt(),"submitForReview",true);
+        var saved=student.ok("POST","/assistant/intake",review,200);
+        assertEquals("ACCEPTED",saved.get("status").asText());
+        long id=saved.at("/report/id").asLong();
+        assertEquals(text,Db.str(db.one("SELECT original_text FROM reports WHERE id=?",id),"originalText"));
+        assertEquals("NEEDS_REVIEW",saved.at("/report/routeStatus").asText());
+        assertEquals(id,student.ok("POST","/assistant/intake",review,200).at("/report/id").asLong());
+        assertEquals(1,Db.id(db.one("SELECT COUNT(*) total FROM reports"),"total"));
+    }
     @Test void intakeQuestionIsAnsweredWithoutPhysicalLocationOrIncident()throws Exception{
         var student=new Session().login("student1");var admin=new Session().login("admin");
         var result=student.ok("POST","/assistant/intake",Map.of("clientRequestId",UUID.randomUUID().toString(),"text","휴학 신청 절차를 알려 주세요","preferredIntent","AUTO"),200);
