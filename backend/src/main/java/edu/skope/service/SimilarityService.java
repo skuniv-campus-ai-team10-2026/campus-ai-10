@@ -3,6 +3,7 @@ package edu.skope.service;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import edu.skope.ai.AiService;
+import edu.skope.domain.Codes;
 import edu.skope.repository.Db;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.dao.DuplicateKeyException;
@@ -173,18 +174,20 @@ public class SimilarityService {
         Double rawScore = score(left, right);
         boolean baselineSemantic = rawScore == null || rawScore >= threshold;
         String basis = semanticBasis(left, right, rawScore, threshold);
-        boolean semantic = !basis.equals("EXCLUDED");
+        boolean scope = broadScope(left, right, rawScore);
+        boolean semantic = !scope || !basis.equals("EXCLUDED");
         List<String> excluded = new ArrayList<>();
         if (!type) excluded.add("TYPE");
         if (!building) excluded.add("BUILDING");
         if (!floor) excluded.add("FLOOR");
         if (!room) excluded.add("ROOM");
         if (!time) excluded.add("TIME_WINDOW");
+        if (!scope) excluded.add("WORK_GROUP_TARGET");
         List<String> baselineExcluded = new ArrayList<>(excluded);
         if (!baselineSemantic) baselineExcluded.add("EMBEDDING_THRESHOLD");
         if (!semantic) excluded.add("EMBEDDING_THRESHOLD");
         Map<String, Object> result = new LinkedHashMap<>();
-        result.put("typeMatch", type); result.put("buildingMatch", building);
+        result.put("typeMatch", type); result.put("workGroupTargetMatch", scope); result.put("buildingMatch", building);
         result.put("floorMatch", floor); result.put("roomMatch", room); result.put("timeMatch", time);
         result.put("normalizedPlace", Map.of("leftBuilding", buildingA, "rightBuilding", buildingB,
                 "leftFloor", floorA, "rightFloor", floorB, "leftRoom", roomA, "rightRoom", roomB));
@@ -200,8 +203,24 @@ public class SimilarityService {
         return result;
     }
 
+    /**
+     * OTHER/UNKNOWN spans many objects, so a shared type and place prove little. Both reports must have the
+     * same work group; without an embedding they also need the same stated object and a stated symptom each,
+     * and an embedding score cannot join two different stated objects. Narrow types are unaffected.
+     */
+    static boolean broadScope(Map<String, Object> a, Map<String, Object> b, Double score) {
+        if (!Codes.broad(a.get("subcategory")) || !Codes.broad(b.get("subcategory"))) return true;
+        if (!Codes.workGroup("UNKNOWN", a.get("workGroup")).equals(Codes.workGroup("UNKNOWN", b.get("workGroup")))) return false;
+        String targetA = normalized(a.get("targetText")), targetB = normalized(b.get("targetText"));
+        boolean bothTargets = !targetA.isBlank() && !targetB.isBlank();
+        if (score != null) return !bothTargets || targetA.equals(targetB);
+        return bothTargets && targetA.equals(targetB)
+                && !normalized(a.get("symptom")).isBlank() && !normalized(b.get("symptom")).isBlank();
+    }
+
     private static String semanticBasis(Map<String, Object> left, Map<String, Object> right,
                                         Double score, double threshold) {
+        if (!broadScope(left, right, score)) return "EXCLUDED";
         if (score == null) return "RULE_ONLY";
         if (score >= threshold) return "EMBEDDING_THRESHOLD";
         if (score >= CONNECTIVITY_SUPPORT_THRESHOLD

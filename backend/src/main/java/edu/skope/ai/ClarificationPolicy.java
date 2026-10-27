@@ -4,9 +4,9 @@ import java.util.*;
 
 /** AI supplies grounded observations and a proposed reason; server rules own the actual question/decision. */
 final class ClarificationPolicy {
-    static final List<String> REASONS=List.of("ISSUE_UNCLEAR","LOCATION_REQUIRED","LOCATION_DETAIL","SYMPTOM_DETAIL","TARGET_UNCLEAR","WORKFLOW_UNCLEAR","CONFLICT");
+    static final List<String> REASONS=List.of("ISSUE_UNCLEAR","LOCATION_REQUIRED","LOCATION_DETAIL","SYMPTOM_DETAIL","TARGET_UNCLEAR","WORKFLOW_UNCLEAR","CONFLICT","CAMPUS_RELEVANCE");
     static final List<String> FACTS=List.of("locationEvidence","scopeEvidence","symptomEvidence","targetEvidence","workflowEvidence");
-    static final Map<String,String> LABELS=Map.of("ISSUE_UNCLEAR","구체적인 문제 내용","LOCATION_REQUIRED","발생 장소","LOCATION_DETAIL","점검할 구체적 공간","SYMPTOM_DETAIL","장애가 나타나는 방식","TARGET_UNCLEAR","점검 대상 설비","WORKFLOW_UNCLEAR","문제가 발생한 업무 단계","CONFLICT","서로 다른 정보 확인");
+    static final Map<String,String> LABELS=Map.of("ISSUE_UNCLEAR","구체적인 문제 내용","LOCATION_REQUIRED","발생 장소","LOCATION_DETAIL","점검할 구체적 공간","SYMPTOM_DETAIL","장애가 나타나는 방식","TARGET_UNCLEAR","점검 대상 설비","WORKFLOW_UNCLEAR","문제가 발생한 업무 단계","CONFLICT","서로 다른 정보 확인","CAMPUS_RELEVANCE","학교 물건인지 여부");
     record Decision(Map<String,Object> report,Map<String,Object> state,Map<String,Object> explanation){}
 
     @SuppressWarnings("unchecked")
@@ -38,13 +38,19 @@ final class ClarificationPolicy {
         boolean observedFault=FollowUpPolicy.observedFault(field==null?original:symptomChanged?answer:original)!=null;
         boolean academic="ACADEMIC".equals(report.get("category"));
         boolean physical=!"QUESTION".equals(intent)&&!academic;
+        // Ownership is asked once, only when it decides between facility handling and a personal inquiry.
+        boolean relevanceNeeded=physical&&type.equals("UNKNOWN")&&"UNCERTAIN".equals(report.get("campusRelevance"))
+                &&report.get("targetText")!=null&&building.isBlank()&&!asked.contains("CAMPUS_RELEVANCE");
+        var placeState=new LinkedHashMap<String,Object>(old);placeState.put("askedReasons",asked);
+        boolean placeNeeded=physical&&!relevanceNeeded&&FollowUpPolicy.placeRequired(report,placeState);
         List<?> missing=report.get("missingFields") instanceof List<?> l?l:List.of();
         List<?> reviews=state.get("reviewFields") instanceof List<?> l?l:List.of();
         var needed=new LinkedHashSet<String>();
         if(missing.contains("SYMPTOM"))needed.add("ISSUE_UNCLEAR");
         // Uncertain classification is an administrator task, not a student interview.
         if(reviews.stream().anyMatch(x->!"OCCURRED_AT".equals(x)&&!"CATEGORY".equals(x)))needed.add("CONFLICT");
-        if(physical) {
+        if(relevanceNeeded)needed.add("CAMPUS_RELEVANCE");
+        if(placeNeeded) {
             if(missing.contains("LOCATION"))needed.add("LOCATION_REQUIRED");
             else {
                 boolean scope=wide(known.get("scopeEvidence"));
@@ -54,6 +60,8 @@ final class ClarificationPolicy {
                 boolean detailed=text(report,"floor").matches("B?[1-9]\\d{0,2}")||specificPlace(place,building)||specificPlace(known.get("locationEvidence"),building);
                 if(!scope&&!detailed)needed.add("LOCATION_DETAIL");
             }
+        }
+        if(physical) {
             if(type.equals("WIFI")&&!wifiDetail(compact(known.get("symptomEvidence"))))needed.add("SYMPTOM_DETAIL");
             if(type.equals("ELECTRIC")&&!observedFault&&!target(compact(field!=null&&symptomChanged?answer:original+"\n"+answer))&&!concreteTarget(known.get("targetEvidence")))needed.add("TARGET_UNCLEAR");
             if(type.equals("UNKNOWN")&&current.matches(".*(?:시설|설비|장비|기기|뭔가).*(?:고장|이상|안됨|안돼).*" )&&!target(current)&&known.get("targetEvidence")==null)needed.add("TARGET_UNCLEAR");
@@ -88,7 +96,7 @@ final class ClarificationPolicy {
         state.put("status",status);state.put("nextReason",reason);state.put("askedReasons",asked);
         state.put("unavailableReasons",List.copyOf(unavailable));state.put("knownEvidence",known);
         state.put("neededReasons",List.copyOf(needed));state.put("urgentReview",status.equals("COMPLETE")&&(!needed.isEmpty()||!reviews.isEmpty()));
-        String next=reason==null?null:reason.startsWith("LOCATION")?"LOCATION":reason.equals("CONFLICT")&&reviews.contains("LOCATION")?"LOCATION":"SYMPTOM";
+        String next=reason==null?null:reason.startsWith("LOCATION")?"LOCATION":reason.equals("CONFLICT")&&reviews.contains("LOCATION")?"LOCATION":reason.equals("CAMPUS_RELEVANCE")?"CATEGORY":"SYMPTOM";
         state.put("nextField",next);
         report.put("followUpQuestion",reason==null?null:question(reason,type,academic,intent));
         var explanation=new LinkedHashMap<String,Object>();explanation.put("reason",reason);explanation.put("neededReasons",List.copyOf(needed));
@@ -144,6 +152,7 @@ final class ClarificationPolicy {
         case "TARGET_UNCLEAR"->"어떤 설비를 점검해야 하는지 확인하려고 해요.";
         case "WORKFLOW_UNCLEAR"->"진행 중인 단계에 따라 확인할 업무가 달라져요.";
         case "CONFLICT"->"서로 다른 정보 중 확실한 내용만 전달하려고 해요.";
+        case "CAMPUS_RELEVANCE"->"학교 물건이면 담당자가 점검하고, 개인 물건이면 일반 문의로 안내해요.";
         default->"담당자가 어떤 문제를 처리해야 하는지 알아야 해요.";};}
     private static String question(String reason,String type,boolean academic,String intent){return switch(reason){
         case "LOCATION_REQUIRED"->"어느 건물이나 장소에서 발생했나요?";
@@ -152,5 +161,6 @@ final class ClarificationPolicy {
         case "TARGET_UNCLEAR"->"어떤 설비나 물건에 문제가 있나요? 담당자가 찾을 수 있게 알려주세요.";
         case "WORKFLOW_UNCLEAR"->"신청 방법이 궁금한가요, 신청 중 오류가 나나요, 아니면 제출 후 처리가 진행되지 않나요?";
         case "CONFLICT"->"앞서 알려주신 정보와 다른 부분이 있어요. 확실한 장소나 문제 내용만 다시 알려주세요.";
+        case "CAMPUS_RELEVANCE"->"학교 시설이나 학교에서 빌린 물건인가요, 개인 물건인가요? 학교 물건이면 장소도 함께 알려주세요.";
         default->academic||intent.equals("QUESTION")?"어떤 내용을 문의하고 싶으신가요? 궁금한 점이나 겪고 있는 문제를 조금만 구체적으로 알려주세요.":"어떤 점이 불편한가요? 직접 겪은 문제를 알려주세요.";};}
 }

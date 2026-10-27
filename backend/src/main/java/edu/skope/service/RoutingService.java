@@ -1,4 +1,5 @@
 package edu.skope.service;
+import edu.skope.domain.Codes;
 import edu.skope.repository.Db;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -26,14 +27,23 @@ public class RoutingService {
      * REVIEW_HOLD: saved for supervisor review (student request, AI failure, urgent review).
      * AI_UNCLASSIFIED: no supported type was recognised (the server cannot tell a wrong guess from a truly other topic).
      * LOCATION_MISSING: a physical fault without a building/place, so automatic assignment was withheld.
-     * NO_RULE: the type is known but no active routing rule exists for it.
+     * NO_RULE: the type is known but no active routing rule exists for it. For OTHER/UNKNOWN this also covers a
+     * known work group: groups are handling areas, never automatic assignment rules.
+     * GENERAL_INQUIRY / OUT_OF_SCOPE: an OTHER/UNKNOWN request about a personal item, or one the school does not handle.
      */
     public static String unassignedReason(Map<String,Object> report){
         if(report.get("assignedDepartmentId")!=null)return null;
         if(!Objects.toString(report.get("reviewNote"),"").isBlank())return "REVIEW_HOLD";
-        if("UNKNOWN".equals(report.get("subcategory")))return "AI_UNCLASSIFIED";
         boolean physical=!"QUESTION".equals(report.get("requestKind"))&&!"ACADEMIC".equals(report.get("category"));
-        if(physical&&(report.get("locationText")==null||report.get("building")==null))return "LOCATION_MISSING";
+        boolean noPlace=report.get("locationText")==null||report.get("building")==null;
+        if(Codes.broad(report.get("subcategory"))){
+            Object relevance=report.get("campusRelevance");
+            if("PERSONAL_ON_CAMPUS".equals(relevance))return "GENERAL_INQUIRY";
+            if("OUT_OF_SCOPE".equals(relevance))return "OUT_OF_SCOPE";
+            if("GENERAL_REVIEW".equals(Codes.workGroup("UNKNOWN",report.get("workGroup"))))return "AI_UNCLASSIFIED";
+            return physical&&Codes.needsPlace(relevance)&&noPlace?"LOCATION_MISSING":"NO_RULE";
+        }
+        if(physical&&noPlace)return "LOCATION_MISSING";
         return "NO_RULE";
     }
     public Map<String,Object> answer(Map<String,Object> rule,String text){

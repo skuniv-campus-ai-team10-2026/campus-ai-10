@@ -1,5 +1,6 @@
 package edu.skope.ai;
 
+import edu.skope.domain.Codes;
 import edu.skope.service.ApiException;
 import java.util.*;
 import java.util.regex.*;
@@ -27,7 +28,7 @@ final class FollowUpPolicy {
         result.put("askedFields", asked); result.put("reviewFields", review); result.put("status", status);
         if(m.get("nextReason")!=null){if(!ClarificationPolicy.REASONS.contains(m.get("nextReason")))throw invalid();result.put("nextReason",m.get("nextReason"));}
         for(String key:List.of("askedReasons","unavailableReasons","neededReasons"))if(m.get(key)!=null){
-            if(!(m.get(key) instanceof List<?> values)||values.size()>7||values.stream().anyMatch(v->!ClarificationPolicy.REASONS.contains(v)))throw invalid();
+            if(!(m.get(key) instanceof List<?> values)||values.size()>ClarificationPolicy.REASONS.size()||values.stream().anyMatch(v->!ClarificationPolicy.REASONS.contains(v)))throw invalid();
             result.put(key,List.copyOf(values));
         }
         if(m.get("knownEvidence")!=null){
@@ -84,7 +85,10 @@ final class FollowUpPolicy {
                 }
             }
             report.put("emergencyHint", Boolean.TRUE.equals(previous.get("emergencyHint")) || Boolean.TRUE.equals(extracted.get("emergencyHint")));
+            mergeScope(report, previous, extracted, updates, answer);
         }
+        // Narrow types always keep their fixed group, also after a category correction or an old client draft.
+        report.put("workGroup", Codes.workGroup(text(report,"subcategory"), report.get("workGroup")));
         String normalizedFloor=AiService.normalizeFloor(text(report,"floor"));
         report.put("floor", normalizedFloor!=null && normalizedFloor.matches("B?[1-9]\\d{0,2}") ? normalizedFloor : null);
         List<String> missing = new ArrayList<>();
@@ -103,7 +107,7 @@ final class FollowUpPolicy {
         boolean modelNeedsSymptom = newSymptom && observation == null && extracted.get("missingFields") instanceof List<?> fields && fields.contains("SYMPTOM");
         if (modelNeedsSymptom) review.add("SYMPTOM");
         if (!specificSymptom(text(report,"symptom")) || modelNeedsSymptom || review.contains("SYMPTOM")) missing.add("SYMPTOM");
-        boolean needsPlace = !"QUESTION".equals(intent) && !"ACADEMIC".equals(report.get("category"));
+        boolean needsPlace = !"QUESTION".equals(intent) && !"ACADEMIC".equals(report.get("category")) && placeRequired(report, oldState);
         if (needsPlace && (!validPlace(report) || review.contains("LOCATION"))) missing.add("LOCATION");
         report.put("missingFields", missing);
         int turns = number(oldState,"turns") + (follow && !exhausted(oldState) ? 1 : 0);
@@ -125,6 +129,37 @@ final class FollowUpPolicy {
         var state = new LinkedHashMap<String,Object>(); state.put("turns",turns); state.put("noProgress",noProgress);
         state.put("askedFields",asked); state.put("reviewFields",List.copyOf(review)); state.put("status",status); state.put("nextField",next);
         return new Outcome(report,state);
+    }
+
+    /**
+     * The target and handling area follow the problem, not the place: a location-only correction keeps them.
+     * An ownership answer may settle a previously uncertain relevance without restating the problem.
+     */
+    private static void mergeScope(Map<String,Object> report, Map<String,Object> previous, Map<String,Object> extracted,
+                                   Map<String,Object> updates, String answer) {
+        boolean problem = applied(updates,"SYMPTOM",answer) || applied(updates,"CATEGORY",answer);
+        Object oldRelevance = previous.get("campusRelevance"), newRelevance = extracted.get("campusRelevance");
+        boolean settled = newRelevance != null && !"UNCERTAIN".equals(newRelevance) && (oldRelevance == null || "UNCERTAIN".equals(oldRelevance));
+        if (problem && text(extracted,"targetText") != null) report.put("targetText", extracted.get("targetText"));
+        if ((problem && newRelevance != null) || settled) report.put("campusRelevance", newRelevance);
+        boolean specific = extracted.get("workGroup") != null && !"GENERAL_REVIEW".equals(extracted.get("workGroup"));
+        if ((problem && extracted.get("workGroup") != null) || (settled && specific)) report.put("workGroup", extracted.get("workGroup"));
+        // A settled personal/out-of-scope answer cannot leave a facility handling area behind.
+        if (settled && Codes.generalInquiry(newRelevance)) report.put("workGroup", "GENERAL_REVIEW");
+    }
+    private static boolean applied(Map<String,Object> updates, String group, String answer) {
+        Map<?,?> update = updates.get(group) instanceof Map<?,?> m ? m : Map.of();
+        String evidence = Objects.toString(update.get("evidence"), "");
+        return "SET".equals(update.get("action")) && !evidence.isBlank() && answer.contains(evidence);
+    }
+    /** Still-uncertain ownership stops requiring a place once the student was asked about it. */
+    static boolean placeRequired(Map<String,Object> report, Map<String,Object> state) {
+        Object relevance = report.get("campusRelevance");
+        if (!Codes.broad(report.get("subcategory"))) return true;
+        if (!Codes.needsPlace(relevance)) return false;
+        boolean asked = "CAMPUS_RELEVANCE".equals(state.get("nextReason"))
+                || state.get("askedReasons") instanceof List<?> reasons && reasons.contains("CAMPUS_RELEVANCE");
+        return !("UNCERTAIN".equals(relevance) && asked);
     }
 
     private static void mergePlace(Map<String,Object> result, Map<String,Object> extracted, String answer, String evidence, Set<String> review) {

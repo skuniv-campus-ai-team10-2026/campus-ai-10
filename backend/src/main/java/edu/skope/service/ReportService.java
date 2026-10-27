@@ -29,12 +29,17 @@ public class ReportService {
         String c=field(b,"category",32,true),s=field(b,"subcategory",50,true);Codes.type(c,s);
         String location=field(b,"locationText",200,false),building=field(b,"building",100,false),floor=field(b,"floor",20,false),symptom=field(b,"symptom",500,true),at=field(b,"occurredAtText",120,false),on=field(b,"occurredOn",10,false);
         String kind=field(b,"requestKind",16,false),review=field(b,"reviewNote",reviewNoteLimit,false);
+        // Optional analysis fields: older clients omit them, and narrow types always keep their fixed group.
+        String group=field(b,"workGroup",32,false),target=field(b,"targetText",100,false),relevance=field(b,"campusRelevance",24,false);
+        if(group!=null&&!Codes.WORK_GROUPS.contains(group))throw new ApiException(400,"VALIDATION_ERROR","업무 그룹을 확인하세요.");
+        if(relevance!=null&&!Codes.CAMPUS_RELEVANCE.contains(relevance))throw new ApiException(400,"VALIDATION_ERROR","학교 관련성 값을 확인하세요.");
+        group=Codes.workGroup(s,group);
         if(kind==null)kind="REPORT";
         if(!Set.of("REPORT","QUESTION").contains(kind))throw new ApiException(400,"VALIDATION_ERROR","접수 종류를 확인하세요.");
         if(on!=null){try{if(LocalDate.parse(on).isAfter(LocalDate.now(ZoneId.of("Asia/Seoul"))))throw new IllegalArgumentException();}catch(Exception e){throw new ApiException(400,"VALIDATION_ERROR","발생일은 유효한 오늘 이전 날짜여야 합니다.");}}
         if(db.one("SELECT id FROM reports WHERE student_id=? AND client_request_id=?",studentId,request)!=null)throw new ApiException(409,"DUPLICATE_REQUEST","이미 접수된 요청입니다.");
         var rule=review!=null || (!(kind.equals("QUESTION")||c.equals("ACADEMIC"))&&(location==null||building==null))?null:routes.find(c,s);
-        long id=db.insert("INSERT INTO reports(student_id,client_request_id,original_text,category,subcategory,location_text,building,floor,symptom,occurred_at_text,occurred_on,routing_rule_id,assigned_department_id,route_status,emergency_hint,request_kind,review_note) VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)",studentId,request,original,c,s,location,building,floor,symptom,at,on,rule==null?null:rule.get("id"),rule==null?null:rule.get("departmentId"),rule==null?"NEEDS_REVIEW":"MATCHED",(emergency || AiService.emergency(original+" "+symptom)),kind,review);
+        long id=db.insert("INSERT INTO reports(student_id,client_request_id,original_text,category,subcategory,location_text,building,floor,symptom,occurred_at_text,occurred_on,routing_rule_id,assigned_department_id,route_status,emergency_hint,request_kind,review_note,work_group,target_text,campus_relevance) VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)",studentId,request,original,c,s,location,building,floor,symptom,at,on,rule==null?null:rule.get("id"),rule==null?null:rule.get("departmentId"),rule==null?"NEEDS_REVIEW":"MATCHED",(emergency || AiService.emergency(original+" "+symptom)),kind,review,group,target,relevance);
         event(id,studentId,"CREATED",null,"RECEIVED","시연용 자체 접수");return detail(id,studentId,false);
     }
     public Map<String,Object> list(long studentId,boolean admin,int page,int size,String status,String routeStatus){
@@ -62,7 +67,9 @@ public class ReportService {
         if(r==null)throw new ApiException(404,"REPORT_NOT_FOUND","신고를 찾을 수 없습니다.");
         decorate(r);if(admin){decorateTransfer(r);r.put("events",db.all("SELECT e.event_type,e.old_value,e.new_value,e.note,e.created_at changed_at,u.display_name actor_name FROM report_events e JOIN users u ON u.id=e.actor_id WHERE e.report_id=? ORDER BY e.id",id));}return r;
     }
-    private void decorate(Map<String,Object> r){Object route=r.get("routingRuleId");Map<String,Object> rule=route==null?null:db.one("SELECT rr.*,d.name department_name FROM routing_rules rr JOIN departments d ON d.id=rr.department_id WHERE rr.id=?",route);r.put("assignedDepartment",routes.department(rule));r.remove("embeddingJson");r.remove("clientRequestId");}
+    private void decorate(Map<String,Object> r){Object route=r.get("routingRuleId");Map<String,Object> rule=route==null?null:db.one("SELECT rr.*,d.name department_name FROM routing_rules rr JOIN departments d ON d.id=rr.department_id WHERE rr.id=?",route);r.put("assignedDepartment",routes.department(rule));
+        // Rows saved before V10 have no stored group; it is derived from the type instead of a bulk reclassification.
+        r.put("workGroup",Codes.workGroup(Objects.toString(r.get("subcategory"),null),r.get("workGroup")));r.remove("embeddingJson");r.remove("clientRequestId");}
     private void decorateTransfer(Map<String,Object> r){
         var latest=db.one("SELECT event_type,note FROM report_events WHERE report_id=? AND event_type IN ('TRANSFER_REQUESTED','ROUTING_CHANGED') ORDER BY id DESC LIMIT 1",r.get("id"));
         boolean pending=!"RESOLVED".equals(r.get("status"))&&latest!=null&&"TRANSFER_REQUESTED".equals(latest.get("eventType"));
