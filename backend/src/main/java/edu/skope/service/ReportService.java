@@ -67,6 +67,7 @@ public class ReportService {
         var latest=db.one("SELECT event_type,note FROM report_events WHERE report_id=? AND event_type IN ('TRANSFER_REQUESTED','ROUTING_CHANGED') ORDER BY id DESC LIMIT 1",r.get("id"));
         boolean pending=!"RESOLVED".equals(r.get("status"))&&latest!=null&&"TRANSFER_REQUESTED".equals(latest.get("eventType"));
         r.put("transferRequested",pending);r.put("transferReason",pending?latest.get("note"):null);
+        r.put("unassignedReason",RoutingService.unassignedReason(r));
     }
     @Transactional(isolation=Isolation.READ_COMMITTED)
     public Map<String,Object> status(long id,long actor,Map<String,Object> b){
