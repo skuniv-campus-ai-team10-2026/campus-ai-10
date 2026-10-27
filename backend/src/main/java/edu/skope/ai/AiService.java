@@ -22,11 +22,10 @@ import java.util.regex.Pattern;
 /** Extracts suggestions only. The caller obtains all routing and answer grounds from the database. */
 @Service
 public class AiService {
-    public static final String PROMPT_VERSION = "hybrid-intake-v3";
+    public static final String PROMPT_VERSION = "hybrid-intake-v4";
     public static final String POLICY_VERSION = "hybrid-check-v5";
     private static final Set<String> INTENTS = Set.of("REPORT", "QUESTION", "UNKNOWN");
-    private static final Map<String, String> TYPES = Map.of("WIFI", "IT", "LEAK", "FACILITY",
-            "ELECTRIC", "FACILITY", "STUDENT_RECORD", "ACADEMIC", "UNKNOWN", "OTHER");
+    private static final Map<String, String> TYPES = edu.skope.domain.Codes.TYPES;
     private static final Set<String> FIELDS = Set.of("category", "subcategory", "locationText", "building", "floor",
             "symptom", "occurredAtText", "missingFields", "followUpQuestion", "emergencyHint");
     private static final Set<String> MISSING = Set.of("LOCATION", "SYMPTOM", "CATEGORY", "OCCURRED_AT");
@@ -52,11 +51,18 @@ public class AiService {
             - FACILITY/ELECTRIC: building electrical infrastructure, power, outlets, lighting, circuit breakers
               and physical wall/light switches, including broken covers or mechanisms. A network switch or a
               software switch is not a building electrical fixture merely because it is called a switch.
+            - FACILITY/HVAC: heating, cooling and ventilation of rooms: air conditioners, heaters, radiators,
+              thermostats, air vents, and rooms that are too hot or too cold. Water dripping from an air conditioner
+              is still HVAC because the unit is what must be inspected.
+            - FACILITY/WATER_DISPENSER: drinking-water dispensers and water purifiers (정수기, 냉온수기), including
+              leaks, no water, wrong temperature or hygiene of the dispenser itself.
+            - FACILITY/FURNITURE: movable classroom furniture and fixtures: desks, chairs, lockers, tables,
+              lecterns (교탁), when they are broken, wobbly, missing or unsafe.
             - ACADEMIC/STUDENT_RECORD: student status/records, leave of absence (휴학), return to study (복학),
               enrollment/registration (재학/등록), graduation (졸업), and issuance of academic certificates (증명서).
               Questions or ambiguous difficulties about these topics retain this category.
             - OTHER/UNKNOWN: topics outside these supported subcategories or insufficient subject evidence.
-              Do not force furniture, elevators, scholarships or general advice into a supported category.
+              Do not force elevators, scholarships or general advice into a supported category.
             Always provide a report object, including for QUESTION. For a QUESTION symptom summarizes
             the specific question/request to be answered by an administrator, not an invented physical fault.
             Never generate an answer, department name, phone number, routing rule, or source URL.
@@ -308,11 +314,23 @@ public class AiService {
         return updates;
     }
 
+    /** Service-wide paid-call limit. Set by Spring; directly constructed instances (tests) run without it. */
+    @Autowired(required = false)
+    public void setBudget(AiBudget budget) { this.budget = budget; }
+    private AiBudget budget;
+
     private JsonNode post(String path, Map<String, Object> body) {
+        AiBudget.Reservation reservation = null;
+        boolean settled = false;
         try {
+            String payload = json.writeValueAsString(body);
+            boolean embeddings = path.equals("/embeddings");
+            // Reserve before any network traffic. Characters over-estimate tokens, which keeps the reservation safe.
+            if (budget != null) reservation = budget.reserve(embeddings ? AiBudget.Kind.EMBEDDING : AiBudget.Kind.LLM,
+                    payload.length(), embeddings ? 0 : maxCompletionTokens);
             HttpRequest request = HttpRequest.newBuilder(URI.create(baseUrl + path)).timeout(timeout)
                     .header("Authorization", "Bearer " + apiKey).header("Content-Type", "application/json")
-                    .POST(HttpRequest.BodyPublishers.ofString(json.writeValueAsString(body), StandardCharsets.UTF_8)).build();
+                    .POST(HttpRequest.BodyPublishers.ofString(payload, StandardCharsets.UTF_8)).build();
             // Byte-array completion keeps the request timeout active until the whole response arrives.
             HttpResponse<byte[]> response = client.send(request, HttpResponse.BodyHandlers.ofByteArray());
             if (response.statusCode() < 200 || response.statusCode() >= 300 || response.body().length > 1024 * 1024) throw unavailable();
@@ -323,11 +341,18 @@ public class AiService {
                     && usage.path("prompt_tokens").canConvertToLong() && usage.path("total_tokens").canConvertToLong()) {
                 long input = usage.path("prompt_tokens").asLong(), total = usage.path("total_tokens").asLong();
                 long output = path.equals("/embeddings") ? 0 : usage.path("completion_tokens").asLong(-1);
-                if (input >= 0 && output >= 0 && total >= input + output) onUsage(path, input, output, total);
+                if (input >= 0 && output >= 0 && total >= input + output) {
+                    if (budget != null) { budget.settle(reservation, input, output); settled = true; }
+                    onUsage(path, input, output, total);
+                }
             }
             return parsed;
         } catch (InterruptedException e) { Thread.currentThread().interrupt(); throw unavailable(); }
         catch (Exception e) { throw unavailable(); }
+        finally {
+            // No usable usage numbers: the provider may still have charged, so the reservation counts as spent.
+            if (budget != null && reservation != null && !settled) budget.settle(reservation, null, null);
+        }
     }
 
     /** Optional counters for verification; never exposes prompts, credentials or raw provider responses. */
@@ -399,9 +424,13 @@ public class AiService {
         String fullText = input.text + (input.answer.isEmpty() ? "" : " " + input.answer);
         String normalized = fullText.toLowerCase(Locale.ROOT).replaceAll("\\s+", "");
         String typeText = "CATEGORY".equals(input.field) ? input.answer.toLowerCase(Locale.ROOT).replaceAll("\\s+", "") : normalized;
+        // The broken object decides the department, so dispensers and HVAC are checked before generic leaks/power.
         String subtype = contains(typeText, "와이파이", "wifi", "wi-fi", "인터넷", "무선망") ? "WIFI"
+                : contains(typeText, "정수기", "냉온수기", "음수대") ? "WATER_DISPENSER"
+                : contains(typeText, "에어컨", "냉방", "난방", "히터", "온풍기", "라디에이터", "환기구", "너무더워", "너무추워") ? "HVAC"
                 : contains(typeText, "누수", "물이새", "물이샙", "물새", "물이떨어", "물이흘러", "천장에서물", "빗물이", "물이 스며".replace(" ","")) ? "LEAK"
                 : contains(typeText, "전기", "콘센트", "조명", "전등", "정전", "감전", "불꽃", "타는냄새", "형광등", "스파크") ? "ELECTRIC"
+                : contains(typeText, "책상", "의자", "걸상", "사물함", "교탁", "탁자") ? "FURNITURE"
                 : contains(typeText, "학적", "증명서", "휴학", "복학", "재학", "졸업", "등록") ? "STUDENT_RECORD" : "UNKNOWN";
         boolean inquiry = contains(normalized, "어디", "어떻게", "문의", "연락", "절차", "방법", "알려", "몇시", "언제", "규정", "전화번호");
         boolean ambiguous = subtype.equals("STUDENT_RECORD") && contains(normalized, "안나", "안돼", "안되", "안됩", "오류");
@@ -438,7 +467,7 @@ public class AiService {
     private Map<String, Object> schema(boolean follow,boolean hybrid) {
         Map<String, Object> properties = new LinkedHashMap<>();
         properties.put("category", Map.of("type", "string", "enum", List.of("IT", "FACILITY", "ACADEMIC", "OTHER")));
-        properties.put("subcategory", Map.of("type", "string", "enum", List.of("WIFI", "LEAK", "ELECTRIC", "STUDENT_RECORD", "UNKNOWN")));
+        properties.put("subcategory", Map.of("type", "string", "enum", List.of("WIFI", "LEAK", "ELECTRIC", "HVAC", "WATER_DISPENSER", "FURNITURE", "STUDENT_RECORD", "UNKNOWN")));
         for (String field : List.of("locationText", "building", "floor", "symptom", "occurredAtText", "followUpQuestion"))
             properties.put(field, Map.of("type", List.of("string", "null")));
         properties.put("missingFields", Map.of("type", "array", "items", Map.of("type", "string", "enum", List.of("LOCATION", "SYMPTOM", "CATEGORY", "OCCURRED_AT"))));

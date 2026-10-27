@@ -44,7 +44,8 @@ class RoutingServiceTest {
 
     @Test void demoModeAssignsKnownLeakWithoutPretendingItsContactIsVerified(){
         var db=fixture();seed(db,true,PASSWORD);var routes=new RoutingService(db,true);var rule=routes.find("FACILITY","LEAK");
-        assertNotNull(rule);assertEquals(4,routes.types().size());
+        // 4 original routes + demo-only HVAC and WATER_DISPENSER added by SeedData.addMissingDemoRoutes (FURNITURE has no rule).
+        assertNotNull(rule);assertEquals(6,routes.types().size());
         for(var value:new Map[]{routes.preview(rule),routes.department(rule),routes.types().stream().filter(r->"LEAK".equals(r.get("subcategory"))).findFirst().orElseThrow()}){
             assertEquals(false,value.get("verified"));assertEquals("DEMO",value.get("assignmentBasis"));
             assertEquals(true,value.get("demoOnly"));assertNotNull(value.get("warning"));
