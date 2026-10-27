@@ -1,0 +1,22 @@
+{
+  "id": "intake-review-v1",
+  "labelLimitation": "Codex-authored synthetic DEVELOPMENT regressions, expectations frozen before LIVE. Not independently human-reviewed and not an independent accuracy estimate. Three LLM calls maximum, no embedding or application DB writes, no automatic paid retry.",
+  "plannedCalls": 3,
+  "groups": [
+    {
+      "id": "R1",
+      "text": "은주2관에 정수기가 고장났어요.",
+      "steps": [
+        {"expectedStatus":"CONTINUE","allowedReasons":["LOCATION_DETAIL"],"equals":{"/report/building":"은주2관"},"contains":{"/report/symptom":"정수기"}},
+        {"answer":"지하 1층이요.","expectedStatus":"COMPLETE","equals":{"/report/building":"은주2관","/report/floor":"B1","/report/occurredAtText":null},"contains":{"/report/symptom":"정수기"}}
+      ]
+    },
+    {
+      "id": "R2",
+      "text": "은주2관 403호 전기가 고장났어요.",
+      "steps": [
+        {"expectedStatus":"CONTINUE","allowedReasons":["TARGET_UNCLEAR","ISSUE_UNCLEAR"],"equals":{"/report/building":"은주2관","/report/emergencyHint":false}}
+      ]
+    }
+  ]
+}

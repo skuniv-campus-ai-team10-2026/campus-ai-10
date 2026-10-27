@@ -176,7 +176,7 @@ final class FollowUpPolicy {
             Matcher fault=Pattern.compile("([가-힣A-Za-z][가-힣A-Za-z0-9·_-]{1,29}?)(?:가|이|은|는)?\\s*(?:고장(?:이\\s*)?(?:났|나서|남|난|입니다|이에요)|고장(?=\\s*$)|파손(?:됐|되|됨)|망가(?:졌|짐)|부러(?:졌|짐)|깨(?:졌|짐))").matcher(clause);
             if (!fault.find()) continue;
             String object=fault.group(1);
-            if (object.matches("(?:뭔가|무언가|그것|이것|저것|.*(?:시설|설비|장비|기기|건물|학교|강의실|교실|문제)|.*(?:관|동))(?:[이가은는])?")) continue;
+            if (object.matches("(?:뭔가|무언가|그것|이것|저것|전기|전원|전력|.*(?:시설|설비|장비|기기|건물|학교|강의실|교실|문제)|.*(?:관|동))(?:[이가은는])?")) continue;
             return clause.strip();
         }
         return null;

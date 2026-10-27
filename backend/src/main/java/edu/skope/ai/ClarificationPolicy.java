@@ -131,10 +131,10 @@ final class ClarificationPolicy {
     }
     private static boolean concreteTarget(String value){
         String s=compact(value);
-        return FollowUpPolicy.validText(value)&&!s.matches("(?:시설|설비|장비|기기|전기|뭔가|그것|무언가)(?:문제)?")&&!s.matches(".*(?:인지|모르|아마).*" );
+        return FollowUpPolicy.validText(value)&&!s.matches("(?:시설|설비|장비|기기|전기(?:시설|설비|장비|기기)?|전원|전력|뭔가|그것|무언가)(?:문제)?")&&!s.matches(".*(?:인지|모르|아마).*" );
     }
     private static boolean usefulSymptom(String value){String s=compact(value);return !s.isBlank()&&!s.matches(".*(?:와이파이|인터넷|시설|문제)(?:가|이|는|은)?(?:잘)?(?:안됨|안돼요|안됩니다|되지않는것같습니다|되지않아요|이상해요|문제있음)[.!?]*");}
-    private static boolean target(String s){return s.matches(".*(?:멀티탭|플러그|분전함|배전반|콘센트|조명|전등|전구|형광등|차단기|스위치|정전|전원|의자|책상|에어컨|난방|창문|문손잡이|엘리베이터|수도꼭지|배관|천장).*" );}
+    private static boolean target(String s){return s.matches(".*(?:멀티탭|플러그|분전함|배전반|콘센트|조명|전등|전구|형광등|차단기|스위치|정전|의자|책상|에어컨|난방|창문|문손잡이|엘리베이터|수도꼭지|배관|천장).*" );}
     private static boolean workflow(String s){return s.matches(".*(?:절차|방법|어떻게|신청전|신청중|제출후|신청후|신청했|제출했|제출완료|처리상태|승인|대기|접수상태|오류메시지|버튼|화면|로그인|제출이|제출안|제출되지).*" );}
     private static String text(Map<String,Object> map,String key){return Objects.toString(map.get(key),"");}
     private static String compact(String s){return s==null?"":s.replaceAll("\\s+","").toLowerCase(Locale.ROOT);}

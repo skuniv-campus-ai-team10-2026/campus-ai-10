@@ -503,3 +503,19 @@ $env:JAVA_TOOL_OPTIONS='-Djavax.net.ssl.trustStoreType=Windows-ROOT -Djavax.net.
 - `frontend/src/intake.tsx`, `frontend/src/styles.css`: 고정 질문·누적 내용·원문 펼치기·직접 접수 동작을 개선했다.
 - `frontend/src/App.tsx`: 애니메이션 API 미지원 환경에서 시작 화면 오류가 나지 않도록 보완했다.
 - 관련 테스트 6개 파일: `ApiIntegrationTest.java`, `HybridReplayIntegrationTest.java`, `AiFollowUpTest.java`, `ClarificationPolicyTest.java`, `IntakeServiceTest.java`, `intake.test.tsx`. 선택 실행한 147건에 opt-in `HybridReplayIntegrationTest`는 포함되지 않는다. 이 파일은 변경된 두 번 분석 후 접수 계약에 기대값을 맞췄다. 과거 평가 원본과 정답 파일은 수정하지 않았다.
+
+## 2026-10-27 PR #5 리뷰 후 보완
+
+동기가 전체 검사에서 발견한 기존 와이파이 테스트 기대값 누락을 로컬 H2 단일 실행에서도 재현했다. 이전 147건은 선별 검사였으며 전체 성공을 뜻하지 않는다.
+
+- 와이파이: 유효한 위치 답변 후 추가 진단 질문 없이 접수하는 승인된 정책에 맞춰 기존 통합 테스트를 갱신했다. 늦게 도착한 답변은 이미 접수한 내용을 바꾸지 않고 같은 UUID가 단건 저장되는지도 검사한다. 모델 평가 정답을 출력에 맞춰 바꾼 것이 아니다.
+- 긴 답변: 마지막 답변 500자와 미분석 답변 500자에 서버 설명을 더하면 기존 1000자를 초과한다. V3 체크섬은 유지하고 새 V7에서 `review_note`를 VARCHAR(2000)으로 확장했다. 외부 수동 저장 API는 1000자 그대로이며, 서버 내부 분석 접수만 2000자를 허용한다. 두 답변 원문·관리자 조회·DB 값 일치·중복 접수 방지를 실제 HTTP/DB 테스트로 확인한다.
+- 전기: ‘전기 고장’, ‘전원이 안 켜짐’ 또는 일반적인 ‘전기설비’라는 표현만으로 점검 대상이 확인됐다고 보지 않는다. 구체적인 콘센트·전등·건물 전체 정전은 접수 가능하고, 긴급 징후가 있으면 질문으로 지연시키지 않는다.
+- 전체 기본 백엔드 검사: H2와 별도 MySQL `skope_pr5_review_20261027`에서 각각 총 396건 중 **382 PASS / 14 SKIP / 0 FAIL / 0 ERROR**. 14건은 opt-in 평가이며 기본 실행에서 제외했다. 시연용 `skope` DB를 테스트 대상으로 사용하지 않았다. 원시 JUnit XML과 합계는 비공개 `.runtime/pr5-review-tests/{h2,mysql}`에 보존했다. 프론트 코드는 이번 보완에서 바꾸지 않았으며 기존 84건 및 프론트 빌드 결과를 재사용했다.
+- 신규 LIVE 개발 회귀: [고정 기대값](evaluation/intake-review-v1.json), [실제 결과](evaluation/intake-review-v1-results.json). 정수기 최초 분석 → 지하 1층 답변 후 종료, 대상이 불명확한 전기 신고의 질문 유지까지 **3/3 PASS**. 새 LLM 3회, Embedding 0회, 입력 5997·출력 551토큰, 추정 $0.0008752. Standard(default) 요금 고정, 사전 예산 $0.05·보수적 예약 $0.030144, 최대 요청 본문 38976바이트·출력 2048토큰·재시도 0회·지속 캐시로 중복 유료 실행 차단. [공식 모델 요금](https://developers.openai.com/api/docs/models/gpt-6-luna)을 2026-10-27 확인했다. 출력에 맞춰 정답을 수정하지 않았고 fixture SHA-256은 cc48e05996e66a71613038e3e0d28de450778fb8f6a96b9eeb9b631625887d9d 이다.
+- 이 세 사례는 Codex가 작성한 개발 회귀 데이터이며 사람의 독립 검수나 독립 정확도 추정이 아니다. 새 프롬프트 LIVE 전체 품질·브라우저/실제 AI/MySQL 동시 E2E를 전수 확인했다는 뜻도 아니다. 과거 원시 응답과 정답은 유지하고 기존 저장 응답의 후처리 재생 결과만 갱신했다.
+- 버전: 프롬프트 hybrid-intake-v3, 정책 hybrid-check-v5. 실행용 bootJar 빌드 성공. 시연 DB는 V7 적용 전 `.runtime/skope-before-v7-private.sql`로 비공개 백업했다.
+
+사용자 지정 코드 동결은 **2026-11-02~2026-11-09**이다. 11월 1일까지 최종 통합·검증 및 제출 버전을 확정해야 한다. 현재 PR과 PC 임시 주소는 최종 제출 환경이 아니다. 고정 제출 주소·지속 실행·DB/사진 복구·공유 서버 전체 LIVE 사용 상한은 제출 전에 별도로 확정해야 한다. [공유·동결 지침](../deploy/FREE-SHARE.md)을 따른다.
+
+수정 빌드를 기존 팀 공유 환경에 반영하고 V7이 적용된 것을 확인했다. 기존 신고 9건·첨부 2건·계정 7개의 개수가 재시작 전후 동일하다. 외부 HTTPS 읽기 검사 5항목(팀 인증, 최신 프런트 번들, LIVE/LIVE/MySQL 설정, 앱 로그인 필요, 기존 데이터 개수 유지) PASS. 이 읽기 검사는 새 유료 호출을 발생시키지 않았다. 팀 공유 주소는 재시작으로 변경되며 제출용 고정 주소와 구분한다.

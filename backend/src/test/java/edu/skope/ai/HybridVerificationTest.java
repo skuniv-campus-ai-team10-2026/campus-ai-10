@@ -14,11 +14,11 @@ class HybridVerificationTest {
     static final ObjectMapper JSON=new ObjectMapper();
     static final String SUITE=System.getenv().getOrDefault("HYBRID_SUITE","hybrid-v1");
     static final boolean REPLAY="1".equals(System.getenv("HYBRID_REPLAY"));
-    static final int CAP=SUITE.equals("hybrid-stress-v1")?40:9;
+    static final int CAP=SUITE.equals("hybrid-stress-v1")?40:SUITE.equals("intake-review-v1")?3:9;
     static final Path DIR=Path.of("..","docs","evaluation"), CACHE=Path.of("..",".runtime","ai-quality-cache",SUITE);
     static final double RESERVATION=.010048; // 2x (40k input * .10/M + 2048 output * .50/M).
     @Test void measureFrozenCases()throws Exception{
-        assertTrue(Set.of("hybrid-v1","hybrid-stress-v1").contains(SUITE));
+        assertTrue(Set.of("hybrid-v1","hybrid-stress-v1","intake-review-v1").contains(SUITE));
         String hash=AiQualityCache.digest(Files.readAllBytes(DIR.resolve(SUITE+".json")));
         assertEquals(System.getenv("HYBRID_FIXTURE_SHA256"),hash);
         Files.createDirectories(CACHE);
@@ -28,7 +28,7 @@ class HybridVerificationTest {
             var sourceHashes=new TreeMap<String,String>();for(String source:List.of("AiService.java","FollowUpPolicy.java","ClarificationPolicy.java","EmergencySignals.java")){var path=Path.of("src/main/java/edu/skope/ai",source);sourceHashes.put(source,AiQualityCache.digest(Files.readAllBytes(path)));}result.put("sourceHashes",sourceHashes);result.put("evaluatedAt",java.time.OffsetDateTime.now().toString());
             result.put("promptVersion",AiService.PROMPT_VERSION);result.put("policyVersion",AiService.POLICY_VERSION);result.put("model","gpt-6-luna");
             result.put("labelLimitation",fixture.get("labelLimitation"));result.put("scope",REPLAY?"Saved LIVE output replay by text/answer; prior context may differ under the new policy. Not a fresh LIVE quality measurement. No network fallback.":"Production AiService only; no DEMO, embeddings, browser or DB writes. Local API integration tested separately.");
-            result.put("preflight",Map.of("plannedCalls",fixture.path("plannedCalls").asInt(),"maxCalls",CAP,"automaticRetries",0,"conservativeMaximumUsd",CAP*RESERVATION,"budgetUsd",SUITE.equals("hybrid-stress-v1")?.45:.10,"pricingSource","https://developers.openai.com/api/docs/models/gpt-6-luna","pricingDate","2026-10-16"));
+            result.put("preflight",Map.of("plannedCalls",fixture.path("plannedCalls").asInt(),"maxCalls",CAP,"automaticRetries",0,"conservativeMaximumUsd",CAP*RESERVATION,"budgetUsd",SUITE.equals("intake-review-v1")?.05:SUITE.equals("hybrid-stress-v1")?.45:.10,"pricingSource","https://developers.openai.com/api/docs/models/gpt-6-luna","pricingDate",SUITE.equals("intake-review-v1")?"2026-10-27":"2026-10-16"));
             var rows=new ArrayList<Map<String,Object>>();result.put("rows",rows);
             for(var group:fixture.path("groups")){
                 Map<String,Object> prior=null;int step=0;
@@ -65,6 +65,8 @@ class HybridVerificationTest {
         Measured()throws Exception{super("LIVE","https://api.openai.com/v1",REPLAY?"local-replay-placeholder":System.getenv().getOrDefault("AI_API_KEY",""),"gpt-6-luna","RULE_ONLY","",60,2048,"none");cache=new AiQualityCache(CACHE);}
         @Override protected JsonNode complete(Map<String,Object> body){
             try{
+                // Pin Standard pricing for the small review suite; leave production routing unchanged.
+                if(SUITE.equals("intake-review-v1")){body=new LinkedHashMap<>(body);body.put("service_tier","default");}
                 if(REPLAY){
                     var request=JSON.readTree(JSON.valueToTree(body).at("/messages/1/content").asText());
                     for(var row:JSON.readTree(DIR.resolve(SUITE+"-results.json").toFile()).path("rows")){

@@ -23,7 +23,7 @@ import java.util.regex.Pattern;
 @Service
 public class AiService {
     public static final String PROMPT_VERSION = "hybrid-intake-v3";
-    public static final String POLICY_VERSION = "hybrid-check-v4";
+    public static final String POLICY_VERSION = "hybrid-check-v5";
     private static final Set<String> INTENTS = Set.of("REPORT", "QUESTION", "UNKNOWN");
     private static final Map<String, String> TYPES = Map.of("WIFI", "IT", "LEAK", "FACILITY",
             "ELECTRIC", "FACILITY", "STUDENT_RECORD", "ACADEMIC", "UNKNOWN", "OTHER");
