@@ -20,6 +20,22 @@ public class RoutingService {
     private static boolean demo(Map<String,Object> rule){return rule!=null&&(Boolean.TRUE.equals(rule.get("demoOnly"))||rule.get("demoOnly") instanceof Number n&&n.intValue()!=0);}
     private static boolean verified(Map<String,Object> rule){return rule!=null&&!demo(rule)&&rule.get("verifiedAt")!=null&&!Objects.toString(rule.get("sourceUrl"),"").isBlank();}
     private static String basis(Map<String,Object> rule){return rule==null?null:demo(rule)?"DEMO":verified(rule)?"VERIFIED":"UNVERIFIED";}
+    /**
+     * Why a stored report has no department, derived from saved fields (no extra column), checked in the same
+     * order ReportService uses when it decides not to assign. Null when a department is assigned.
+     * REVIEW_HOLD: saved for supervisor review (student request, AI failure, urgent review).
+     * AI_UNCLASSIFIED: no supported type was recognised (the server cannot tell a wrong guess from a truly other topic).
+     * LOCATION_MISSING: a physical fault without a building/place, so automatic assignment was withheld.
+     * NO_RULE: the type is known but no active routing rule exists for it.
+     */
+    public static String unassignedReason(Map<String,Object> report){
+        if(report.get("assignedDepartmentId")!=null)return null;
+        if(!Objects.toString(report.get("reviewNote"),"").isBlank())return "REVIEW_HOLD";
+        if("UNKNOWN".equals(report.get("subcategory")))return "AI_UNCLASSIFIED";
+        boolean physical=!"QUESTION".equals(report.get("requestKind"))&&!"ACADEMIC".equals(report.get("category"));
+        if(physical&&(report.get("locationText")==null||report.get("building")==null))return "LOCATION_MISSING";
+        return "NO_RULE";
+    }
     public Map<String,Object> answer(Map<String,Object> rule,String text){
         // Only contact questions are supported by the verified structured directory.
         boolean contact=text.matches("(?s).*(문의|연락|어디|전화|담당).*"), procedure=text.matches("(?s).*(절차|방법|규정|기준|언제|기간|휴학|성적).*" );
