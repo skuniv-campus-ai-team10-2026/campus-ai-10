@@ -1,0 +1,44 @@
+# Public HTTPS entry for the SKOPE submission VM. install.sh replaces __HOST__ with the Azure DNS name.
+# Caddy obtains and renews the certificate automatically (ports 80 and 443 must be open).
+# The backend (127.0.0.1:8080) and MySQL (127.0.0.1:3306) are never exposed directly.
+
+__HOST__ {
+	encode gzip
+	header {
+		Strict-Transport-Security "max-age=31536000"
+		X-Content-Type-Options nosniff
+		X-Frame-Options DENY
+		Referrer-Policy no-referrer
+		-Server
+	}
+
+	# Optional team gate (decided by the team lead). Judges would then need this password too.
+	# basic_auth {
+	# 	team <bcrypt hash from: caddy hash-password>
+	# }
+
+	@api path /api /api/*
+	handle @api {
+		request_body {
+			max_size 6291456
+		}
+		header >Cache-Control "no-store"
+		reverse_proxy 127.0.0.1:8080 {
+			header_up -Forwarded
+			header_up -Authorization
+			transport http {
+				dial_timeout 5s
+				response_header_timeout 150s
+			}
+		}
+	}
+
+	handle {
+		root * /opt/skope/web
+		header Cache-Control "no-cache"
+		# Same client routes as deploy/Caddyfile.free-share; unknown paths stay 404.
+		@spa path_regexp spa ^/(signup|profile|report/(analyze|confirm)|reports(/(success|[0-9]+))?|admin/(reports(/[0-9]+)?|repeated|incidents/[0-9]+))?/?$
+		rewrite @spa /index.html
+		file_server
+	}
+}

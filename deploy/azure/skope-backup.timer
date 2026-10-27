@@ -1,0 +1,9 @@
+[Unit]
+Description=Run the SKOPE backup every day at 04:00 KST (catches up after downtime)
+
+[Timer]
+OnCalendar=*-*-* 04:00:00 Asia/Seoul
+Persistent=true
+
+[Install]
+WantedBy=timers.target

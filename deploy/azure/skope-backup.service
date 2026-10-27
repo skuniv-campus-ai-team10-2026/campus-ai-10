@@ -1,0 +1,7 @@
+[Unit]
+Description=SKOPE daily backup (MySQL dump + photos) to /var/backups/skope
+After=mysql.service
+
+[Service]
+Type=oneshot
+ExecStart=/opt/skope/deploy/backup.sh
