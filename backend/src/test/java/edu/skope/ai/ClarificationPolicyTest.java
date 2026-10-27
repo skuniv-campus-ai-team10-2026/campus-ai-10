@@ -34,9 +34,9 @@ class ClarificationPolicyTest {
         assertEquals("COMPLETE",state(result).get("status"));
         assertEquals("4",report(result).get("floor"));assertEquals("어제",report(result).get("occurredAtText"));
     }
-    @Test void resolvingLocationStillRequiresFailureMode(){
+    @Test void usefulLocationReplyDoesNotRequireASecondDiagnosticQuestion(){
         var result=reply("은주2관에서 와이파이가 안돼요",initial("은주2관에서 와이파이가 안돼요"),"은주2관 403호예요");
-        assertEquals("SYMPTOM_DETAIL",state(result).get("nextReason"));
+        assertEquals("COMPLETE",state(result).get("status"));assertNull(report(result).get("followUpQuestion"));
         assertEquals(List.of("LOCATION_DETAIL"),state(result).get("askedReasons"));
     }
     @Test void cannotAnswerStopsWithoutRepeating(){
@@ -121,6 +121,61 @@ class ClarificationPolicyTest {
         var r=new LinkedHashMap<>(Map.<String,Object>of("category","ACADEMIC","subcategory","STUDENT_RECORD","symptom","휴학 가능한 최대 학기 수 문의","missingFields",List.of()));
         var d=ClarificationPolicy.decide("QUESTION","휴학은 최대 몇 학기까지 가능한가요?","",null,Map.of(),r,base(0),Map.of(),Map.of(),Map.of("reason","NONE"));
         assertEquals("COMPLETE",d.state().get("status"));
+    }
+    @ParameterizedTest
+    @CsvSource({"정수기가 고장났어요","의자가 부러졌어요","프로젝터가 망가졌어요","문손잡이가 파손됐어요","정수기 고장"})
+    void namedBrokenObjectsNeedLocationRatherThanAnotherProblemQuestion(String issue){
+        String original="은주2관에 "+issue;
+        var raw=new LinkedHashMap<String,Object>();raw.put("category","OTHER");raw.put("subcategory","UNKNOWN");raw.put("locationText","은주2관");raw.put("building","은주2관");raw.put("symptom",null);raw.put("missingFields",List.of("SYMPTOM"));
+        var merged=FollowUpPolicy.apply("REPORT",raw,Map.of(),Map.of(),"",null,FollowUpPolicy.state(null),original);
+        for(String reason:List.of("SYMPTOM_DETAIL","TARGET_UNCLEAR")){
+            var d=ClarificationPolicy.decide("REPORT",original,"",null,Map.of(),merged.report(),merged.state(),Map.of(),Map.of(),Map.of("reason",reason,"evidence",issue));
+            assertEquals("LOCATION_DETAIL",d.state().get("nextReason"));
+            assertEquals(List.of(),d.report().get("missingFields"));assertNotNull(d.report().get("symptom"));
+        }
+    }
+    @ParameterizedTest
+    @CsvSource({"뭔가 고장났어요","시설이 고장났어요","정수기가 고장났는지 모르겠어요","정수기가 고장난 게 아니에요","정수기가 고장나지 않았어요","강의실이 불편해요"})
+    void uncertainNegatedOrUnnamedFaultCannotRepairAnUnspecifiedIssue(String text){
+        assertNull(FollowUpPolicy.observedFault(text));
+        var raw=new LinkedHashMap<String,Object>();raw.put("symptom",null);raw.put("missingFields",List.of("SYMPTOM"));
+        var merged=FollowUpPolicy.apply("REPORT",raw,Map.of(),Map.of(),"",null,FollowUpPolicy.state(null),text);
+        assertTrue(((List<?>)merged.report().get("missingFields")).contains("SYMPTOM"));
+    }
+    @Test void categoryUncertaintyGoesToReviewRatherThanStudentClassification(){
+        var r=new LinkedHashMap<>(Map.<String,Object>of("category","OTHER","subcategory","UNKNOWN","locationText","은주2관 403호","building","은주2관","symptom","의자 다리가 흔들림","missingFields",List.of()));
+        var d=ClarificationPolicy.decide("REPORT","은주2관 403호 의자 다리가 흔들려요","",null,Map.of(),r,Map.of("turns",0,"noProgress",0,"reviewFields",List.of("CATEGORY")),Map.of(),Map.of(),Map.of());
+        assertEquals("COMPLETE",d.state().get("status"));assertEquals(true,d.state().get("urgentReview"));assertNull(r.get("followUpQuestion"));
+    }
+    @Test void explicitFaultAnswerResolvesOldModelOmissionOnlyWithGroundedUpdate(){
+        var prior=new LinkedHashMap<String,Object>();prior.put("category","OTHER");prior.put("subcategory","UNKNOWN");prior.put("symptom",null);prior.put("missingFields",List.of("SYMPTOM"));
+        var old=Map.<String,Object>of("turns",0,"noProgress",0,"reviewFields",List.of("SYMPTOM"));
+        for(String evidence:List.of("정수기가 고장났어요","invented evidence")){
+            String answer="정수기가 고장났어요";
+            var merged=FollowUpPolicy.apply("REPORT",prior,prior,Map.of("SYMPTOM",Map.of("action","SET","evidence",evidence)),answer,"SYMPTOM",old,answer);
+            assertEquals(evidence.equals("invented evidence"),((List<?>)merged.report().get("missingFields")).contains("SYMPTOM"));
+        }
+    }
+    @ParameterizedTest
+    @CsvSource({"전기가 고장났어요,전기","전기 고장,전기","전원이 고장났어요,전원","전원이 안 켜져요,전원","전기설비가 고장났어요,전기설비"})
+    void genericElectricalWordsAreNotAnIdentifiedFixture(String issue,String evidence){
+        String original="은주2관 403호 "+issue;
+        var r=new LinkedHashMap<>(Map.<String,Object>of("category","FACILITY","subcategory","ELECTRIC","locationText","은주2관 403호","building","은주2관","floor","4","symptom",issue,"missingFields",List.of()));
+        var d=ClarificationPolicy.decide("REPORT",original,"",null,Map.of(),r,base(0),Map.of(),Map.of(),Map.of("known",Map.of("targetEvidence",evidence)));
+        assertEquals("TARGET_UNCLEAR",d.state().get("nextReason"));assertNull(FollowUpPolicy.observedFault(issue));
+    }
+    @ParameterizedTest
+    @CsvSource({"은주2관 403호 콘센트가 파손됐어요","은주2관 403호 전등이 고장났어요","은주2관 전체 정전됐어요"})
+    void specificElectricalFixturesAndPowerOutagesRemainActionable(String original){
+        var r=new LinkedHashMap<>(Map.<String,Object>of("category","FACILITY","subcategory","ELECTRIC","locationText",original.contains("403호")?"은주2관 403호":"은주2관","building","은주2관","symptom",original,"missingFields",List.of()));
+        var d=ClarificationPolicy.decide("REPORT",original,"",null,Map.of(),r,base(0),Map.of(),Map.of(),Map.of());
+        assertEquals("COMPLETE",d.state().get("status"));
+    }
+    @Test void unknownElectricalFixtureDoesNotDelayUrgentReview(){
+        var r=new LinkedHashMap<>(Map.<String,Object>of("category","FACILITY","subcategory","ELECTRIC","locationText","은주2관 403호","building","은주2관","symptom","전기 문제와 타는 냄새","emergencyHint",true,"missingFields",List.of()));
+        var d=ClarificationPolicy.decide("REPORT","은주2관 403호 전기가 이상하고 타는 냄새가 나요","",null,Map.of(),r,base(0),Map.of(),Map.of(),Map.of());
+        assertEquals("COMPLETE",d.state().get("status"));assertEquals(true,d.state().get("urgentReview"));
+        assertTrue(((List<?>)d.state().get("neededReasons")).contains("TARGET_UNCLEAR"));
     }
     private Map<String,Object> base(int turns){return Map.of("turns",turns,"noProgress",0,"reviewFields",List.of());}
     private Map<String,Object> initial(String text){return AiServiceTest.demo().analyze(Map.of("text",text,"hybrid",true));}

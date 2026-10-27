@@ -40,6 +40,11 @@ final class FollowUpPolicy {
 
     static Outcome apply(String intent, Map<String,Object> extracted, Map<String,Object> previous,
                          Map<String,Object> updates, String answer, String field, Map<String,Object> oldState) {
+        return apply(intent,extracted,previous,updates,answer,field,oldState,"");
+    }
+
+    static Outcome apply(String intent, Map<String,Object> extracted, Map<String,Object> previous,
+                         Map<String,Object> updates, String answer, String field, Map<String,Object> oldState, String source) {
         boolean follow = field != null;
         var report = new LinkedHashMap<>(follow ? previous : extracted);
         Set<String> review = new LinkedHashSet<>((List<String>)oldState.getOrDefault("reviewFields",List.of()));
@@ -85,7 +90,17 @@ final class FollowUpPolicy {
         List<String> missing = new ArrayList<>();
         // Ask about the actual problem first. A place is not required for an information/academic request.
         boolean newSymptom = !follow || updates.get("SYMPTOM") instanceof Map<?,?> update && "SET".equals(update.get("action"));
-        boolean modelNeedsSymptom = newSymptom && extracted.get("missingFields") instanceof List<?> fields && fields.contains("SYMPTOM");
+        // A named broken object is actionable without the student diagnosing its failure mode.
+        // Only the current student's explicit words may repair a model's missing-symptom flag.
+        Map<?,?> symptomUpdate=updates.get("SYMPTOM") instanceof Map<?,?> m?m:Map.of();
+        String symptomEvidence=Objects.toString(symptomUpdate.get("evidence"),"");
+        boolean groundedUpdate=!follow||!symptomEvidence.isBlank()&&answer.contains(symptomEvidence);
+        String observation = newSymptom && groundedUpdate && !"QUESTION".equals(intent) ? observedFault(source) : null;
+        if (observation != null) {
+            if (!specificSymptom(text(report,"symptom"))) report.put("symptom",observation);
+            review.remove("SYMPTOM");
+        }
+        boolean modelNeedsSymptom = newSymptom && observation == null && extracted.get("missingFields") instanceof List<?> fields && fields.contains("SYMPTOM");
         if (modelNeedsSymptom) review.add("SYMPTOM");
         if (!specificSymptom(text(report,"symptom")) || modelNeedsSymptom || review.contains("SYMPTOM")) missing.add("SYMPTOM");
         boolean needsPlace = !"QUESTION".equals(intent) && !"ACADEMIC".equals(report.get("category"));
@@ -152,6 +167,20 @@ final class FollowUpPolicy {
         } else review.add("LOCATION");
     }
     static boolean validText(String value) { return value != null && normalize(value).length() >= 2 && !EMPTY.matcher(normalize(value)).matches() && !normalize(value).matches("(?:잘)?모르.*|알수없.*|기억안.*"); }
+    static String observedFault(String source) {
+        if (source == null) return null;
+        // Conservative fallback for explicit object + breakage, not a general symptom classifier.
+        // Uncertain/negated clauses are left to semantic extraction and review.
+        for (String clause : source.split("[.!?;。\\n]")) {
+            if (clause.length()>500 || clause.matches(".*(?:아니|아닌|않|없|모르|인지|여부|가정|예시|예를|일\\s*수도).*")) continue;
+            Matcher fault=Pattern.compile("([가-힣A-Za-z][가-힣A-Za-z0-9·_-]{1,29}?)(?:가|이|은|는)?\\s*(?:고장(?:이\\s*)?(?:났|나서|남|난|입니다|이에요)|고장(?=\\s*$)|파손(?:됐|되|됨)|망가(?:졌|짐)|부러(?:졌|짐)|깨(?:졌|짐))").matcher(clause);
+            if (!fault.find()) continue;
+            String object=fault.group(1);
+            if (object.matches("(?:뭔가|무언가|그것|이것|저것|전기|전원|전력|.*(?:시설|설비|장비|기기|건물|학교|강의실|교실|문제)|.*(?:관|동))(?:[이가은는])?")) continue;
+            return clause.strip();
+        }
+        return null;
+    }
     static boolean specificSymptom(String value) {
         if (!validText(value)) return false;
         // Supplement the model's semantic extraction for common vague complaints; not an exhaustive classifier.

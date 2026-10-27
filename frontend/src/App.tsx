@@ -39,7 +39,7 @@ function Splash({fading}:{fading:boolean}){
   if(!target)return;
   const start=mark.current.getBoundingClientRect(),end=target.getBoundingClientRect();
   const reduced=window.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
-  if(reduced)return;
+  if(reduced||typeof mark.current.animate!=='function')return;
   const motion=mark.current.animate([
    {transform:'translate(0,0) scale(1)'},
    {transform:`translate(${end.x+end.width/2-start.x-start.width/2}px,${end.y+end.height/2-start.y-start.height/2}px) scale(${end.width/start.width})`}

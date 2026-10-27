@@ -58,6 +58,21 @@ class ApiIntegrationTest {
         status(admin,id,"IN_PROGRESS");status(admin,id,"RESOLVED");
         assertEquals("RESOLVED",student.ok("GET","/reports/"+id,null,200).get("status").asText());
     }
+    @Test void namedBrokenDispenserCompletesAfterOneLocationAnswerAndCanBeProcessed()throws Exception{
+        var student=new Session().login("student1");String key=UUID.randomUUID().toString();
+        var initial=student.ok("POST","/assistant/intake",Map.of("clientRequestId",key,"text","은주2관에 정수기가 고장났어요."),200);
+        assertEquals("NEEDS_INPUT",initial.path("status").asText());
+        assertEquals("LOCATION_DETAIL",initial.at("/analysis/followUpState/nextReason").asText());
+        var body=Map.of("clientRequestId",key,"revision",1,"answer","지하 1층이요");
+        var accepted=student.ok("POST","/assistant/intake",body,200);
+        assertEquals("ACCEPTED",accepted.path("status").asText());long id=accepted.at("/report/id").asLong();
+        assertEquals("은주2관",accepted.at("/report/building").asText());assertEquals("B1",accepted.at("/report/floor").asText());
+        assertTrue(accepted.at("/report/symptom").asText().contains("정수기"));assertTrue(accepted.at("/report/occurredAtText").isNull());
+        assertEquals(id,student.ok("POST","/assistant/intake",body,200).at("/report/id").asLong());
+        assertEquals(1,Db.id(db.one("SELECT COUNT(*) total FROM reports"),"total"));
+        var admin=new Session().login("admin");status(admin,id,"IN_PROGRESS");status(admin,id,"RESOLVED");
+        assertEquals("RESOLVED",student.ok("GET","/reports/"+id,null,200).path("status").asText());
+    }
     @Test void intakeClarifiesProblemFirstAndPreservesPlaceAcrossReplies()throws Exception{
         var student=new Session().login("student1");String key=UUID.randomUUID().toString();
         var first=student.ok("POST","/assistant/intake",Map.of("clientRequestId",key,"text","강의실이 너무 불편해요"),200);
@@ -134,17 +149,45 @@ class ApiIntegrationTest {
         new Session().login("admin").ok("POST","/assistant/intake",body,403);
         assertEquals(0,Db.id(db.one("SELECT COUNT(*) total FROM reports"),"total"));
     }
-    @Test void hybridWifiClarifiesSpaceAndModeBeforeSavingOnlyOnce()throws Exception{
+    @Test void hybridWifiAcceptsUsefulLocationWithoutAnotherDiagnosticQuestionAndSavesOnlyOnce()throws Exception{
         var student=new Session().login("student1");String key=UUID.randomUUID().toString();
         var first=student.ok("POST","/assistant/intake",Map.of("clientRequestId",key,"text","은주2관에서 와이파이가 안돼요"),200);
         assertEquals("NEEDS_INPUT",first.get("status").asText());
         assertEquals("LOCATION_DETAIL",first.at("/analysis/clarification/reason").asText());
         assertEquals(0,Db.id(db.one("SELECT COUNT(*) total FROM reports"),"total"));
         var second=student.ok("POST","/assistant/intake",Map.of("clientRequestId",key,"revision",1,"answer","은주2관 403호예요"),200);
-        assertEquals("SYMPTOM_DETAIL",second.at("/analysis/clarification/reason").asText());
+        assertEquals("ACCEPTED",second.path("status").asText());
+        assertTrue(second.at("/report/symptom").asText().contains("와이파이"));
+        assertTrue(second.at("/report/occurredAtText").isNull());
         var saved=student.ok("POST","/assistant/intake",Map.of("clientRequestId",key,"revision",2,"answer","와이파이 연결은 되는데 인터넷이 안돼요"),200);
-        assertEquals("ACCEPTED",saved.get("status").asText());assertEquals("은주2관",saved.at("/report/building").asText());
+        assertEquals("ACCEPTED",saved.get("status").asText());assertEquals(second.at("/report/id"),saved.at("/report/id"));
+        assertEquals(second.at("/report/symptom"),saved.at("/report/symptom"),"An already accepted intake must not be silently rewritten by a stale reply");
+        assertEquals("은주2관",saved.at("/report/building").asText());
         assertEquals("4",saved.at("/report/floor").asText());assertEquals(1,Db.id(db.one("SELECT COUNT(*) total FROM reports"),"total"));
+    }
+    @Test void reviewPreservesBothMaximumLengthRepliesWithoutTruncationOrDuplicateInsert()throws Exception{
+        var student=new Session().login("student1");String key=UUID.randomUUID().toString();
+        String original="강의실이 너무 불편해요";
+        var first=student.ok("POST","/assistant/intake",Map.of("clientRequestId",key,"text",original),200);
+        assertEquals("NEEDS_INPUT",first.path("status").asText());
+        String prefix="은주2관 403호예요. ",last=prefix+"가".repeat(500-prefix.length());
+        var second=student.ok("POST","/assistant/intake",Map.of("clientRequestId",key,"revision",1,"answer",last),200);
+        assertEquals("NEEDS_INPUT",second.path("status").asText());
+        String reply="나".repeat(500);
+        var body=Map.of("clientRequestId",key,"revision",2,"submitForReview",true,"answer",reply);
+        var saved=student.ok("POST","/assistant/intake",body,200);long id=saved.at("/report/id").asLong();
+        assertEquals("ACCEPTED",saved.path("status").asText());assertEquals(original,saved.at("/report/originalText").asText());
+        String note=saved.at("/report/reviewNote").asText();assertTrue(note.length()>1000);assertTrue(note.length()<=2000);
+        assertTrue(note.contains("마지막 추가 답변: "+last));assertTrue(note.contains("미분석 추가 답변: "+reply));
+        assertEquals(note,Db.str(db.one("SELECT review_note FROM reports WHERE id=?",id),"reviewNote"));
+        var admin=new Session().login("admin");assertEquals(note,admin.ok("GET","/admin/reports/"+id,null,200).path("reviewNote").asText());
+        assertEquals(id,student.ok("POST","/assistant/intake",body,200).at("/report/id").asLong());
+        assertEquals(1,Db.id(db.one("SELECT COUNT(*) total FROM reports"),"total"));
+    }
+    @Test void publicManualReviewNoteKeepsItsExistingThousandCharacterLimit()throws Exception{
+        var student=new Session().login("student1");var body=report("403");body.put("reviewNote","가".repeat(1001));
+        assertEquals("VALIDATION_ERROR",student.ok("POST","/reports",body,400).path("code").asText());
+        assertEquals(0,Db.id(db.one("SELECT COUNT(*) total FROM reports"),"total"));
     }
     @Test void hybridUrgentIncompleteReportIsAcceptedForReviewWithoutInterview()throws Exception{
         var student=new Session().login("student1");

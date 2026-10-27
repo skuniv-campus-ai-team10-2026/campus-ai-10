@@ -9,6 +9,19 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
 class IntakeServiceTest {
+    @Test void directReviewIncludesTypedButUnanalyzedAnswerWithoutAnotherAiCall(){
+        var ai=mock(AiService.class);var reports=mock(ReportService.class);var similarity=mock(SimilarityService.class);var db=mock(Db.class);
+        when(db.one(anyString(),anyLong(),anyString())).thenReturn(null);when(ai.mode()).thenReturn("LIVE");
+        when(ai.analyze(anyMap())).thenReturn(Map.of("intent","REPORT","report",Map.of("category","OTHER","subcategory","UNKNOWN","symptom","정수기 고장","building","은주2관","locationText","은주2관"),"followUpState",Map.of("status","CONTINUE","nextField","LOCATION","neededReasons",List.of("LOCATION_DETAIL"))));
+        when(reports.createFromAnalysis(eq(1L),anyMap(),anyBoolean())).thenAnswer(call->{var saved=new LinkedHashMap<String,Object>(call.getArgument(1));saved.put("id",19L);return saved;});
+        var service=new IntakeService(ai,reports,similarity,db);var session=new MockHttpSession();String key=UUID.randomUUID().toString();
+        service.intake(1,session,Map.of("clientRequestId",key,"text","은주2관 정수기가 고장났어요"));
+        var result=service.intake(1,session,Map.of("clientRequestId",key,"revision",1,"submitForReview",true,"answer","지하 1층인데 자세한 위치는 모르겠어요"));
+        var stored=(Map<?,?>)result.get("report");assertEquals("ACCEPTED",result.get("status"));
+        assertEquals("은주2관",stored.get("locationText"));assertEquals("정수기 고장",stored.get("symptom"));
+        assertTrue(stored.get("reviewNote").toString().contains("미분석 추가 답변: 지하 1층인데 자세한 위치는 모르겠어요"));
+        verify(ai,times(1)).analyze(anyMap());verify(reports).createFromAnalysis(eq(1L),anyMap(),eq(false));
+    }
     @Test void urgentIncompleteIntakeSavesForReviewWithoutAnotherQuestion(){
         var ai=mock(AiService.class);var reports=mock(ReportService.class);var similarity=mock(SimilarityService.class);var db=mock(Db.class);
         when(db.one(anyString(),anyLong(),anyString())).thenReturn(null);when(ai.mode()).thenReturn("LIVE");

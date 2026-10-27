@@ -15,19 +15,20 @@ public class ReportService {
     public static String field(Map<String,Object> b,String key,int max,boolean required){var v=b.get(key);if(v!=null&&!(v instanceof String))throw new ApiException(400,"VALIDATION_ERROR",key+" 형식이 올바르지 않습니다.");String s=v==null?null:((String)v).strip();if(s!=null&&s.isEmpty())s=null;if((required&&s==null)||(s!=null&&s.length()>max))throw new ApiException(400,"VALIDATION_ERROR",key+" 입력을 확인하세요.");return s;}
     @Transactional(isolation=Isolation.READ_COMMITTED)
     public Map<String,Object> create(long studentId,Map<String,Object> b){
-        return createReport(studentId,b,false);
+        return createReport(studentId,b,false,1000);
     }
     /** Internal intake entry: flag supplied by server-owned analysis, never request JSON. */
     @Transactional(isolation=Isolation.READ_COMMITTED)
     public Map<String,Object> createFromAnalysis(long studentId,Map<String,Object> b,boolean emergency){
-        return createReport(studentId,b,emergency);
+        // Two bounded 500-character replies plus server-owned review context must fit without truncation.
+        return createReport(studentId,b,emergency,2000);
     }
-    private Map<String,Object> createReport(long studentId,Map<String,Object> b,boolean emergency){
+    private Map<String,Object> createReport(long studentId,Map<String,Object> b,boolean emergency,int reviewNoteLimit){
         String request=field(b,"clientRequestId",36,true);try{if(!UUID.fromString(request).toString().equalsIgnoreCase(request))throw new IllegalArgumentException();}catch(Exception e){throw new ApiException(400,"VALIDATION_ERROR","요청 식별자는 UUID여야 합니다.");}
         String original=field(b,"originalText",5000,true);if(original.length()<5)throw new ApiException(400,"VALIDATION_ERROR","상황을 다섯 글자 이상 입력하세요.");
         String c=field(b,"category",32,true),s=field(b,"subcategory",50,true);Codes.type(c,s);
         String location=field(b,"locationText",200,false),building=field(b,"building",100,false),floor=field(b,"floor",20,false),symptom=field(b,"symptom",500,true),at=field(b,"occurredAtText",120,false),on=field(b,"occurredOn",10,false);
-        String kind=field(b,"requestKind",16,false),review=field(b,"reviewNote",1000,false);
+        String kind=field(b,"requestKind",16,false),review=field(b,"reviewNote",reviewNoteLimit,false);
         if(kind==null)kind="REPORT";
         if(!Set.of("REPORT","QUESTION").contains(kind))throw new ApiException(400,"VALIDATION_ERROR","접수 종류를 확인하세요.");
         if(on!=null){try{if(LocalDate.parse(on).isAfter(LocalDate.now(ZoneId.of("Asia/Seoul"))))throw new IllegalArgumentException();}catch(Exception e){throw new ApiException(400,"VALIDATION_ERROR","발생일은 유효한 오늘 이전 날짜여야 합니다.");}}

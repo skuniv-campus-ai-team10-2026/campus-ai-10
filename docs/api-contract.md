@@ -96,7 +96,7 @@
 - 최초 입력: `{clientRequestId: UUID, text: 5~4000자, preferredIntent?: AUTO|REPORT|QUESTION}`.
 - 추가 답변: `{clientRequestId, revision, answer: 1~500자}`. 이전 추출값·질문 횟수는 서버 세션에서 사용하며 클라이언트가 보낸 상태로 덮어쓰지 않는다.
 - 재개: `{clientRequestId, resume:true}`. 추가 AI 호출 없이 현재 결과 또는 이미 접수한 결과를 반환한다. 세션 초안이 만료되면 `409 DRAFT_EXPIRED`; 자동 재분석하지 않는다.
-- 더 설명하기 어렵거나 AI가 실패한 경우: `{clientRequestId, revision, submitForReview:true}`. 관리자 검토 이유를 저장하고 `NEEDS_REVIEW`로 접수한다.
+- 더 설명하기 어렵거나 AI가 실패한 경우: `{clientRequestId, revision, submitForReview:true, answer?: 1~500자}`. 입력 중인 답변은 추가 유료 분석 없이 미분석 자료로 함께 보존하고 `NEEDS_REVIEW`로 접수한다.
 - `NEEDS_INPUT`: `{status,revision,analysis,message,latestAnswer,aiMode}`. 실제 질문은 `analysis.report.followUpQuestion`.
 - `REVIEW_REQUIRED`: 같은 형식. 횟수 제한·무진전·충돌·AI 실패로 자동 접수하지 않고 검토 접수/수동 수정 선택 제공.
 - `ACCEPTED`: `{status,report,aiMode}`. `report.id`가 있어야 접수 성공 화면으로 이동한다.
@@ -105,6 +105,8 @@
 질문 기준은 문제 내용 우선이다. AI가 구체성이 부족하다고 추출한 내용과 서버의 모호한 표현 검사를 함께 사용한다. 일반 문의·학적 요청은 물리적 장소를 필수로 요구하지 않는다. 물리적 불편은 사용 가능한 장소가 필요하다. 유형 미분류·발생 시각 누락만으로 질문하지 않는다. 추가 답변 최대 3회, 연속 무진전 2회 종료 규칙 및 기존 안전 병합을 유지한다. 판단의 실제 LLM 일반화 정확도는 별도 LIVE 검증 대상이다.
 
 `reports`에 `requestKind: REPORT|QUESTION`(기존 행 기본 REPORT), `reviewNote: string|null` 추가. 검토 사유와 필요한 경우 마지막 추가 답변만 저장하며 전체 대화 이력을 만들지 않는다. 일반 문의는 관리자 답변 후 기존 RECEIVED → IN_PROGRESS → RESOLVED로 종료한다. 문의는 Embedding/유사 후보/사건 연결 대상에서 제외한다. 검토 메모가 있는 미확정 신고도 자동 유사 후보 생성에서 제외한다. 기존 동일 사건·재발 점수 임계값은 바꾸지 않았다.
+
+2026-10-27 검토 보완: V7에서 `review_note`를 `VARCHAR(2000)`으로 확장한다. 공개 `POST /reports`의 직접 입력 `reviewNote`는 기존 1000자 제한을 유지한다. 서버 내부 `createFromAnalysis`에서 조합한 메모만 최대 2000자를 허용해 마지막 분석 답변 500자와 미분석 답변 500자 및 안내 문구를 자르지 않고 보존한다. 외부 JSON으로 내부 한도를 선택할 수 없다. 와이파이 신고의 유효한 위치 답변 후에는 추가 진단 질문 없이 접수할 수 있으며, 이미 접수한 UUID에 대한 늦은 답변은 기존 접수 내용을 변경하지 않는다. 전기·전원이라는 일반 단어만으로 점검 설비가 확인됐다고 보지 않는다.
 
 발생 시점은 언급된 자연어 표현을 유지한다. `createdAt`은 자동 접수 시각이고 `occurredOn`과 구분하며, 상대 날짜를 임의로 확정 날짜로 변환하지 않는다. 학생이 직접 수정하는 기존 `/reports`는 `requestKind`(생략 시 REPORT)와 `reviewNote`를 선택적으로 받는다. 검토 메모가 있으면 자동 배정하지 않는다.
 

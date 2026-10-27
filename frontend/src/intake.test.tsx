@@ -39,7 +39,7 @@ it('keeps the answer on network failure and does not retry automatically',async(
 it('uses explicit administrator review when AI fails without claiming demo analysis',async()=>{
  vi.mocked(post).mockResolvedValueOnce({status:'REVIEW_REQUIRED',revision:1,analysis:null,aiMode:'LIVE',message:'AI 분석을 완료하지 못했습니다.'}).mockResolvedValueOnce({status:'ACCEPTED',aiMode:'LIVE',report:{id:22}});
  mount();const user=userEvent.setup();expect(await screen.findByText('AI 분석을 완료하지 못했습니다.')).toBeInTheDocument();
- expect(screen.queryByLabelText('추가 답변')).not.toBeInTheDocument();await user.click(screen.getByRole('button',{name:'더 설명하기 어려워요 · 관리자 검토로 접수'}));
+ expect(screen.queryByLabelText('추가 답변')).not.toBeInTheDocument();await user.click(screen.getByRole('button',{name:'이 내용으로 접수하기'}));
  expect(await screen.findByText('접수 완료 화면')).toBeInTheDocument();expect(vi.mocked(post).mock.calls[1][1]).toMatchObject({submitForReview:true,revision:1});
 });
 it('accepts a sufficient initial input directly from Home',async()=>{
@@ -52,7 +52,7 @@ it('accepts a sufficient initial input directly from Home',async()=>{
 it('allows administrator review during a question without an answer and preserves the original draft on failure',async()=>{
  vi.mocked(post).mockResolvedValueOnce(pending).mockRejectedValueOnce(new Error('연결 실패')).mockResolvedValueOnce({status:'ACCEPTED',aiMode:'LIVE',report:{id:24}});
  mount();const user=userEvent.setup();
- const review=await screen.findByRole('button',{name:'더 설명하기 어려워요 · 관리자 검토로 접수'});
+ const review=await screen.findByRole('button',{name:'이 내용으로 접수하기'});
  await waitFor(()=>expect(review).toBeEnabled());
  expect(screen.getByRole('button',{name:'내용 직접 수정'})).toBeEnabled();
  await user.click(review);
@@ -72,4 +72,28 @@ it('allows editing the existing input while a follow-up question is shown',async
  expect(edit).toHaveBeenCalledTimes(1);
  expect(JSON.parse(sessionStorage.getItem('skope-draft')!).originalText).toBe(draft.originalText);
  expect(post).toHaveBeenCalledTimes(1);
+});
+
+it('keeps the actual question visible while typing and shows cumulative facts with the original input',async()=>{
+ const question='어느 층이나 공간에서 발생하나요?';
+ const next:IntakeResult={...pending,latestAnswer:'정수기',analysis:{...pending.analysis!,report:{category:'OTHER',subcategory:'UNKNOWN',symptom:'정수기 고장',locationText:'은주2관',followUpQuestion:question},clarification:{reason:'LOCATION_DETAIL',message:'담당자가 확인할 장소를 정하기 위해 필요해요.',neededReasons:['LOCATION_DETAIL'],source:'SERVER_RULES'}}};
+ vi.mocked(post).mockResolvedValueOnce(next);mount();
+ await waitFor(()=>expect(screen.getByRole('button',{name:'답변 보내기'})).toBeEnabled());
+ const user=userEvent.setup();await user.type(screen.getByLabelText('추가 답변'),'지하 1층');
+ expect(screen.getByRole('heading',{name:question})).toBeVisible();
+ expect(screen.getByLabelText('추가 답변')).toHaveAccessibleDescription(question);
+ expect(screen.getByText(draft.originalText)).toBeInTheDocument();
+ expect(screen.getByText('정수기 고장')).toBeVisible();expect(screen.getByText('은주2관')).toBeVisible();
+ expect(screen.getByText('마지막 답변: 정수기')).toBeInTheDocument();
+ expect(screen.queryByPlaceholderText(/냉난방/)).not.toBeInTheDocument();
+});
+
+it('includes a typed reply when submitting directly for review without another analysis request',async()=>{
+ vi.mocked(post).mockResolvedValueOnce(pending).mockResolvedValueOnce({status:'ACCEPTED',aiMode:'LIVE',report:{id:25}});
+ mount();const user=userEvent.setup();await waitFor(()=>expect(screen.getByRole('button',{name:'이 내용으로 접수하기'})).toBeEnabled());
+ await user.type(screen.getByLabelText('추가 답변'),'지하 1층인데 자세한 위치는 모르겠어요');
+ await user.click(screen.getByRole('button',{name:'이 내용으로 접수하기'}));
+ expect(await screen.findByText('접수 완료 화면')).toBeInTheDocument();
+ expect(post).toHaveBeenNthCalledWith(2,'/assistant/intake',{clientRequestId:draft.clientRequestId,revision:1,submitForReview:true,answer:'지하 1층인데 자세한 위치는 모르겠어요'});
+ expect(post).toHaveBeenCalledTimes(2);
 });

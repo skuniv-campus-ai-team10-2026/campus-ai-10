@@ -35,13 +35,15 @@ final class ClarificationPolicy {
         if(wifiEvidence!=null)known.put("symptomEvidence",wifiEvidence);
         String symptom=text(report,"symptom"), place=text(report,"locationText"), building=text(report,"building");
         String current=compact(symptom), type=text(report,"subcategory");
+        boolean observedFault=FollowUpPolicy.observedFault(field==null?original:symptomChanged?answer:original)!=null;
         boolean academic="ACADEMIC".equals(report.get("category"));
         boolean physical=!"QUESTION".equals(intent)&&!academic;
         List<?> missing=report.get("missingFields") instanceof List<?> l?l:List.of();
         List<?> reviews=state.get("reviewFields") instanceof List<?> l?l:List.of();
         var needed=new LinkedHashSet<String>();
         if(missing.contains("SYMPTOM"))needed.add("ISSUE_UNCLEAR");
-        if(reviews.stream().anyMatch(x->!"OCCURRED_AT".equals(x)))needed.add("CONFLICT");
+        // Uncertain classification is an administrator task, not a student interview.
+        if(reviews.stream().anyMatch(x->!"OCCURRED_AT".equals(x)&&!"CATEGORY".equals(x)))needed.add("CONFLICT");
         if(physical) {
             if(missing.contains("LOCATION"))needed.add("LOCATION_REQUIRED");
             else {
@@ -53,7 +55,7 @@ final class ClarificationPolicy {
                 if(!scope&&!detailed)needed.add("LOCATION_DETAIL");
             }
             if(type.equals("WIFI")&&!wifiDetail(compact(known.get("symptomEvidence"))))needed.add("SYMPTOM_DETAIL");
-            if(type.equals("ELECTRIC")&&!target(compact(field!=null&&symptomChanged?answer:original+"\n"+answer))&&!concreteTarget(known.get("targetEvidence")))needed.add("TARGET_UNCLEAR");
+            if(type.equals("ELECTRIC")&&!observedFault&&!target(compact(field!=null&&symptomChanged?answer:original+"\n"+answer))&&!concreteTarget(known.get("targetEvidence")))needed.add("TARGET_UNCLEAR");
             if(type.equals("UNKNOWN")&&current.matches(".*(?:시설|설비|장비|기기|뭔가).*(?:고장|이상|안됨|안돼).*" )&&!target(current)&&known.get("targetEvidence")==null)needed.add("TARGET_UNCLEAR");
         }
         String proposedReason=Objects.toString(suggestion.get("reason"),"NONE");
@@ -63,10 +65,14 @@ final class ClarificationPolicy {
                 &&(current.matches(".*(?:신청|발급|휴학|복학|등록|졸업).*(?:안돼|안됨|안되|어려|문제|불편).*")||grounded&&proposedReason.equals("WORKFLOW_UNCLEAR")))needed.add("WORKFLOW_UNCLEAR");
         // Generic OTHER problems can benefit from a grounded semantic ambiguity, without requiring a known category.
         if(grounded&&type.equals("UNKNOWN")&&!missing.contains("SYMPTOM")) {
-            if(proposedReason.equals("SYMPTOM_DETAIL")&&!usefulSymptom(known.get("symptomEvidence")))needed.add(proposedReason);
-            if(proposedReason.equals("TARGET_UNCLEAR")&&physical&&!target(current)&&known.get("targetEvidence")==null)needed.add(proposedReason);
+            if(proposedReason.equals("SYMPTOM_DETAIL")&&!observedFault&&!usefulSymptom(known.get("symptomEvidence")))needed.add(proposedReason);
+            if(proposedReason.equals("TARGET_UNCLEAR")&&physical&&!observedFault&&!target(current)&&known.get("targetEvidence")==null)needed.add(proposedReason);
         }
         if(field!=null&&!last.isBlank()&&cannotAnswer(answer))unavailable.add(last);
+        // Once a useful location reply makes the report actionable, further diagnosis is optional.
+        // This does not waive unknown targets, unspecified issues or contradictory information.
+        if(field!=null && last.startsWith("LOCATION") && ((Number)state.getOrDefault("noProgress",0)).intValue()==0
+                && needed.equals(Set.of("SYMPTOM_DETAIL")) && !missing.contains("SYMPTOM"))needed.remove("SYMPTOM_DETAIL");
         // A newly supplied fact can resolve a formerly unavailable item, but asking again cannot.
         unavailable.retainAll(needed);
         var unresolvedAsked=new LinkedHashSet<>(needed);unresolvedAsked.retainAll(asked);
@@ -125,10 +131,10 @@ final class ClarificationPolicy {
     }
     private static boolean concreteTarget(String value){
         String s=compact(value);
-        return FollowUpPolicy.validText(value)&&!s.matches("(?:시설|설비|장비|기기|전기|뭔가|그것|무언가)(?:문제)?")&&!s.matches(".*(?:인지|모르|아마).*" );
+        return FollowUpPolicy.validText(value)&&!s.matches("(?:시설|설비|장비|기기|전기(?:시설|설비|장비|기기)?|전원|전력|뭔가|그것|무언가)(?:문제)?")&&!s.matches(".*(?:인지|모르|아마).*" );
     }
     private static boolean usefulSymptom(String value){String s=compact(value);return !s.isBlank()&&!s.matches(".*(?:와이파이|인터넷|시설|문제)(?:가|이|는|은)?(?:잘)?(?:안됨|안돼요|안됩니다|되지않는것같습니다|되지않아요|이상해요|문제있음)[.!?]*");}
-    private static boolean target(String s){return s.matches(".*(?:멀티탭|플러그|분전함|배전반|콘센트|조명|전등|전구|형광등|차단기|스위치|정전|전원|의자|책상|에어컨|난방|창문|문손잡이|엘리베이터|수도꼭지|배관|천장).*" );}
+    private static boolean target(String s){return s.matches(".*(?:멀티탭|플러그|분전함|배전반|콘센트|조명|전등|전구|형광등|차단기|스위치|정전|의자|책상|에어컨|난방|창문|문손잡이|엘리베이터|수도꼭지|배관|천장).*" );}
     private static boolean workflow(String s){return s.matches(".*(?:절차|방법|어떻게|신청전|신청중|제출후|신청후|신청했|제출했|제출완료|처리상태|승인|대기|접수상태|오류메시지|버튼|화면|로그인|제출이|제출안|제출되지).*" );}
     private static String text(Map<String,Object> map,String key){return Objects.toString(map.get(key),"");}
     private static String compact(String s){return s==null?"":s.replaceAll("\\s+","").toLowerCase(Locale.ROOT);}
@@ -141,10 +147,10 @@ final class ClarificationPolicy {
         default->"담당자가 어떤 문제를 처리해야 하는지 알아야 해요.";};}
     private static String question(String reason,String type,boolean academic,String intent){return switch(reason){
         case "LOCATION_REQUIRED"->"어느 건물이나 장소에서 발생했나요?";
-        case "LOCATION_DETAIL"->"어느 층이나 공간에서 발생하나요? 건물 전체에서 생기는 문제라면 그렇게 알려주세요.";
+        case "LOCATION_DETAIL"->"어느 층이나 어느 쪽에서 발생했나요?";
         case "SYMPTOM_DETAIL"->type.equals("WIFI")?"와이파이 연결 자체가 안 되나요, 연결 후 인터넷이 안 되나요? 끊기거나 느린 경우도 알려주세요.":"어떤 동작을 할 때 어떻게 문제가 나타나나요? 직접 겪은 현상만 알려주세요.";
         case "TARGET_UNCLEAR"->"어떤 설비나 물건에 문제가 있나요? 담당자가 찾을 수 있게 알려주세요.";
         case "WORKFLOW_UNCLEAR"->"신청 방법이 궁금한가요, 신청 중 오류가 나나요, 아니면 제출 후 처리가 진행되지 않나요?";
         case "CONFLICT"->"앞서 알려주신 정보와 다른 부분이 있어요. 확실한 장소나 문제 내용만 다시 알려주세요.";
-        default->academic||intent.equals("QUESTION")?"어떤 내용을 문의하고 싶으신가요? 궁금한 점이나 겪고 있는 문제를 조금만 구체적으로 알려주세요.":"어떤 점이 불편한가요? 실제 문제를 알려주세요.\n예: 냉난방, 책상의자, 소음";};}
+        default->academic||intent.equals("QUESTION")?"어떤 내용을 문의하고 싶으신가요? 궁금한 점이나 겪고 있는 문제를 조금만 구체적으로 알려주세요.":"어떤 점이 불편한가요? 직접 겪은 문제를 알려주세요.";};}
 }

@@ -1,0 +1,352 @@
+{
+  "fixtureSha256" : "cc48e05996e66a71613038e3e0d28de450778fb8f6a96b9eeb9b631625887d9d",
+  "suite" : "intake-review-v1",
+  "sourceHashes" : {
+    "AiService.java" : "8982e3786ce49b509be03cdb0199cd6bb5d68ec97def7594e7ec57751dbccc59",
+    "ClarificationPolicy.java" : "b0de3f2d78db06e64e08c5a6a4f7499b01d6800f1320c9a6ce0d2156aec1dc39",
+    "EmergencySignals.java" : "1866dc34cc23629a0b9af8b106b136f2148d45157ef20d79f058761a1d17fe07",
+    "FollowUpPolicy.java" : "80cca807e0c36754b728abaa7b5f5cb8e39269cb47e7a88cfdd008b842000af6"
+  },
+  "evaluatedAt" : "2026-10-27T18:44:45.918341100+09:00",
+  "promptVersion" : "hybrid-intake-v3",
+  "policyVersion" : "hybrid-check-v5",
+  "model" : "gpt-6-luna",
+  "labelLimitation" : "Codex-authored synthetic DEVELOPMENT regressions, expectations frozen before LIVE. Not independently human-reviewed and not an independent accuracy estimate. Three LLM calls maximum, no embedding or application DB writes, no automatic paid retry.",
+  "scope" : "Production AiService only; no DEMO, embeddings, browser or DB writes. Local API integration tested separately.",
+  "preflight" : {
+    "conservativeMaximumUsd" : 0.030143999999999997,
+    "maxCalls" : 3,
+    "plannedCalls" : 3,
+    "pricingDate" : "2026-10-27",
+    "budgetUsd" : 0.05,
+    "automaticRetries" : 0,
+    "pricingSource" : "https://developers.openai.com/api/docs/models/gpt-6-luna"
+  },
+  "rows" : [ {
+    "id" : "R1-1",
+    "expected" : {
+      "expectedStatus" : "CONTINUE",
+      "allowedReasons" : [ "LOCATION_DETAIL" ],
+      "equals" : {
+        "/report/building" : "은주2관"
+      },
+      "contains" : {
+        "/report/symptom" : "정수기"
+      }
+    },
+    "input" : {
+      "hybrid" : true,
+      "preferredIntent" : "AUTO",
+      "text" : "은주2관에 정수기가 고장났어요."
+    },
+    "rawModelOutput" : {
+      "intent" : "REPORT",
+      "report" : {
+        "category" : "OTHER",
+        "subcategory" : "UNKNOWN",
+        "locationText" : "은주2관",
+        "building" : "은주2관",
+        "floor" : null,
+        "symptom" : "정수기가 고장남",
+        "occurredAtText" : null,
+        "followUpQuestion" : "정수기가 있는 층이나 주변 위치를 알려주시겠어요?",
+        "missingFields" : [ "LOCATION" ],
+        "emergencyHint" : false
+      },
+      "assessment" : {
+        "reason" : "LOCATION_DETAIL",
+        "evidence" : "은주2관",
+        "rationale" : "건물은 확인되지만 고장 난 정수기의 구체적인 위치가 필요합니다.",
+        "question" : "정수기가 있는 층이나 주변 위치를 알려주시겠어요?",
+        "known" : {
+          "locationEvidence" : null,
+          "scopeEvidence" : null,
+          "symptomEvidence" : null,
+          "targetEvidence" : "정수기",
+          "workflowEvidence" : null
+        }
+      }
+    },
+    "actual" : {
+      "intent" : "REPORT",
+      "report" : {
+        "category" : "OTHER",
+        "subcategory" : "UNKNOWN",
+        "locationText" : "은주2관",
+        "building" : "은주2관",
+        "floor" : null,
+        "symptom" : "정수기가 고장남",
+        "occurredAtText" : null,
+        "followUpQuestion" : "어느 층이나 어느 쪽에서 발생했나요?",
+        "missingFields" : [ ],
+        "emergencyHint" : false
+      },
+      "clarification" : {
+        "reason" : "LOCATION_DETAIL",
+        "neededReasons" : [ "LOCATION_DETAIL" ],
+        "message" : "담당자가 확인할 장소를 정하기 위해 필요해요.",
+        "source" : "AI_AND_RULES"
+      },
+      "followUpState" : {
+        "turns" : 0,
+        "noProgress" : 0,
+        "askedFields" : [ ],
+        "reviewFields" : [ ],
+        "status" : "CONTINUE",
+        "nextField" : "LOCATION",
+        "nextReason" : "LOCATION_DETAIL",
+        "askedReasons" : [ ],
+        "unavailableReasons" : [ ],
+        "knownEvidence" : {
+          "targetEvidence" : "정수기"
+        },
+        "neededReasons" : [ "LOCATION_DETAIL" ],
+        "urgentReview" : false
+      },
+      "aiMode" : "LIVE"
+    },
+    "failedChecks" : [ ],
+    "status" : "PASS",
+    "source" : "NEW_LIVE",
+    "cacheKey" : "a113f0758595cd5596d2b0b8c366c9c21549998fd25188cc265d8f6118eae786"
+  }, {
+    "id" : "R1-2",
+    "expected" : {
+      "answer" : "지하 1층이요.",
+      "expectedStatus" : "COMPLETE",
+      "equals" : {
+        "/report/building" : "은주2관",
+        "/report/floor" : "B1",
+        "/report/occurredAtText" : null
+      },
+      "contains" : {
+        "/report/symptom" : "정수기"
+      }
+    },
+    "input" : {
+      "hybrid" : true,
+      "preferredIntent" : "AUTO",
+      "text" : "은주2관에 정수기가 고장났어요.",
+      "followUp" : {
+        "previousReport" : {
+          "category" : "OTHER",
+          "subcategory" : "UNKNOWN",
+          "locationText" : "은주2관",
+          "building" : "은주2관",
+          "floor" : null,
+          "symptom" : "정수기가 고장남",
+          "occurredAtText" : null,
+          "followUpQuestion" : "어느 층이나 어느 쪽에서 발생했나요?",
+          "missingFields" : [ ],
+          "emergencyHint" : false
+        },
+        "field" : "LOCATION",
+        "state" : {
+          "turns" : 0,
+          "noProgress" : 0,
+          "askedFields" : [ ],
+          "reviewFields" : [ ],
+          "status" : "CONTINUE",
+          "nextField" : "LOCATION",
+          "nextReason" : "LOCATION_DETAIL",
+          "askedReasons" : [ ],
+          "unavailableReasons" : [ ],
+          "knownEvidence" : {
+            "targetEvidence" : "정수기"
+          },
+          "neededReasons" : [ "LOCATION_DETAIL" ],
+          "urgentReview" : false
+        },
+        "answer" : "지하 1층이요."
+      }
+    },
+    "rawModelOutput" : {
+      "intent" : "REPORT",
+      "report" : {
+        "category" : "OTHER",
+        "subcategory" : "UNKNOWN",
+        "locationText" : "은주2관 지하 1층",
+        "building" : "은주2관",
+        "floor" : "B1",
+        "symptom" : "정수기가 고장남",
+        "occurredAtText" : null,
+        "followUpQuestion" : null,
+        "missingFields" : [ ],
+        "emergencyHint" : false
+      },
+      "assessment" : {
+        "reason" : "NONE",
+        "evidence" : null,
+        "rationale" : null,
+        "question" : null,
+        "known" : {
+          "locationEvidence" : "지하 1층이요.",
+          "scopeEvidence" : null,
+          "symptomEvidence" : null,
+          "targetEvidence" : null,
+          "workflowEvidence" : null
+        }
+      },
+      "updates" : {
+        "LOCATION" : {
+          "action" : "SET",
+          "evidence" : "지하 1층이요."
+        },
+        "SYMPTOM" : {
+          "action" : "KEEP",
+          "evidence" : null
+        },
+        "OCCURRED_AT" : {
+          "action" : "KEEP",
+          "evidence" : null
+        },
+        "CATEGORY" : {
+          "action" : "KEEP",
+          "evidence" : null
+        }
+      }
+    },
+    "actual" : {
+      "intent" : "REPORT",
+      "report" : {
+        "category" : "OTHER",
+        "subcategory" : "UNKNOWN",
+        "locationText" : "은주2관 B1층",
+        "building" : "은주2관",
+        "floor" : "B1",
+        "symptom" : "정수기가 고장남",
+        "occurredAtText" : null,
+        "followUpQuestion" : null,
+        "missingFields" : [ ],
+        "emergencyHint" : false
+      },
+      "clarification" : {
+        "reason" : null,
+        "neededReasons" : [ ],
+        "message" : null,
+        "source" : "SERVER_RULES"
+      },
+      "followUpState" : {
+        "turns" : 1,
+        "noProgress" : 0,
+        "askedFields" : [ "LOCATION" ],
+        "reviewFields" : [ ],
+        "status" : "COMPLETE",
+        "nextField" : null,
+        "nextReason" : null,
+        "askedReasons" : [ "LOCATION_DETAIL" ],
+        "unavailableReasons" : [ ],
+        "knownEvidence" : {
+          "targetEvidence" : "정수기"
+        },
+        "neededReasons" : [ ],
+        "urgentReview" : false
+      },
+      "aiMode" : "LIVE"
+    },
+    "failedChecks" : [ ],
+    "status" : "PASS",
+    "source" : "NEW_LIVE",
+    "cacheKey" : "093a4572af8139c55f1354dffa62cf3da79a0be7816a50fedeea8b297773b9b6"
+  }, {
+    "id" : "R2-1",
+    "expected" : {
+      "expectedStatus" : "CONTINUE",
+      "allowedReasons" : [ "TARGET_UNCLEAR", "ISSUE_UNCLEAR" ],
+      "equals" : {
+        "/report/building" : "은주2관",
+        "/report/emergencyHint" : false
+      }
+    },
+    "input" : {
+      "hybrid" : true,
+      "preferredIntent" : "AUTO",
+      "text" : "은주2관 403호 전기가 고장났어요."
+    },
+    "rawModelOutput" : {
+      "intent" : "REPORT",
+      "report" : {
+        "category" : "FACILITY",
+        "subcategory" : "ELECTRIC",
+        "locationText" : "은주2관 403호",
+        "building" : "은주2관",
+        "floor" : "4",
+        "symptom" : "전기 고장",
+        "occurredAtText" : null,
+        "followUpQuestion" : "전기 시설 중 어떤 부분에 문제가 있나요?",
+        "missingFields" : [ "SYMPTOM" ],
+        "emergencyHint" : false
+      },
+      "assessment" : {
+        "reason" : "SYMPTOM_DETAIL",
+        "evidence" : "전기가 고장났어요",
+        "rationale" : "전기 시설의 구체적인 문제가 무엇인지 확인해야 처리할 수 있습니다.",
+        "question" : "전기 시설 중 어떤 부분에 문제가 있나요?",
+        "known" : {
+          "locationEvidence" : "403호",
+          "scopeEvidence" : null,
+          "symptomEvidence" : null,
+          "targetEvidence" : null,
+          "workflowEvidence" : null
+        }
+      }
+    },
+    "actual" : {
+      "intent" : "REPORT",
+      "report" : {
+        "category" : "FACILITY",
+        "subcategory" : "ELECTRIC",
+        "locationText" : "은주2관 403호",
+        "building" : "은주2관",
+        "floor" : "4",
+        "symptom" : "전기 고장",
+        "occurredAtText" : null,
+        "followUpQuestion" : "어떤 점이 불편한가요? 직접 겪은 문제를 알려주세요.",
+        "missingFields" : [ "SYMPTOM" ],
+        "emergencyHint" : false
+      },
+      "clarification" : {
+        "reason" : "ISSUE_UNCLEAR",
+        "neededReasons" : [ "ISSUE_UNCLEAR", "CONFLICT", "TARGET_UNCLEAR" ],
+        "message" : "담당자가 어떤 문제를 처리해야 하는지 알아야 해요.",
+        "source" : "SERVER_RULES"
+      },
+      "followUpState" : {
+        "turns" : 0,
+        "noProgress" : 0,
+        "askedFields" : [ ],
+        "reviewFields" : [ "SYMPTOM" ],
+        "status" : "CONTINUE",
+        "nextField" : "SYMPTOM",
+        "nextReason" : "ISSUE_UNCLEAR",
+        "askedReasons" : [ ],
+        "unavailableReasons" : [ ],
+        "knownEvidence" : {
+          "locationEvidence" : "403호"
+        },
+        "neededReasons" : [ "ISSUE_UNCLEAR", "CONFLICT", "TARGET_UNCLEAR" ],
+        "urgentReview" : false
+      },
+      "aiMode" : "LIVE"
+    },
+    "failedChecks" : [ ],
+    "status" : "PASS",
+    "source" : "NEW_LIVE",
+    "cacheKey" : "1aa2fb4f0da53f32fc85639a1004a961bc6a271c6aa4603a3ed065c3cc3c79e1"
+  } ],
+  "measurement" : {
+    "cumulativeAttempts" : 3,
+    "estimatedNewCostUsd" : 8.752E-4,
+    "newCalls" : 3,
+    "inputTokens" : 5997,
+    "cacheHits" : 0,
+    "embeddingCalls" : 0,
+    "automaticRetries" : 0,
+    "outputTokens" : 551
+  },
+  "summary" : {
+    "pass" : 3,
+    "fail" : 0,
+    "unverified" : 0
+  }
+}

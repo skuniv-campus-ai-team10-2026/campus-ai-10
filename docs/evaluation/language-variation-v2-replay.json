@@ -1,11 +1,9 @@
 {
-  "promptVersion" : "hybrid-intake-v2",
-  "policyVersion" : "hybrid-check-v3",
-  "sourceSha256" : "8a47159e54decbc14ab14b1552bd01766f040110d080eb8f862c68e93c29413d",
-  "calls" : 0,
+  "promptVersion" : "hybrid-intake-v3",
   "rows" : [ {
-    "id" : "P1-standard",
     "source" : "CACHED_REAL_RESPONSE_NO_NEW_INFERENCE",
+    "id" : "P1-standard",
+    "semanticStatus" : "PASS",
     "actual" : {
       "intent" : "REPORT",
       "report" : {
@@ -45,11 +43,11 @@
         "urgentReview" : false
       },
       "aiMode" : "LIVE"
-    },
-    "semanticStatus" : "PASS"
+    }
   }, {
-    "id" : "P1-variant",
     "source" : "CACHED_REAL_RESPONSE_NO_NEW_INFERENCE",
+    "id" : "P1-variant",
+    "semanticStatus" : "PASS",
     "actual" : {
       "intent" : "REPORT",
       "report" : {
@@ -89,11 +87,11 @@
         "urgentReview" : false
       },
       "aiMode" : "LIVE"
-    },
-    "semanticStatus" : "PASS"
+    }
   }, {
-    "id" : "P2-standard",
     "source" : "CACHED_REAL_RESPONSE_NO_NEW_INFERENCE",
+    "id" : "P2-standard",
+    "semanticStatus" : "PASS",
     "actual" : {
       "intent" : "REPORT",
       "report" : {
@@ -133,11 +131,11 @@
         "urgentReview" : false
       },
       "aiMode" : "LIVE"
-    },
-    "semanticStatus" : "PASS"
+    }
   }, {
-    "id" : "P2-variant",
     "source" : "CACHED_REAL_RESPONSE_NO_NEW_INFERENCE",
+    "id" : "P2-variant",
+    "semanticStatus" : "PASS",
     "actual" : {
       "intent" : "REPORT",
       "report" : {
@@ -177,11 +175,11 @@
         "urgentReview" : false
       },
       "aiMode" : "LIVE"
-    },
-    "semanticStatus" : "PASS"
+    }
   }, {
-    "id" : "P3-standard",
     "source" : "CACHED_REAL_RESPONSE_NO_NEW_INFERENCE",
+    "id" : "P3-standard",
+    "semanticStatus" : "PASS",
     "actual" : {
       "intent" : "REPORT",
       "report" : {
@@ -221,11 +219,11 @@
         "urgentReview" : false
       },
       "aiMode" : "LIVE"
-    },
-    "semanticStatus" : "PASS"
+    }
   }, {
-    "id" : "P3-variant",
     "source" : "CACHED_REAL_RESPONSE_NO_NEW_INFERENCE",
+    "id" : "P3-variant",
+    "semanticStatus" : "PASS",
     "actual" : {
       "intent" : "REPORT",
       "report" : {
@@ -265,11 +263,11 @@
         "urgentReview" : false
       },
       "aiMode" : "LIVE"
-    },
-    "semanticStatus" : "PASS"
+    }
   }, {
-    "id" : "P4-standard",
     "source" : "CACHED_REAL_RESPONSE_NO_NEW_INFERENCE",
+    "id" : "P4-standard",
+    "semanticStatus" : "PASS",
     "actual" : {
       "intent" : "REPORT",
       "report" : {
@@ -308,11 +306,11 @@
         "urgentReview" : false
       },
       "aiMode" : "LIVE"
-    },
-    "semanticStatus" : "PASS"
+    }
   }, {
-    "id" : "P4-variant",
     "source" : "CACHED_REAL_RESPONSE_NO_NEW_INFERENCE",
+    "id" : "P4-variant",
+    "semanticStatus" : "KNOWN_MODEL_FAILURE_REQUIRES_NEW_PROMPT_LIVE",
     "actual" : {
       "intent" : "UNKNOWN",
       "report" : {
@@ -323,7 +321,7 @@
         "floor" : "5",
         "symptom" : null,
         "occurredAtText" : null,
-        "followUpQuestion" : "어떤 점이 불편한가요? 냉난방, 책상·의자, 소음처럼 실제 문제를 알려주세요.",
+        "followUpQuestion" : "어떤 점이 불편한가요? 직접 겪은 문제를 알려주세요.",
         "missingFields" : [ "SYMPTOM" ],
         "emergencyHint" : false
       },
@@ -350,11 +348,11 @@
         "urgentReview" : false
       },
       "aiMode" : "LIVE"
-    },
-    "semanticStatus" : "KNOWN_MODEL_FAILURE_REQUIRES_NEW_PROMPT_LIVE"
+    }
   }, {
-    "id" : "P5-standard",
     "source" : "CACHED_REAL_RESPONSE_NO_NEW_INFERENCE",
+    "id" : "P5-standard",
+    "semanticStatus" : "PASS",
     "actual" : {
       "intent" : "REPORT",
       "report" : {
@@ -394,11 +392,11 @@
         "urgentReview" : false
       },
       "aiMode" : "LIVE"
-    },
-    "semanticStatus" : "PASS"
+    }
   }, {
-    "id" : "P5-variant",
     "source" : "CACHED_REAL_RESPONSE_NO_NEW_INFERENCE",
+    "id" : "P5-variant",
+    "semanticStatus" : "PASS",
     "actual" : {
       "intent" : "REPORT",
       "report" : {
@@ -438,11 +436,11 @@
         "urgentReview" : false
       },
       "aiMode" : "LIVE"
-    },
-    "semanticStatus" : "PASS"
+    }
   }, {
+    "source" : "CACHED_REAL_RESPONSE_NO_NEW_INFERENCE",
     "id" : "P6-standard",
-    "source" : "CACHED_REAL_RESPONSE_NO_NEW_INFERENCE",
+    "semanticStatus" : "PASS",
     "actual" : {
       "intent" : "UNKNOWN",
       "report" : {
@@ -453,7 +451,7 @@
         "floor" : null,
         "symptom" : null,
         "occurredAtText" : null,
-        "followUpQuestion" : "어떤 점이 불편한가요? 냉난방, 책상·의자, 소음처럼 실제 문제를 알려주세요.",
+        "followUpQuestion" : "어떤 점이 불편한가요? 직접 겪은 문제를 알려주세요.",
         "missingFields" : [ "SYMPTOM", "LOCATION" ],
         "emergencyHint" : false
       },
@@ -478,11 +476,11 @@
         "urgentReview" : false
       },
       "aiMode" : "LIVE"
-    },
-    "semanticStatus" : "PASS"
+    }
   }, {
-    "id" : "P6-variant",
     "source" : "CACHED_REAL_RESPONSE_NO_NEW_INFERENCE",
+    "id" : "P6-variant",
+    "semanticStatus" : "PASS",
     "actual" : {
       "intent" : "UNKNOWN",
       "report" : {
@@ -493,7 +491,7 @@
         "floor" : null,
         "symptom" : null,
         "occurredAtText" : null,
-        "followUpQuestion" : "어떤 점이 불편한가요? 냉난방, 책상·의자, 소음처럼 실제 문제를 알려주세요.",
+        "followUpQuestion" : "어떤 점이 불편한가요? 직접 겪은 문제를 알려주세요.",
         "missingFields" : [ "SYMPTOM", "LOCATION" ],
         "emergencyHint" : false
       },
@@ -518,7 +516,9 @@
         "urgentReview" : false
       },
       "aiMode" : "LIVE"
-    },
-    "semanticStatus" : "PASS"
-  } ]
+    }
+  } ],
+  "calls" : 0,
+  "sourceSha256" : "257efc330ee17c002ac88543f831b42cec72b6bade4f9ede33a368420614e8fa",
+  "policyVersion" : "hybrid-check-v5"
 }
