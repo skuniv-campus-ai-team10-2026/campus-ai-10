@@ -53,6 +53,7 @@
 | GET `/reports` | STUDENT | `page=0,size=20,status?` | 본인 신고 페이지 |
 | GET `/reports/{id}` | STUDENT | 양의 ID | 본인 `ReportDetail` |
 | GET `/admin/reports` | ADMIN / DEPT_ADMIN | `page=0,size=20,status?,routeStatus?,transferRequested=false` | 총괄 전체 / 부서 소속 신고 페이지 |
+| GET `/admin/ai-usage` | ADMIN 전용 | 없음 | 현재 기간의 호출·토큰·추정 비용·예약·한도·차단 상태 |
 | GET `/admin/reports/{id}` | ADMIN / DEPT_ADMIN | ID | `ReportDetail` + `events` |
 | PATCH `/admin/reports/{id}/status` | ADMIN / DEPT_ADMIN + CSRF | `{status,resolutionText?}` | 갱신된 관리자 신고 상세 |
 | PATCH `/admin/reports/{id}/routing` | ADMIN + CSRF | `{routingRuleId,reason?}` | 갱신된 관리자 신고 상세 |
@@ -82,7 +83,7 @@
 | 항목 | 값 |
 |---|---|
 | 역할 | `STUDENT`, `ADMIN`(총괄), `DEPT_ADMIN`(부서) |
-| 분류 조합 | `IT/WIFI`, `FACILITY/ELECTRIC`, `FACILITY/LEAK`, `ACADEMIC/STUDENT_RECORD`, `OTHER/UNKNOWN` |
+| 분류 조합 | `IT/WIFI`, `FACILITY/ELECTRIC`, `FACILITY/LEAK`, `FACILITY/HVAC`, `FACILITY/WATER_DISPENSER`, `FACILITY/FURNITURE`, `ACADEMIC/STUDENT_RECORD`, `OTHER/UNKNOWN` |
 | 선호 의도 | `AUTO`, `REPORT`, `QUESTION` |
 | 분석 의도 | `REPORT`, `QUESTION`, `UNKNOWN` |
 | 신고 상태 | `RECEIVED`, `IN_PROGRESS`, `RESOLVED` |
@@ -93,6 +94,14 @@
 | 시간 근거 | `CONFIRMED_OCCURRENCE`, `REPORTED_AT_ONLY` |
 
 유형 코드가 허용된다는 것과 검증된 자동 라우팅 규칙이 있다는 것은 다르다. `RoutingRule`은 활성 부서·활성 규칙이고 규칙의 `verifiedAt`, `sourceUrl`이 존재할 때 조회된다. 유형 목록에는 `{id,category,subcategory,workName,departmentName,contactPhone,sourceUrl,verified:true}` 및 DB 메타데이터가 들어간다. 수동 유형 선택에는 미매칭 유형도 허용되며 담당 부서는 서버에서 다시 결정한다.
+
+## 부서 매칭·사용량 응답 (V8 통합)
+
+- 냉난방 `HVAC`, 정수기 `WATER_DISPENSER`는 공식 확인 경로가 아닌 시연 규칙이며 `DEMO_ROUTING_ENABLED=true`에서만 신규 자동 배정된다. 집기 `FURNITURE`는 규칙이 없어 총괄 검토 대상이다. 시연 규칙은 미검증 연락처를 노출하지 않는다.
+- 관리자 신고 목록·상세에 `unassignedReason`을 추가한다. 배정 시 null, 미배정 시 검토 메모 `REVIEW_HOLD` → 미분류 `AI_UNCLASSIFIED` → 현장 장소 부족 `LOCATION_MISSING` → 나머지 `NO_RULE` 순서로 계산한다. 학생 응답에는 제공하지 않는다.
+- `/admin/ai-usage`: `{period,periodKey,limits:{maxUsd,maxLlmCalls,maxEmbeddingCalls},used:{llmCalls,llmInputTokens,llmOutputTokens,embeddingCalls,embeddingTokens,estimatedSpentUsd,reservedUsd},blockedCalls,llmBlocked,embeddingBlocked,note,aiMode,embeddingMode}`. 부서 관리자·학생 403, 미로그인 401. 조회에 AI 호출은 없다.
+- `llmBlocked`/`embeddingBlocked`는 현재 누적값이 한도에 도달했는지 나타낸다. false여도 다음 요청의 예약 비용이 남은 금액보다 크면 거절될 수 있다. 표시된 USD는 설정 요율 기반 추정치다.
+- 한도 초과·사용량 저장소 오류는 기존 `AI_UNAVAILABLE` 경로를 사용한다. 검토/직접 접수·조회·관리자 처리는 유지하고, Embedding 실패는 기존 규칙 기반 후보 경로로 대체한다. 사용량 기록의 삭제·초기화 API는 제공하지 않는다.
 
 ## 기본 자연어 접수 흐름 (2026-10-16)
 

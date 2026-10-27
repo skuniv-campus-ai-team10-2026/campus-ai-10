@@ -2,7 +2,14 @@ param(
     [ValidateRange(1024,65535)][int]$BackendPort=8086,
     [ValidateRange(1024,65535)][int]$SharePort=4186,
     [switch]$Live,
-    [string]$AiEnvPath
+    [string]$AiEnvPath,
+    [ValidateSet('TOTAL','DAILY')][string]$AiBudgetPeriod='TOTAL',
+    [ValidateRange(0,10000)][decimal]$AiBudgetMaxUsd=1.00,
+    [ValidateRange(0,1000000)][int]$AiBudgetMaxLlmCalls=200,
+    [ValidateRange(0,1000000)][int]$AiBudgetMaxEmbeddingCalls=200,
+    [ValidateRange(0,10000)][decimal]$AiInputUsdPerMtok=0.10,
+    [ValidateRange(0,10000)][decimal]$AiOutputUsdPerMtok=0.50,
+    [ValidateRange(0,10000)][decimal]$EmbeddingUsdPerMtok=0.02
 )
 $ErrorActionPreference='Stop'
 $root=Split-Path $PSScriptRoot -Parent
@@ -58,6 +65,12 @@ $values=@{
     JAVA_TOOL_OPTIONS='-Djavax.net.ssl.trustStoreType=Windows-ROOT -Djavax.net.ssl.trustStore=NONE'
     WEB_ROOT=$dist.Replace('\','/'); BACKEND_PORT="$BackendPort"; SHARE_PORT="$SharePort"
     SHARE_PASSWORD_HASH=$access.hash
+    AI_BUDGET_PERIOD=$AiBudgetPeriod
+    AI_BUDGET_MAX_USD=$AiBudgetMaxUsd.ToString([Globalization.CultureInfo]::InvariantCulture)
+    AI_BUDGET_MAX_LLM_CALLS="$AiBudgetMaxLlmCalls"; AI_BUDGET_MAX_EMBEDDING_CALLS="$AiBudgetMaxEmbeddingCalls"
+    AI_PRICE_INPUT_PER_MTOK=$AiInputUsdPerMtok.ToString([Globalization.CultureInfo]::InvariantCulture)
+    AI_PRICE_OUTPUT_PER_MTOK=$AiOutputUsdPerMtok.ToString([Globalization.CultureInfo]::InvariantCulture)
+    EMBEDDING_PRICE_PER_MTOK=$EmbeddingUsdPerMtok.ToString([Globalization.CultureInfo]::InvariantCulture)
 }
 if($Live){
     if(!$AiEnvPath){$AiEnvPath=Join-Path $runtime 'ai-verification.env'}
@@ -69,7 +82,7 @@ if($Live){
     if(!$values.AI_API_KEY -or !$values.AI_MODEL -or !$values.EMBEDDING_MODEL){throw 'LIVE key and both models are required.'}
     if($values.AI_BASE_URL.TrimEnd('/') -ne 'https://api.openai.com/v1'){throw 'Use the official OpenAI endpoint.'}
     $values.AI_MODE='LIVE';$values.EMBEDDING_MODE='LIVE'
-    Write-Warning 'LIVE AI calls incur OpenAI charges. Hosting is free; this script does not enforce an API spending cap.'
+    Write-Warning "LIVE AI incurs charges. App limits: $AiBudgetPeriod / estimated USD $($values.AI_BUDGET_MAX_USD) / LLM $AiBudgetMaxLlmCalls / Embedding $AiBudgetMaxEmbeddingCalls. Estimated cost is not a guaranteed billing cap."
 }
 $saved=@{};$started=@();$statePath=Join-Path $runtime 'free-share-processes.json'
 try {
