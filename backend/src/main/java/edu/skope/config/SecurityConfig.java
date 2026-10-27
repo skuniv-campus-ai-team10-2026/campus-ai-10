@@ -16,7 +16,10 @@ public class SecurityConfig {
     };}
     @Bean HttpSessionCsrfTokenRepository csrfRepository(){return new HttpSessionCsrfTokenRepository();}
     @Bean HttpSessionSecurityContextRepository contextRepository(){return new HttpSessionSecurityContextRepository();}
-    @Bean SecurityFilterChain security(HttpSecurity http,HttpSessionCsrfTokenRepository csrf,HttpSessionSecurityContextRepository contexts,edu.skope.repository.Db db) throws Exception {
+    @Bean SecurityFilterChain security(HttpSecurity http,HttpSessionCsrfTokenRepository csrf,HttpSessionSecurityContextRepository contexts,edu.skope.repository.Db db,
+            @org.springframework.beans.factory.annotation.Value("${PUBLIC_AUTH_LIMIT_ENABLED:false}") boolean authLimitEnabled,
+            @org.springframework.beans.factory.annotation.Value("${PUBLIC_AUTH_LOGIN_PER_MINUTE:120}") int loginLimit,
+            @org.springframework.beans.factory.annotation.Value("${PUBLIC_AUTH_REGISTER_PER_MINUTE:10}") int registerLimit) throws Exception {
         http.csrf(c->c.csrfTokenRepository(csrf))
             .securityContext(c->c.securityContextRepository(contexts))
             .authorizeHttpRequests(a->a.requestMatchers("/api/auth/csrf","/api/auth/login","/api/auth/register","/api/meta","/error").permitAll()
@@ -26,6 +29,7 @@ public class SecurityConfig {
             .exceptionHandling(e->e.authenticationEntryPoint((req,res,ex)->{res.setStatus(401);res.setContentType("application/json;charset=UTF-8");res.getWriter().write("{\"code\":\"UNAUTHENTICATED\",\"message\":\"로그인이 필요합니다.\",\"fieldErrors\":{}}");})
                 .accessDeniedHandler((req,res,ex)->{res.setStatus(403);res.setContentType("application/json;charset=UTF-8");res.getWriter().write("{\"code\":\"FORBIDDEN\",\"message\":\"권한 또는 CSRF 토큰을 확인하세요.\",\"fieldErrors\":{}}");}))
             .formLogin(f->f.disable()).httpBasic(b->b.disable()).logout(l->l.disable())
+            .addFilterBefore(new PublicAuthRateLimitFilter(authLimitEnabled,loginLimit,registerLimit),org.springframework.security.web.csrf.CsrfFilter.class)
             .addFilterBefore(new ActiveSessionFilter(db),org.springframework.security.web.access.intercept.AuthorizationFilter.class);
         return http.build();
     }
