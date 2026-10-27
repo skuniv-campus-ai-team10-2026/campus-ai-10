@@ -8,7 +8,7 @@ import org.springframework.web.method.annotation.MethodArgumentTypeMismatchExcep
 import java.util.Map;
 @RestControllerAdvice
 public class Errors {
-    @ExceptionHandler(ApiException.class) ResponseEntity<?> api(ApiException e){return out(e.status,e.code,e.getMessage());}
+    @ExceptionHandler(ApiException.class) ResponseEntity<?> api(ApiException e){return ResponseEntity.status(e.status).body(Map.of("code",e.code,"message",e.getMessage(),"fieldErrors",e.fieldErrors));}
     @ExceptionHandler({HttpMessageNotReadableException.class,MethodArgumentTypeMismatchException.class,IllegalArgumentException.class}) ResponseEntity<?> bad(Exception e){return out(400,"VALIDATION_ERROR","입력 형식 또는 값이 올바르지 않습니다.");}
     @ExceptionHandler(org.springframework.web.multipart.MaxUploadSizeExceededException.class) ResponseEntity<?> tooLarge(Exception e){return out(413,"ATTACHMENT_TOO_LARGE","사진은 한 장에 5MB 이하만 올릴 수 있습니다.");}
     @ExceptionHandler(DuplicateKeyException.class) ResponseEntity<?> duplicate(Exception e){return out(409,"DUPLICATE_REQUEST","이미 접수된 요청입니다.");}

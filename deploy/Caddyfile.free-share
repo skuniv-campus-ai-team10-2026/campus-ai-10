@@ -36,7 +36,7 @@ http://127.0.0.1:{$SHARE_PORT:4186} {
 	handle {
 		root * {$WEB_ROOT}
 		header Cache-Control "no-cache"
-		@spa path_regexp spa ^/(report/(analyze|confirm)|reports(/(success|[0-9]+))?|admin/(reports(/[0-9]+)?|repeated|incidents/[0-9]+))?/?$
+		@spa path_regexp spa ^/(signup|profile|report/(analyze|confirm)|reports(/(success|[0-9]+))?|admin/(reports(/[0-9]+)?|repeated|incidents/[0-9]+))?/?$
 		rewrite @spa /index.html
 		file_server
 	}

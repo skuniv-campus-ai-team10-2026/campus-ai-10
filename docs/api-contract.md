@@ -1,6 +1,6 @@
 # SKOPE 로컬 실험 API 구현 계약
 
-기준일: 2026-10-18. `ApiController`, `AuthController`, `SecurityConfig`, 서비스 구현 및 `frontend/src/types.ts`를 읽어 정리했다. **현재 독립 실험 구현의 계약이며 팀의 최종 승인이나 공식 시스템 계약을 뜻하지 않는다.** 실제 실행 증거는 `verification.md`, AI 검증 범위는 `ai-evaluation.md`를 따른다.
+기준일: 2026-10-27. `ApiController`, `AuthController`, `SecurityConfig`, 서비스 구현 및 `frontend/src/types.ts`를 읽어 정리했다. **현재 독립 실험 구현의 계약이며 팀의 최종 승인이나 공식 시스템 계약을 뜻하지 않는다.** 실제 실행 증거는 `verification.md`, AI 검증 범위는 `ai-evaluation.md`를 따른다.
 
 ## 부서별 접근·배정 확장
 
@@ -17,7 +17,7 @@
 - 기본 세션 쿠키는 `JSESSIONID`, `HttpOnly`, `SameSite=Lax`; Secure 속성은 `COOKIE_SECURE`로 설정하며 로컬 HTTP 기본값은 false다. 기본 세션 타임아웃은 30분이다.
 - 변경 요청 전에 `GET /api/auth/csrf`를 호출하고 응답의 `headerName` 이름으로 `token`을 보낸다. 로그인도 CSRF 토큰이 필요하다. 로그인·로그아웃 후 다시 조회한다. 프런트엔드는 401/403 발생 시 캐시된 토큰을 버린다.
 - 브라우저 API 호출은 같은 출처의 `/api`와 `credentials: include`를 사용한다. CORS를 이용한 별도 도메인 배포는 현재 검증 범위가 아니다.
-- 활성 계정이 삭제·비활성화되거나 역할이 바뀌면 기존 세션도 다음 요청에서 401로 무효화된다.
+- 활성 계정이 삭제·비활성화되거나 역할·비밀번호가 바뀌면 기존 세션도 다음 요청에서 401로 무효화된다. V8의 `users.auth_version`과 서버 세션의 버전을 비교한다. V8 배포 전 생성한 버전 없는 세션도 재로그인이 필요하다.
 - 학생은 본인 신고만 읽으며, 타인 신고 ID 접근은 `404 REPORT_NOT_FOUND`로 거절한다. 관리자 화면 숨김과 별개로 서버 권한 검사가 존재한다.
 
 목록 기본 형식:
@@ -32,15 +32,18 @@
 {"code":"VALIDATION_ERROR","message":"입력 형식 또는 값이 올바르지 않습니다.","fieldErrors":{}}
 ```
 
-현재 서버는 `fieldErrors`를 빈 객체로 반환한다. 프런트엔드는 필드별 오류도 표시할 준비가 되어 있지만, 필드별 메시지 제공이 구현됐다는 뜻은 아니다. 신고·사건 응답은 DB Map 기반으로 아래 소비 필드 외의 식별자·메타데이터가 추가될 수 있다. 비밀번호 해시와 비밀키는 반환하지 않는다. 고정 DTO와 OpenAPI 자동 스키마 확정은 팀 검토 대상이다.
+계정 입력 오류는 `fieldErrors`에 필드별 메시지를 반환하며, 나머지 오류는 빈 객체일 수 있다. 신고·사건 응답은 DB Map 기반으로 아래 소비 필드 외의 식별자·메타데이터가 추가될 수 있다. 계정 응답은 아래 6개 공개 필드만 반환한다. 비밀번호 해시·인증 버전·비밀키는 반환하지 않는다. 고정 DTO와 OpenAPI 자동 스키마 확정은 팀 검토 대상이다.
 
 ## 엔드포인트
 
 | Method / 경로 | 권한 | 입력·쿼리 | 성공 응답 |
 |---|---|---|---|
 | GET `/auth/csrf` | 공개 | 없음 | 200 `{token,headerName}` |
-| POST `/auth/login` | 공개 + CSRF | `{username,password}` | 200 `{id,role,displayName,departmentId,departmentName}` + 세션 |
-| GET `/auth/me` | 로그인 | 없음 | 200 `{id,role,displayName,departmentId,departmentName}` |
+| POST `/auth/register` | 공개 + CSRF | `{username,displayName,password}` | 201 공개 계정 정보, 자동 로그인 없음 |
+| POST `/auth/login` | 공개 + CSRF | `{username,password}` | 200 공개 계정 정보 + 새 세션 |
+| GET `/auth/me` | 로그인 | 없음 | 200 공개 계정 정보 |
+| PATCH `/auth/me` | 로그인 + CSRF | `{displayName}` | 200 갱신된 공개 계정 정보 |
+| POST `/auth/password` | 로그인 + CSRF | `{currentPassword,newPassword}` | 200 `{success:true,reauthenticationRequired:true}` + 현재 세션 종료 |
 | POST `/auth/logout` | 로그인 + CSRF | `{}` | 200 `{success:true}` |
 | GET `/meta` | 공개 | 없음 | 200 `{aiMode,embeddingMode,databaseMode,officialSubmission:false,demoRoutingEnabled}` |
 | GET `/report-types` | 로그인 (학생·관리자) | 없음 | 200 `{items:RoutingRule[]}` |
@@ -62,6 +65,17 @@
 | GET `/admin/repeated-candidates` | ADMIN / DEPT_ADMIN | 없음 | `{items,generatedAt,aiMode:"RULE_ONLY"}` |
 
 신고 목록은 ID 내림차순이다. `page`는 0~100000, `size`는 1~100이며 잘못된 범위·필터는 400이다. 유사 후보·반복 후보·유형 목록은 페이지네이션 없는 별도 응답이다.
+
+## 회원가입·내 정보 연동
+
+- 공개 계정 정보: `{id,username,displayName,role,departmentId,departmentName}`. 기존 로그인·조회 응답에 `username`을 추가한다.
+- 회원가입 아이디는 영문 소문자·숫자·밑줄 4~30자이며 변경할 수 없다. 이름은 양끝 공백 제거 후 1~30자다. 비밀번호는 공백을 그대로 보존하며 12~64자, UTF-8 기준 72바이트 이하이고 제어 문자를 허용하지 않는다. 글자 수는 Unicode 코드 포인트 기준이다.
+- 가입 시 역할은 항상 `STUDENT`다. `role`, `departmentId`, `id`, `passwordHash` 등 계약 외 필드는 거절한다. 이름 수정은 `displayName`만 받는다. 비밀번호 확인 입력은 프런트에서 비교하며 서버에 보내지 않는다. 이메일·학교 계정 인증·비밀번호 분실 복구는 이번 범위에 없다.
+- 중복 아이디: `409 USERNAME_TAKEN`, `fieldErrors.username`. 입력 오류: `400 VALIDATION_ERROR`와 필드별 오류. 잘못된 현재 비밀번호: `400 INVALID_CURRENT_PASSWORD`, `fieldErrors.currentPassword`; 기존 로그인은 유지한다. 새 비밀번호가 현재 비밀번호와 같으면 400이다.
+- 가입 성공 후 로그인 화면으로 이동한다. 로그인은 기존 세션을 교체하므로 이전 계정의 서버 초안이 이어지지 않는다. 로그인 후 CSRF 토큰을 새로 받는다.
+- 비밀번호 변경 성공 시 현재 세션은 즉시 종료되고 같은 계정의 다른 세션은 다음 요청에서 401이 된다. 다른 계정 세션·기존 접수 데이터는 유지한다. 프런트는 성공 응답 후 사용자 정보·CSRF 캐시·비공개 초안·선택 사진을 비우고 로그인 화면으로 이동한다. 추가 로그아웃 요청은 필요 없다.
+- 현재 프런트 API 도우미는 `/api`를 붙이므로 호출 경로는 `/auth/register`, `/auth/me`, `/auth/password`다. `/signup`, `/profile` 화면은 프런트 담당 구현 대상이며 공유 프록시의 새로고침 경로만 준비했다.
+- 외부 팀 공용 암호는 서비스 전체 LIVE 사용량 제한이 통합되기 전까지 유지한다. 회원가입 API 구현만으로 외부 보호를 제거하지 않는다. 이 변경 자체에는 로그인/가입 요청 횟수 제한이나 학교 재학생 확인 기능이 포함되지 않는다.
 
 ## 허용 코드
 
