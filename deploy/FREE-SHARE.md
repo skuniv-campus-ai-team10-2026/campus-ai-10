@@ -6,10 +6,19 @@
 
 - 11월 1일까지 팀 변경분 통합, H2/MySQL 검사, 제한된 LIVE 확인, 실제 휴대폰 접속과 사진 저장 확인을 완료하고 제출 커밋·태그를 확정한다. 현재 개발 PR을 최종 제출 버전으로 간주하지 않는다.
 - 제출 주소는 고정 HTTPS 주소와 평가기간 지속 실행, DB·사진 영속 저장 및 복구 수단을 갖춘 별도 환경으로 정한다. PC 절전·종료나 Quick Tunnel 만료에 의존하는 주소는 제출 링크로 확정하지 않는다.
-- 제출 전에 LIVE 사용량 상한과 오류 안내를 별도로 확정한다. 평가 스크립트의 3회/$0.05 제한은 일반 사용자가 접속하는 공유 서버의 전체 비용 상한이 아니다.
+- 통합 서버에는 DB에 보존하는 앱 전체 LIVE 호출·추정 비용 제한이 있다. 팀 공유 스크립트는 기본 `TOTAL / 추정 $1 / LLM 200 / Embedding 200`을 명시한다. 앱 밖에서 같은 키를 사용하는 비용을 이 장부가 집계하지 않는다.
 - 동결 기간에 발견한 오류는 원인·영향을 기록하고 평가용 소스에는 수정하지 않는다. 제출 커밋과 실행 버전이 일치하는지 확인한다.
 
 기존 UI 기준은 `8cbf3f1079ccb4957dfeba4668ee0796fcfc6a69` (PR #4 병합)이며 실행 시에는 접수 개선과 V7을 포함한 최신 검증 빌드를 사용한다. 공유 스크립트는 준비된 JAR를 실행하며 DB 버전은 해당 JAR의 Flyway 마이그레이션을 따른다.
+
+## 2026-10-27 V8·V9 통합 실행
+
+- 공유 DB는 기존 V7에서 V8(사용량 장부) → V9(계정 인증 버전) 순으로 업그레이드한다. 기존 계정·접수·사진을 보존하며 기존 로그인은 다시 해야 한다. 배포 전 DB와 사진을 별도 백업한다.
+- 공유 스크립트 기본 제한은 앱 컴포넌트 기본값($2/500/500)과 구분한다. 필요 시 `-AiBudgetPeriod TOTAL -AiBudgetMaxUsd 1 -AiBudgetMaxLlmCalls 200 -AiBudgetMaxEmbeddingCalls 200`으로 명시한다. 재시작해도 TOTAL 사용량은 유지하며 자동 초기화하지 않는다.
+- 현재 모델 `gpt-6-luna` 입력/출력은 100만 토큰당 `$0.10/$0.50`, `text-embedding-3-small`은 `$0.02`를 명시한다. 2026-10-27 [LLM 모델 문서](https://developers.openai.com/api/docs/models/gpt-6-luna), [Embedding 모델 문서](https://developers.openai.com/api/docs/models/text-embedding-3-small) 기준이다. 모델/티어 변경 시 `-AiInputUsdPerMtok`, `-AiOutputUsdPerMtok`, `-EmbeddingUsdPerMtok`를 함께 검토한다.
+- 예약 입력량은 글자 수 기반이므로 최대 실제 비용을 보장하지 않는다. OpenAI 예산 알림과 요청 차단 `Enforce a hard limit`을 구분하고, 계정 소유자가 해당 설정을 확인한다. Hard limit도 반영 지연으로 소액 초과가 가능하다. [공식 안내](https://developers.openai.com/api/docs/guides/spend-limits).
+- 외부 팀 공용 암호는 이번 통합에서도 유지한다. 비용 제한을 적용했다고 익명 공개 서비스·회원가입 화면 연결까지 완료한 것은 아니다.
+- 새 가입·프로필 API 및 냉난방/정수기/집기 유형을 포함한다. 해당 화면·새 유형 표시·미배정 사유 표시는 프런트 담당 후속이며, v4 프롬프트의 실제 AI 품질도 미검증이다.
 
 ## 어떤 방식인가요?
 
