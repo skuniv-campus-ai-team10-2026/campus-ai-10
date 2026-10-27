@@ -314,11 +314,23 @@ public class AiService {
         return updates;
     }
 
+    /** Service-wide paid-call limit. Set by Spring; directly constructed instances (tests) run without it. */
+    @Autowired(required = false)
+    public void setBudget(AiBudget budget) { this.budget = budget; }
+    private AiBudget budget;
+
     private JsonNode post(String path, Map<String, Object> body) {
+        AiBudget.Reservation reservation = null;
+        boolean settled = false;
         try {
+            String payload = json.writeValueAsString(body);
+            boolean embeddings = path.equals("/embeddings");
+            // Reserve before any network traffic. Characters over-estimate tokens, which keeps the reservation safe.
+            if (budget != null) reservation = budget.reserve(embeddings ? AiBudget.Kind.EMBEDDING : AiBudget.Kind.LLM,
+                    payload.length(), embeddings ? 0 : maxCompletionTokens);
             HttpRequest request = HttpRequest.newBuilder(URI.create(baseUrl + path)).timeout(timeout)
                     .header("Authorization", "Bearer " + apiKey).header("Content-Type", "application/json")
-                    .POST(HttpRequest.BodyPublishers.ofString(json.writeValueAsString(body), StandardCharsets.UTF_8)).build();
+                    .POST(HttpRequest.BodyPublishers.ofString(payload, StandardCharsets.UTF_8)).build();
             // Byte-array completion keeps the request timeout active until the whole response arrives.
             HttpResponse<byte[]> response = client.send(request, HttpResponse.BodyHandlers.ofByteArray());
             if (response.statusCode() < 200 || response.statusCode() >= 300 || response.body().length > 1024 * 1024) throw unavailable();
@@ -329,11 +341,18 @@ public class AiService {
                     && usage.path("prompt_tokens").canConvertToLong() && usage.path("total_tokens").canConvertToLong()) {
                 long input = usage.path("prompt_tokens").asLong(), total = usage.path("total_tokens").asLong();
                 long output = path.equals("/embeddings") ? 0 : usage.path("completion_tokens").asLong(-1);
-                if (input >= 0 && output >= 0 && total >= input + output) onUsage(path, input, output, total);
+                if (input >= 0 && output >= 0 && total >= input + output) {
+                    if (budget != null) { budget.settle(reservation, input, output); settled = true; }
+                    onUsage(path, input, output, total);
+                }
             }
             return parsed;
         } catch (InterruptedException e) { Thread.currentThread().interrupt(); throw unavailable(); }
         catch (Exception e) { throw unavailable(); }
+        finally {
+            // No usable usage numbers: the provider may still have charged, so the reservation counts as spent.
+            if (budget != null && reservation != null && !settled) budget.settle(reservation, null, null);
+        }
     }
 
     /** Optional counters for verification; never exposes prompts, credentials or raw provider responses. */
