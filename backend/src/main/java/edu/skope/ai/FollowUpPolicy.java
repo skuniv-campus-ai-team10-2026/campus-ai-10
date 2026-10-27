@@ -8,7 +8,9 @@ import java.util.regex.*;
 /** Bounded draft clarification. This is not an authority, routing, or report-saving decision. */
 final class FollowUpPolicy {
     static final List<String> GROUPS = List.of("LOCATION", "SYMPTOM", "OCCURRED_AT", "CATEGORY");
-    private static final List<String> CONTENT = List.of("category", "subcategory", "locationText", "building", "floor", "symptom", "occurredAtText");
+    // Optional in stored older responses; not additional student-facing questions or draft state fields.
+    static final List<String> UPDATE_GROUPS = List.of("LOCATION", "SYMPTOM", "OCCURRED_AT", "CATEGORY", "TARGET", "CAMPUS_RELEVANCE");
+    private static final List<String> CONTENT = List.of("category", "subcategory", "locationText", "building", "floor", "symptom", "occurredAtText", "targetText", "campusRelevance", "workGroup");
     private static final Pattern ROOM = Pattern.compile("(?<!\\d)([A-Za-z]?\\d{2,5})\\s*호(?:실)?");
     private static final Pattern FLOOR = Pattern.compile("(?i)(?:(지하|B)\\s*)?([1-9]\\d{0,2})\\s*층");
     private static final Pattern BUILDING = Pattern.compile("([가-힣A-Za-z0-9]{1,25}(?:관|동|도서관|체육관))");
@@ -139,13 +141,40 @@ final class FollowUpPolicy {
                                    Map<String,Object> updates, String answer) {
         boolean problem = applied(updates,"SYMPTOM",answer) || applied(updates,"CATEGORY",answer);
         Object oldRelevance = previous.get("campusRelevance"), newRelevance = extracted.get("campusRelevance");
-        boolean settled = newRelevance != null && !"UNCERTAIN".equals(newRelevance) && (oldRelevance == null || "UNCERTAIN".equals(oldRelevance));
-        if (problem && text(extracted,"targetText") != null) report.put("targetText", extracted.get("targetText"));
-        if ((problem && newRelevance != null) || settled) report.put("campusRelevance", newRelevance);
+        boolean relevanceSet = applied(updates,"CAMPUS_RELEVANCE",answer);
+        // Compatibility for old four-group responses: only an explicit, unambiguous ownership statement.
+        String n = normalize(answer);
+        boolean explicitPersonal = n.matches(".*(?:개인(?:물건|소지품)|(?:제|내)개인|제(?:거예요|것이에요|물건)|내물건).*" )
+                && !UNCERTAIN.matcher(answer).find() && !n.matches(".*(?:개인|제|내).*(?:아니|아닌|않).*" );
+        boolean personalCorrection = "PERSONAL_ON_CAMPUS".equals(newRelevance) && explicitPersonal;
+        boolean settled = newRelevance != null && !"UNCERTAIN".equals(newRelevance)
+                && (oldRelevance == null || "UNCERTAIN".equals(oldRelevance))
+                && (relevanceSet || explicitPersonal || n.matches(".*(?:학교|공용|비품|대여|빌린).*"));
+        String oldTarget = text(previous,"targetText");
+        boolean deniedTarget = oldTarget != null && n.matches(".*" + Pattern.quote(normalize(oldTarget))
+                + "(?:이|가|은|는)?(?:아니고|아니라|아니에요|아닙니다|말고).*" ) && !UNCERTAIN.matcher(answer).find();
+        if (applied(updates,"TARGET",answer) || !updates.containsKey("TARGET") && problem && text(extracted,"targetText") != null || deniedTarget)
+            report.put("targetText", extracted.get("targetText"));
+        boolean scopeChanged = relevanceSet || personalCorrection || settled;
+        if (scopeChanged) report.put("campusRelevance", newRelevance);
         boolean specific = extracted.get("workGroup") != null && !"GENERAL_REVIEW".equals(extracted.get("workGroup"));
-        if ((problem && extracted.get("workGroup") != null) || (settled && specific)) report.put("workGroup", extracted.get("workGroup"));
-        // A settled personal/out-of-scope answer cannot leave a facility handling area behind.
-        if (settled && Codes.generalInquiry(newRelevance)) report.put("workGroup", "GENERAL_REVIEW");
+        if ((problem && extracted.get("workGroup") != null) || (scopeChanged && specific)) report.put("workGroup", extracted.get("workGroup"));
+        for (String group : List.of("TARGET","CAMPUS_RELEVANCE")) {
+            Map<?,?> update = updates.get(group) instanceof Map<?,?> m ? m : Map.of();
+            String evidence = Objects.toString(update.get("evidence"), "");
+            if (!evidence.isBlank() && answer.contains(evidence) && "CLARIFY".equals(update.get("action"))) {
+                if (group.equals("TARGET")) report.put("targetText",null);
+                else { report.put("campusRelevance","UNCERTAIN"); report.put("workGroup","GENERAL_REVIEW"); }
+            }
+            if (!evidence.isBlank() && answer.contains(evidence) && "CLEAR".equals(update.get("action"))
+                    && n.matches(".*(?:대상|물건|소유|학교물건여부).*(?:삭제|지워|비워|제거).*" )
+                    && !n.matches(".*(?:하지|지우지|비우지|말아|말고|않).*")) {
+                if (group.equals("TARGET")) report.put("targetText",null);
+                else { report.put("campusRelevance","UNCERTAIN"); report.put("workGroup","GENERAL_REVIEW"); }
+            }
+        }
+        // Personal/out-of-scope corrections cannot leave a facility handling area behind.
+        if (Codes.generalInquiry(report.get("campusRelevance"))) report.put("workGroup", "GENERAL_REVIEW");
     }
     private static boolean applied(Map<String,Object> updates, String group, String answer) {
         Map<?,?> update = updates.get(group) instanceof Map<?,?> m ? m : Map.of();

@@ -23,8 +23,8 @@ import java.util.regex.Pattern;
 /** Extracts suggestions only. The caller obtains all routing and answer grounds from the database. */
 @Service
 public class AiService {
-    public static final String PROMPT_VERSION = "hybrid-intake-v5";
-    public static final String POLICY_VERSION = "hybrid-check-v6";
+    public static final String PROMPT_VERSION = "hybrid-intake-v6";
+    public static final String POLICY_VERSION = "hybrid-check-v7";
     private static final Set<String> INTENTS = Set.of("REPORT", "QUESTION", "UNKNOWN");
     private static final Map<String, String> TYPES = edu.skope.domain.Codes.TYPES;
     private static final Set<String> FIELDS = Set.of("category", "subcategory", "locationText", "building", "floor",
@@ -84,7 +84,10 @@ public class AiService {
               dispensers, printers, projectors, lab coats, other supplies), ACADEMIC_ADMIN (records, certificates,
               registration), GENERAL_REVIEW (personal items, out-of-scope requests or no clear area).
               It is a handling area only, never a department name.
-            - targetText is the affected object in the student's words (e.g. '거울', '실습복'), null if none.
+            - targetText is a short, common Korean name of the explicitly affected object (e.g. '거울', '실습복').
+              Normalize clear synonyms such as '미러' or 'mirror' to '거울', but do not merge different objects.
+              Original student wording remains in the input and assessment evidence. Use null for an unknown
+              replacement ('거울이 아니라 다른 물건') rather than retaining the explicitly denied old object.
             - campusRelevance: CAMPUS_FACILITY (a school facility or fixture at a place), SCHOOL_SERVICE (an item the
               school lends or a school service, no fault location needed), PERSONAL_ON_CAMPUS (the student's own
               item or a lost/left item), OUT_OF_SCOPE (a personal request the school does not handle, such as
@@ -129,7 +132,11 @@ public class AiService {
             This request is a bounded clarification of an existing editable report, not a new report.
             Preserve previousReport facts unless the latest followUp.answer explicitly supplies or corrects them.
             Extract ALL facts in that answer, even outside followUp.field. Return the full proposed report and
-            an updates object for LOCATION, SYMPTOM, OCCURRED_AT, CATEGORY. Each update contains action and evidence.
+            an updates object for LOCATION, SYMPTOM, OCCURRED_AT, CATEGORY, TARGET, CAMPUS_RELEVANCE.
+            Each update contains action and evidence. TARGET changes the affected object only;
+            CAMPUS_RELEVANCE changes ownership/school relevance without requiring a new symptom/category.
+            Explicit ownership corrections replace old ownership. Uncertain ownership uses CLARIFY.
+            For a denied target with an unknown replacement, SET TARGET with a null targetText.
             KEEP: this group is not addressed, or the answer is vague without contradicting known information.
             SET: a fact is explicitly supplied or corrected in the newest answer. evidence must be an exact
             nonempty substring of that answer supporting this group's change, never a quote from the original text.
@@ -332,9 +339,11 @@ public class AiService {
     }
 
     private Map<String,Object> validateUpdates(JsonNode node) {
-        if(!node.isObject()||!keys(node).equals(Set.copyOf(FollowUpPolicy.GROUPS)))throw unavailable();
+        if(!node.isObject()||!keys(node).containsAll(FollowUpPolicy.GROUPS)
+                ||!Set.copyOf(FollowUpPolicy.UPDATE_GROUPS).containsAll(keys(node)))throw unavailable();
         var updates=new LinkedHashMap<String,Object>();
-        for(String group:FollowUpPolicy.GROUPS){
+        for(String group:FollowUpPolicy.UPDATE_GROUPS){
+            if(!node.has(group))continue; // Older saved four-group provider responses remain replayable.
             JsonNode item=node.path(group), evidence=item.path("evidence");
             if(!item.isObject()||!keys(item).equals(Set.of("action","evidence"))||!Set.of("KEEP","SET","CLEAR","CLARIFY").contains(item.path("action").asText())
                     ||!(evidence.isNull()||evidence.isTextual()&&evidence.asText().length()<=1000))throw unavailable();
@@ -551,8 +560,8 @@ public class AiService {
         }
         if(follow){
             var change=Map.of("type","object","properties",Map.of("action",Map.of("type","string","enum",List.of("KEEP","SET","CLEAR","CLARIFY")),"evidence",Map.of("type",List.of("string","null"))),"required",List.of("action","evidence"),"additionalProperties",false);
-            var groups=new LinkedHashMap<String,Object>();for(String group:FollowUpPolicy.GROUPS)groups.put(group,change);
-            root.put("updates",Map.of("type","object","properties",groups,"required",FollowUpPolicy.GROUPS,"additionalProperties",false));
+            var groups=new LinkedHashMap<String,Object>();for(String group:FollowUpPolicy.UPDATE_GROUPS)groups.put(group,change);
+            root.put("updates",Map.of("type","object","properties",groups,"required",FollowUpPolicy.UPDATE_GROUPS,"additionalProperties",false));
         }
         return Map.of("type","object","properties",root,"required",new ArrayList<>(root.keySet()),"additionalProperties",false);
     }
