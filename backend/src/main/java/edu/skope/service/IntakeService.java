@@ -55,7 +55,11 @@ public class IntakeService {
                 if(!(revision instanceof Number n)||n.doubleValue()!=n.intValue()||n.intValue()<0||n.intValue()>draft.revision)
                     throw new ApiException(409,"STALE_DRAFT","현재 질문을 다시 확인한 뒤 답변해 주세요.");
                 if(((Number)revision).intValue()<draft.revision)return response(draft);
-                if(review)return save(user,key,draft,true);
+                if(review){
+                    // Preserve a typed-but-unsent reply without another paid analysis or claiming it is verified.
+                    if(answer!=null)draft.failedAnswer=answer;
+                    return save(user,key,draft,true);
+                }
                 if(draft.failure!=null || !"CONTINUE".equals(state(draft).get("status")))return response(draft);
                 var request=new LinkedHashMap<String,Object>();
                 request.put("hybrid",true);
@@ -104,7 +108,7 @@ public class IntakeService {
         payload.put("requestKind","QUESTION".equals(intent)?"QUESTION":"REPORT");
         if(review) {
             payload.put("reviewNote",draft.failure!=null?"AI 분석 실패: 원문과 기존 추출 내용을 확인해 주세요."+(draft.failedAnswer==null?"":" / 미분석 추가 답변: "+draft.failedAnswer):
-                    (Boolean.TRUE.equals(state(draft).get("urgentReview"))?"추가 질문 없이 접수한 내용의 관리자 확인이 필요합니다. ":"학생이 관리자 검토를 요청했습니다. ")+"부족한 정보: "+fieldNames(payload.get("missingFields"))+". 처리 전 확인 사항: "+fieldNames(state(draft).get("neededReasons"))+". 충돌하거나 미확정인 정보: "+fieldNames(state(draft).get("reviewFields"))+"."+(draft.latestAnswer==null?"":" / 마지막 추가 답변: "+draft.latestAnswer));
+                    (Boolean.TRUE.equals(state(draft).get("urgentReview"))?"추가 질문 없이 접수한 내용의 관리자 확인이 필요합니다. ":"학생이 관리자 검토를 요청했습니다. ")+"부족한 정보: "+fieldNames(payload.get("missingFields"))+". 처리 전 확인 사항: "+fieldNames(state(draft).get("neededReasons"))+". 충돌하거나 미확정인 정보: "+fieldNames(state(draft).get("reviewFields"))+"."+(draft.latestAnswer==null?"":" / 마지막 추가 답변: "+draft.latestAnswer)+(draft.failedAnswer==null?"":" / 미분석 추가 답변: "+draft.failedAnswer));
         }
         Map<String,Object> saved;
         try {saved=reports.createFromAnalysis(user,payload,Boolean.TRUE.equals(payload.get("emergencyHint")));}

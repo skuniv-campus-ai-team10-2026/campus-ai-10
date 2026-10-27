@@ -22,8 +22,8 @@ import java.util.regex.Pattern;
 /** Extracts suggestions only. The caller obtains all routing and answer grounds from the database. */
 @Service
 public class AiService {
-    public static final String PROMPT_VERSION = "hybrid-intake-v2";
-    public static final String POLICY_VERSION = "hybrid-check-v3";
+    public static final String PROMPT_VERSION = "hybrid-intake-v3";
+    public static final String POLICY_VERSION = "hybrid-check-v4";
     private static final Set<String> INTENTS = Set.of("REPORT", "QUESTION", "UNKNOWN");
     private static final Map<String, String> TYPES = Map.of("WIFI", "IT", "LEAK", "FACILITY",
             "ELECTRIC", "FACILITY", "STUDENT_RECORD", "ACADEMIC", "UNKNOWN", "OTHER");
@@ -77,6 +77,11 @@ public class AiService {
             symptom: set symptom null and missingFields SYMPTOM. Never invent a fault from dissatisfaction.
             Ask what is wrong before asking where. A concrete symptom such as '의자가 흔들려요' is sufficient
             even in OTHER/UNKNOWN. Missing category or time alone must never trigger a question.
+            Intake needs enough information to START handling, not a complete technical diagnosis.
+            A named broken object such as '정수기가 고장났어요' already specifies an actionable issue:
+            preserve that symptom and target, do not mark SYMPTOM missing or ask what is uncomfortable.
+            Its floor/nearby location may still need clarification. Detailed failure mode, frequency and onset
+            are optional unless the actual issue or target cannot be understood without them.
             Questions and academic requests do not require a physical location. Physical faults require
             a usable location; do not demand a room when a building-wide issue is already located.
             missingFields uses SYMPTOM for an unspecified issue/request, LOCATION for a missing necessary place.
@@ -107,12 +112,14 @@ public class AiService {
     private static final String CLARIFICATION_PROMPT = """
             Also return assessment: known observations plus ONE proposed clarification, never a final saving decision.
             Reasons: NONE, ISSUE_UNCLEAR (actual issue/request unspecified), LOCATION_REQUIRED (no usable place),
-            LOCATION_DETAIL (building known but the affected space unspecified), SYMPTOM_DETAIL (failure mode
-            changes the next diagnostic action), TARGET_UNCLEAR (which fixture/object), WORKFLOW_UNCLEAR
+            LOCATION_DETAIL (building known but the affected space unspecified), SYMPTOM_DETAIL (the actual
+            problem cannot be understood without an observation), TARGET_UNCLEAR (which fixture/object), WORKFLOW_UNCLEAR
             (procedure question vs submission error vs post-submission delay), CONFLICT (contradictory facts).
             Do not ask for occurrence date/time, a category, personal identifiers, root causes or technical diagnosis.
-            Prefer actual problem clarification before location. Wifi '안 돼요' alone is not a failure mode:
-            disconnected vs connected but no internet vs intermittent/slow implies different next actions.
+            Prefer actual problem clarification before location only when the problem itself is unspecified.
+            A named broken object already identifies the problem even without a failure-mode diagnosis.
+            Wifi '안 돼요' alone can benefit from ONE failure-mode question when its location is already known.
+            After a useful location answer, do not require a second diagnostic question just to start intake.
             Ask for a particular space unless the student explicitly states a building-wide issue.
             Leak + room + visible water dripping is actionable: do not demand source diagnosis or onset time.
             Academic requests require no physical location; only distinguish workflow when genuinely unspecified.
@@ -183,7 +190,8 @@ public class AiService {
         if (!input.preferred.equals("AUTO")) result.put("intent", input.preferred);
         @SuppressWarnings("unchecked") Map<String, Object> report = (Map<String, Object>) result.get("report");
         @SuppressWarnings("unchecked") Map<String,Object> updates = (Map<String,Object>) result.getOrDefault("updates",Map.of());
-        var outcome = FollowUpPolicy.apply(result.get("intent").toString(),report,input.previous,updates,input.answer,input.field,input.state);
+        var outcome = FollowUpPolicy.apply(result.get("intent").toString(),report,input.previous,updates,input.answer,input.field,input.state,
+                input.hybrid ? (input.field == null ? input.text : input.answer) : "");
         report=outcome.report();
         report.put("emergencyHint", Boolean.TRUE.equals(report.get("emergencyHint")) || emergency(input.text + ". " + input.answer));
         if(input.hybrid){

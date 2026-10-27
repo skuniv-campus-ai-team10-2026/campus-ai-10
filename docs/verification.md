@@ -482,3 +482,24 @@ $env:JAVA_TOOL_OPTIONS='-Djavax.net.ssl.trustStoreType=Windows-ROOT -Djavax.net.
 | HTTPS | 로컬 인증서 파일 자체 검증 OK. 실제 연결에서 Avast Untrusted Root 인증서로 교체됨을 확인 | 환경 차단. TLS 검증/백신을 끄지 않음. 정식 도메인·인증서·브라우저 Secure 쿠키 미검증 |
 
 10월 14일 별도 합성 데이터의 품질 검증과 HTTP/MySQL 연동 검증을 추가 완료했고, 10월 15일 자연어 추가 답변과 긴급 부정 판단의 제품 코드를 수정·검증했다. 날짜별 증거 범위는 상단 기록을 따른다. 사람의 독립 라벨 검수와 실제 분포의 운영 품질 검증, 누수 전담 공식 근거, 팀의 API·보관·접근 결정, 신뢰 가능한 운영 TLS 환경은 여전히 남아 있다. 유사 후보 누락 2쌍은 미해결이다. 키 값은 채팅으로 받지 않으며 `.runtime/ai-verification.env`에서만 읽는다.
+
+## 2026-10-27 접수에 필요한 추가 질문 간소화
+
+- 기준: 처리 시작에 필요한 문제·대상·위치를 우선 확인한다. 명시된 설비의 고장을 다시 일반적인 불편 질문으로 되묻지 않는다. 원문에 근거한 명백한 파손·고장만 누락 보정하며 부정·추측·대상 불명확 표현은 보정하지 않는다.
+- 위치를 유효하게 보완해 접수할 수 있으면 추가적인 장애 방식 질문은 생략한다. 문제 자체가 불명확하거나 대상·위치가 미확정이거나 정보가 충돌하면 질문을 유지한다. 최대 3회·반복 방지·긴급 접수·발생 시각 선택 정책은 유지한다. 유형만 불확실하면 관리자 검토로 전달한다.
+- 화면: 실제 질문을 입력칸 위에 고정 표시하고, 누적 장소·문제·발생 시점과 원문 펼쳐보기를 제공한다. `이 내용으로 접수하기`는 입력 중인 답변도 미분석 자료로 보존한다. 직접 수정과 사진 첨부 API는 유지한다.
+- 로컬 검증: 백엔드 147건(정책·병합·오류·접수 서비스 139건 + HTTP/H2 접수·관리자 처리·학생 조회 등 8건), 프론트엔드 84건 PASS. 이 중 저장된 실제 AI 출력 6건 재생은 신규 모델 추론이나 독립 정확도 평가가 아니다. 최초 검사에서 발견한 '뭔가 고장' 오인 경계를 보완했다. 기존 시작 화면의 Web Animations API 미지원 환경 오류도 기능 존재 검사 한 줄로 보완했다.
+- 실제 Chromium PC(1366px)·모바일(390px) 화면 5항목 PASS: 입력 중 질문 유지, 누적 정보, 가로 넘침 없음, 답변·검토 접수 연결, 브라우저 오류 없음. API를 테스트 응답으로 대체한 화면 검증이며 실제 AI/MySQL E2E와 구분한다. 결과와 화면은 비공개 `.runtime/intake-efficiency-*`에 저장했다.
+- 프론트엔드 및 실행용 백엔드 빌드 성공. 프롬프트 `hybrid-intake-v3`, 후처리 정책 `hybrid-check-v4`.
+- 이번 작업의 새 유료 LLM/Embedding 호출은 0회, 비용 $0. 새 프롬프트의 실제 LIVE 추론 품질·실제 휴대폰 조작은 미검증이다. 저장된 응답 재생과 Stub/DEMO 성공을 LIVE 성공으로 보고하지 않는다. 평가용 합성 장소는 과거 원본 파일에서만 읽었으며 현재 시연 DB에 추가하지 않았다.
+
+공유 실행 반영: 검증된 새 JAR와 프론트엔드 번들로 재시작했다. 외부 HTTPS 읽기 전용 검사 4항목(팀 인증 차단·최신 번들 일치·LIVE/LIVE/MySQL 메타·별도 SKOPE 로그인 필요) PASS. Node 기본 인증서 저장소에서는 로컬 보안 프로그램의 체인 오류가 있었으나 Windows 시스템 신뢰 저장소를 사용하면 통과했다. 인증서 검증은 끄지 않았다. 기존 팀 비밀번호, MySQL 데이터와 첨부 파일은 유지했다. 재시작에 따른 로그인 세션·진행 중 작성 세션은 새로 시작해야 한다.
+
+변경 파일:
+- `backend/src/main/java/edu/skope/ai/AiService.java`: 접수와 진단의 구분을 프롬프트에 반영하고 버전을 갱신했다. hybrid 처리에 현재 학생 원문을 전달한다.
+- `backend/src/main/java/edu/skope/ai/FollowUpPolicy.java`: 명시된 대상의 고장을 근거 없이 누락 처리하지 않게 보완했다. 부정·추측·불명확한 대상과 근거 없는 갱신은 제외한다.
+- `backend/src/main/java/edu/skope/ai/ClarificationPolicy.java`: 유효한 장소 답변 이후 불필요한 진단 질문, 이미 명시한 대상 재질문, 학생에게 유형 분류를 요구하는 질문을 줄였다. 장소 질문도 간결하게 표시한다.
+- `backend/src/main/java/edu/skope/service/IntakeService.java`: 직접 검토 접수 시 입력 중인 답변을 미분석 자료로 보존한다.
+- `frontend/src/intake.tsx`, `frontend/src/styles.css`: 고정 질문·누적 내용·원문 펼치기·직접 접수 동작을 개선했다.
+- `frontend/src/App.tsx`: 애니메이션 API 미지원 환경에서 시작 화면 오류가 나지 않도록 보완했다.
+- 관련 테스트 6개 파일: `ApiIntegrationTest.java`, `HybridReplayIntegrationTest.java`, `AiFollowUpTest.java`, `ClarificationPolicyTest.java`, `IntakeServiceTest.java`, `intake.test.tsx`. 선택 실행한 147건에 opt-in `HybridReplayIntegrationTest`는 포함되지 않는다. 이 파일은 변경된 두 번 분석 후 접수 계약에 기대값을 맞췄다. 과거 평가 원본과 정답 파일은 수정하지 않았다.

@@ -10,6 +10,49 @@ import static org.junit.jupiter.api.Assertions.*;
 class AiFollowUpTest {
     private final ObjectMapper json = new ObjectMapper();
 
+    @Test void cachedRealLanguageResponsesKeepActionableIssuesAndUncertaintyBoundaries() throws Exception {
+        // Historical synthetic place names stay in this read-only fixture; no application DB is used.
+        var rows=json.readTree(java.nio.file.Path.of("../docs/evaluation/language-variation-v2-results.json").toFile()).path("rows");
+        assertEquals(6,rows.size());
+        for(var row:rows){
+            AiService ai=new AiService("LIVE","http://127.0.0.1:1","offline-replay","cached-model","RULE_ONLY","",1){
+                @Override protected JsonNode complete(Map<String,Object> request){
+                    return json.valueToTree(Map.of("choices",List.of(Map.of("finish_reason","stop","message",Map.of("content",row.path("rawAi").toString())))));
+                }
+            };
+            String id=row.path("id").asText();
+            Map<String,Object> input=json.convertValue(row.path("input"),Map.class);
+            var actual=ai.analyze(input);var state=(Map<?,?>)actual.get("followUpState");
+            assertEquals(Set.of("H3","H4").contains(id)?"CONTINUE":"COMPLETE",state.get("status"),id);
+            if(id.equals("H3"))assertEquals("ISSUE_UNCLEAR",state.get("nextReason"));
+            if(id.equals("H4"))assertEquals("SYMPTOM_DETAIL",state.get("nextReason"));
+            assertEquals(false,AiServiceTest.report(actual).get("emergencyHint"),id);
+        }
+    }
+
+    @Test void explicitBrokenDispenserSurvivesMissingModelSymptomAndCompletesWithOneBasementReply(){
+        var proposed=prior();proposed.put("category","OTHER");proposed.put("subcategory","UNKNOWN");
+        proposed.put("building","은주2관");proposed.put("locationText","은주2관");proposed.put("floor",null);
+        proposed.put("symptom",null);proposed.put("occurredAtText",null);proposed.put("missingFields",List.of("SYMPTOM"));
+        var updates=new LinkedHashMap<String,Object>();
+        var ai=new Stub(proposed,updates);
+        var facts=new LinkedHashMap<String,Object>();for(String key:ClarificationPolicy.FACTS)facts.put(key,null);
+        ai.assessment=new LinkedHashMap<>(Map.of("reason","ISSUE_UNCLEAR","evidence","정수기가 고장났어요","rationale","증상 부족","question","어떤 점이 불편한가요?","known",facts));
+        String text="은주2관에 정수기가 고장났어요.";
+        var first=ai.analyze(Map.of("text",text,"hybrid",true));
+        assertEquals("LOCATION_DETAIL",((Map<?,?>)first.get("followUpState")).get("nextReason"));
+        String retained=AiServiceTest.report(first).get("symptom").toString();assertTrue(retained.contains("정수기"));
+        assertNull(AiServiceTest.report(ai.raw).get("symptom"),"This is a simulated provider error, not LIVE quality evidence");
+        proposed.put("locationText","은주2관 지하 1층");proposed.put("floor","B1");
+        updates.putAll(changes("LOCATION","SET","지하 1층"));
+        ai.assessment.put("reason","SYMPTOM_DETAIL");
+        var second=ai.analyze(Map.of("text",text,"hybrid",true,"followUp",Map.of("field","LOCATION","answer","지하 1층","previousReport",AiServiceTest.report(first),"state",first.get("followUpState"))));
+        assertEquals("COMPLETE",((Map<?,?>)second.get("followUpState")).get("status"));
+        assertEquals(retained,AiServiceTest.report(second).get("symptom"));assertEquals("B1",AiServiceTest.report(second).get("floor"));
+        assertEquals("은주2관",AiServiceTest.report(second).get("building"));assertNull(AiServiceTest.report(second).get("occurredAtText"));
+        assertNull(AiServiceTest.report(second).get("followUpQuestion"));assertEquals(2,ai.calls);
+    }
+
     @Test void hybridStrictSchemaCombinesGroundedProposalAndServerRules(){
         var proposed=prior();proposed.put("symptom","와이파이가 안 돼요");
         var ai=new Stub(proposed,changes("SYMPTOM","SET","와이파이가 안 돼요"));
@@ -102,7 +145,7 @@ class AiFollowUpTest {
         }
         @Override protected JsonNode complete(Map<String,Object> request) {
             calls++;body=json.valueToTree(request);
-            try {var payload=new LinkedHashMap<String,Object>(Map.of("intent","REPORT","report",proposed,"updates",updates));if(assessment!=null)payload.put("assessment",assessment);
+            try {var payload=new LinkedHashMap<String,Object>(Map.of("intent","REPORT","report",proposed));if(!body.at("/response_format/json_schema/schema/properties/updates").isMissingNode())payload.put("updates",updates);if(assessment!=null)payload.put("assessment",assessment);
                 return json.valueToTree(Map.of("choices",List.of(Map.of("finish_reason","stop","message",Map.of("content",json.writeValueAsString(payload)))))); }
             catch(Exception e){throw new AssertionError(e);}
         }

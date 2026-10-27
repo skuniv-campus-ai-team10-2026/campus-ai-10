@@ -41,13 +41,13 @@ class HybridReplayIntegrationTest {
         assertEquals(1,Db.id(db.one("SELECT COUNT(*) total FROM reports"),"total"));
         actualResponses.put("leakCompleted",s.ok("GET","/reports/"+id,null,200));
     }
-    @Test void cachedMultiTurnWifiKeepsLocationAndStoresOnce()throws Exception{
+    @Test void cachedWifiCompletesAfterLocationReplyAndStoresOnce()throws Exception{
         var s=transport.new Session().login("student1");String key=UUID.randomUUID().toString();
         var initial=s.ok("POST","/assistant/intake",Map.of("clientRequestId",key,"text","늘봄관 와이파이가 안 돼요."),200);assertEquals("NEEDS_INPUT",initial.path("status").asText());
-        var second=s.ok("POST","/assistant/intake",Map.of("clientRequestId",key,"revision",1,"answer","늘봄관 316호예요."),200);assertEquals("NEEDS_INPUT",second.path("status").asText());
+        var second=s.ok("POST","/assistant/intake",Map.of("clientRequestId",key,"revision",1,"answer","늘봄관 316호예요."),200);assertEquals("ACCEPTED",second.path("status").asText());
         var saved=s.ok("POST","/assistant/intake",Map.of("clientRequestId",key,"revision",2,"answer","연결은 되는데 인터넷 페이지가 열리지 않아요."),200);
         actualResponses.put("multiTurnWifi",saved);
-        assertEquals("ACCEPTED",saved.path("status").asText());assertEquals("늘봄관",saved.at("/report/building").asText());assertEquals("3",saved.at("/report/floor").asText());assertEquals(3,ai.calls);
+        assertEquals("ACCEPTED",saved.path("status").asText());assertEquals(second.at("/report/id"),saved.at("/report/id"));assertEquals("늘봄관",saved.at("/report/building").asText());assertEquals("3",saved.at("/report/floor").asText());assertEquals(2,ai.calls);
     }
     @Test void cachedVagueWifiMustNotBeAcceptedWithoutClarification()throws Exception{
         var s=transport.new Session().login("student1");String key=UUID.randomUUID().toString();

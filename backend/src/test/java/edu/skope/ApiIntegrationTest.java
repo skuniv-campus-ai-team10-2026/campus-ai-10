@@ -58,6 +58,21 @@ class ApiIntegrationTest {
         status(admin,id,"IN_PROGRESS");status(admin,id,"RESOLVED");
         assertEquals("RESOLVED",student.ok("GET","/reports/"+id,null,200).get("status").asText());
     }
+    @Test void namedBrokenDispenserCompletesAfterOneLocationAnswerAndCanBeProcessed()throws Exception{
+        var student=new Session().login("student1");String key=UUID.randomUUID().toString();
+        var initial=student.ok("POST","/assistant/intake",Map.of("clientRequestId",key,"text","은주2관에 정수기가 고장났어요."),200);
+        assertEquals("NEEDS_INPUT",initial.path("status").asText());
+        assertEquals("LOCATION_DETAIL",initial.at("/analysis/followUpState/nextReason").asText());
+        var body=Map.of("clientRequestId",key,"revision",1,"answer","지하 1층이요");
+        var accepted=student.ok("POST","/assistant/intake",body,200);
+        assertEquals("ACCEPTED",accepted.path("status").asText());long id=accepted.at("/report/id").asLong();
+        assertEquals("은주2관",accepted.at("/report/building").asText());assertEquals("B1",accepted.at("/report/floor").asText());
+        assertTrue(accepted.at("/report/symptom").asText().contains("정수기"));assertTrue(accepted.at("/report/occurredAtText").isNull());
+        assertEquals(id,student.ok("POST","/assistant/intake",body,200).at("/report/id").asLong());
+        assertEquals(1,Db.id(db.one("SELECT COUNT(*) total FROM reports"),"total"));
+        var admin=new Session().login("admin");status(admin,id,"IN_PROGRESS");status(admin,id,"RESOLVED");
+        assertEquals("RESOLVED",student.ok("GET","/reports/"+id,null,200).path("status").asText());
+    }
     @Test void intakeClarifiesProblemFirstAndPreservesPlaceAcrossReplies()throws Exception{
         var student=new Session().login("student1");String key=UUID.randomUUID().toString();
         var first=student.ok("POST","/assistant/intake",Map.of("clientRequestId",key,"text","강의실이 너무 불편해요"),200);
