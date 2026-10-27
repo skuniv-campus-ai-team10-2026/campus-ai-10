@@ -19,7 +19,7 @@ public class SecurityConfig {
     @Bean SecurityFilterChain security(HttpSecurity http,HttpSessionCsrfTokenRepository csrf,HttpSessionSecurityContextRepository contexts,edu.skope.repository.Db db) throws Exception {
         http.csrf(c->c.csrfTokenRepository(csrf))
             .securityContext(c->c.securityContextRepository(contexts))
-            .authorizeHttpRequests(a->a.requestMatchers("/api/auth/csrf","/api/auth/login","/api/meta","/error").permitAll()
+            .authorizeHttpRequests(a->a.requestMatchers("/api/auth/csrf","/api/auth/login","/api/auth/register","/api/meta","/error").permitAll()
                 .requestMatchers("/api/admin/**").hasAnyRole("ADMIN","DEPT_ADMIN")
                 .requestMatchers("/api/reports/**","/api/assistant/**").hasRole("STUDENT")
                 .anyRequest().authenticated())
