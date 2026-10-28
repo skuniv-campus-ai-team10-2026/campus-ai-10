@@ -1,6 +1,6 @@
 # 제출용 서버: Azure for Students 가상 서버 1대
 
-작성 2026-10-28, 담당 조성익. 기준 소스 `main` `ac233a7`. **제품 기능·DB 마이그레이션은 바꾸지 않고**, 서버 설치·실행·백업 절차만 담는다.
+작성 2026-10-28, 담당 조성익. 첫 배포 기준 소스 `main` `c259e35`(통합 검증 `docs/verification-release-20261028.md`). **제품 기능·DB 마이그레이션은 바꾸지 않고**, 서버 설치·실행·백업 절차만 담는다.
 
 ## 한눈에 보기
 
@@ -16,6 +16,7 @@
 
 - 서버 1대(Ubuntu 24.04)에 Java 25(Temurin JRE)·MySQL 8·Caddy를 설치한다. 외부에서 열린 포트는 SSH(관리자 IP만)·80·443뿐이다.
 - 주소는 Azure가 주는 DNS 이름(예: `skope-team10.koreacentral.cloudapp.azure.com`)이다. 고정 공인 IP에 붙이므로 재시작해도 같다. 도메인 구매가 필요 없다.
+- 공용 Basic 암호 팝업은 쓰지 않는다. 접근은 SKOPE 로그인만으로 하고, 로그인·가입 요청 제한(`PUBLIC_AUTH_LIMIT_ENABLED=true`)과 보안 쿠키(`COOKIE_SECURE=true`)를 켠다.
 - 첫 배포는 `AI_MODE=DEMO`, `EMBEDDING_MODE=RULE_ONLY`다. **실제 AI 호출 없음.** LIVE 전환·OpenAI 키·한도는 조장이 서버에서 설정한다.
 
 | 파일 | 위치(서버) | 역할 |

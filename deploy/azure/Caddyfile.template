@@ -12,10 +12,7 @@ __HOST__ {
 		-Server
 	}
 
-	# Optional team gate (decided by the team lead). Judges would then need this password too.
-	# basic_auth {
-	# 	team <bcrypt hash from: caddy hash-password>
-	# }
+	# No shared password gate: access is SKOPE login only (team lead decision 2026-10-28).
 
 	@api path /api /api/*
 	handle @api {

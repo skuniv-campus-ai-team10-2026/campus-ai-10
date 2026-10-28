@@ -13,6 +13,12 @@ for svc in mysql caddy skope; do
 done
 systemctl is-active --quiet skope-backup.timer && ok "daily backup timer active" || bad "backup timer inactive"
 
+# Required public-server settings (values only; secrets in the file are never printed).
+for setting in COOKIE_SECURE=true PUBLIC_AUTH_LIMIT_ENABLED=true; do
+    grep -qx "$setting" /etc/skope/skope.env && ok "$setting" || bad "$setting missing in /etc/skope/skope.env"
+done
+echo "ai mode: $(grep -E '^(AI_MODE|EMBEDDING_MODE)=' /etc/skope/skope.env | tr '\n' ' ')"
+
 # Only Caddy (80/443) and SSH may listen publicly; MySQL and the backend stay on loopback.
 LISTEN="$(ss -Hltn | awk '{print $4}')"
 echo "$LISTEN" | grep -Eq '^(0\.0\.0\.0|\*|\[::\]):3306$' && bad "MySQL listens publicly" || ok "MySQL bound to loopback"
