@@ -15,7 +15,13 @@ final class FollowUpPolicy {
     private static final Pattern FLOOR = Pattern.compile("(?i)(?:(지하|B)\\s*)?([1-9]\\d{0,2})\\s*층");
     private static final Pattern BUILDING = Pattern.compile("([가-힣A-Za-z0-9]{1,25}(?:관|동|도서관|체육관))");
     private static final Pattern UNCERTAIN = Pattern.compile("인지|아마|둘\\s*중|확실하지|기억.{0,8}(?:안|않)|모르|일\\s*수도");
-    private static final Pattern EMPTY = Pattern.compile("^(?:거기|여기|저기|그곳|어딘가|모름|몰라|모르겠|잘모르겠|글쎄|그냥|문제|불편|이상|학교|강의실)(?:요|어요|습니다|해요|이에요|예요|가있어요|이있어요|같아요|어요|\\p{Punct})*$");
+    // Clause-level doubt for SET checks. "인지" only as a clause-final alternative, not inside a word (개인지갑).
+    private static final Pattern DOUBT = Pattern.compile("인지(?![가-힣])|인지(?=는|도|를|모르|헷갈|확실|잘)|아마|둘\\s*중|중\\s*(?:에\\s*)?하나|아니면|혹은|또는|확실하지|확실치|헷갈|기억.{0,8}(?:안|않)|모르|일\\s*수도");
+    private static final Pattern NOT_DOUBT = Pattern.compile("모르(?:지는|지도|는\\s*(?:건|게|것은?))\\s*(?:않|아니)\\S*");
+    private static final Pattern BARE_DOUBT = Pattern.compile("^\\s*(?:근데|그런데|하지만|다만|사실|솔직히)?\\s*(?:잘\\s*)?(?:모르겠|확실하지\\s*않|확실치\\s*않|헷갈)\\S*\\s*$");
+    private static final Pattern OWNERSHIP = Pattern.compile("개인|소지품|소유|주인|[제내]\\s*(?:것|거|꺼|물건)|학교\\s*(?:것|거|꺼|물건|소유|비품|시설|장비)|공용|비품|대여|빌린|빌려");
+    private static final String OBJECT_WORDS = "물건|설비|기기|장비|대상|뭔지|무엇인지|어떤\\s*(?:것|거)|어느\\s*(?:것|거)";
+    private static final Pattern EMPTY =Pattern.compile("^(?:거기|여기|저기|그곳|어딘가|모름|몰라|모르겠|잘모르겠|글쎄|그냥|문제|불편|이상|학교|강의실)(?:요|어요|습니다|해요|이에요|예요|가있어요|이있어요|같아요|어요|\\p{Punct})*$");
     record Outcome(Map<String,Object> report, Map<String,Object> state) { }
 
     static Map<String,Object> state(Object raw) {
@@ -144,18 +150,24 @@ final class FollowUpPolicy {
         boolean relevanceSet = applied(updates,"CAMPUS_RELEVANCE",answer);
         // Compatibility for old four-group responses: only an explicit, unambiguous ownership statement.
         String n = normalize(answer);
+        // Doubt is judged only in the clauses about ownership, so "장소는 모르겠지만 제 물건이에요" stays clear.
+        boolean ownershipDoubt = ownershipDoubt(answer, evidence(updates,"CAMPUS_RELEVANCE"));
         boolean explicitPersonal = n.matches(".*(?:개인(?:물건|소지품)|(?:제|내)개인|제(?:거예요|것이에요|물건)|내물건).*" )
-                && !UNCERTAIN.matcher(answer).find() && !n.matches(".*(?:개인|제|내).*(?:아니|아닌|않).*" );
+                && !ownershipDoubt && !n.matches(".*(?:개인|제|내).*(?:아니|아닌|않).*" );
         boolean personalCorrection = "PERSONAL_ON_CAMPUS".equals(newRelevance) && explicitPersonal;
         boolean settled = newRelevance != null && !"UNCERTAIN".equals(newRelevance)
                 && (oldRelevance == null || "UNCERTAIN".equals(oldRelevance))
                 && (relevanceSet || explicitPersonal || n.matches(".*(?:학교|공용|비품|대여|빌린).*"));
         String oldTarget = text(previous,"targetText");
         boolean deniedTarget = oldTarget != null && n.matches(".*" + Pattern.quote(normalize(oldTarget))
-                + "(?:이|가|은|는)?(?:아니고|아니라|아니에요|아닙니다|말고).*" ) && !UNCERTAIN.matcher(answer).find();
-        if (applied(updates,"TARGET",answer) || !updates.containsKey("TARGET") && problem && text(extracted,"targetText") != null || deniedTarget)
-            report.put("targetText", extracted.get("targetText"));
+                + "(?:이|가|은|는)?(?:아니고|아니라|아니에요|아닙니다|말고).*" ) && !targetDoubt(answer, oldTarget, "");
+        if (applied(updates,"TARGET",answer) || !updates.containsKey("TARGET") && problem && text(extracted,"targetText") != null || deniedTarget) {
+            String proposed = text(extracted,"targetText");
+            // A target the student still doubts is left unconfirmed, whichever alternative the model picked.
+            report.put("targetText", proposed != null && targetDoubt(answer, proposed, evidence(updates,"TARGET")) ? null : extracted.get("targetText"));
+        }
         boolean scopeChanged = relevanceSet || personalCorrection || settled;
+        if (scopeChanged && ownershipDoubt) { report.put("campusRelevance","UNCERTAIN"); report.put("workGroup","GENERAL_REVIEW"); return; }
         if (scopeChanged) report.put("campusRelevance", newRelevance);
         boolean specific = extracted.get("workGroup") != null && !"GENERAL_REVIEW".equals(extracted.get("workGroup"));
         if ((problem && extracted.get("workGroup") != null) || (scopeChanged && specific)) report.put("workGroup", extracted.get("workGroup"));
@@ -180,6 +192,41 @@ final class FollowUpPolicy {
         Map<?,?> update = updates.get(group) instanceof Map<?,?> m ? m : Map.of();
         String evidence = Objects.toString(update.get("evidence"), "");
         return "SET".equals(update.get("action")) && !evidence.isBlank() && answer.contains(evidence);
+    }
+    private static String evidence(Map<String,Object> updates, String group) {
+        return updates.get(group) instanceof Map<?,?> m ? Objects.toString(m.get("evidence"), "") : "";
+    }
+    /** The student hedges or leaves an alternative open about who owns the object. */
+    static boolean ownershipDoubt(String answer, String evidence) { return doubt(answer, OWNERSHIP, evidence); }
+    /** The student hedges about the affected object (a model-chosen name or a generic "which thing" phrase). */
+    static boolean targetDoubt(String answer, String target, String evidence) {
+        String name = target == null || target.isBlank() ? "" : Pattern.quote(normalize(target)) + "|";
+        return doubt(answer, Pattern.compile(name + OBJECT_WORDS), evidence);
+    }
+    /**
+     * Shared SET check, independent of the object: a fact counts only if the clauses stating it carry no doubt.
+     * Clauses split at sentence ends and contrast connectors; a bare "확실하지 않아요" belongs to the clause before it.
+     * Without a subject word, the clauses overlapping the model's evidence are checked instead.
+     */
+    static boolean doubt(String answer, Pattern subject, String evidence) {
+        if (answer == null) return false;
+        var clauses = new ArrayList<String>(); var doubtful = new ArrayList<Boolean>();
+        for (String clause : answer.split("[.!?;,\\n]|(?<=지만)|(?<=[는은인]데)")) {
+            if (clause.isBlank()) continue;
+            if (BARE_DOUBT.matcher(clause).matches() && !clauses.isEmpty()) { doubtful.set(doubtful.size()-1, true); continue; }
+            clauses.add(clause); doubtful.add(DOUBT.matcher(NOT_DOUBT.matcher(clause).replaceAll("")).find());
+        }
+        boolean found = false;
+        for (int i = 0; i < clauses.size(); i++) {
+            if (!subject.matcher(normalize(clauses.get(i))).find()) continue;
+            found = true; if (doubtful.get(i)) return true;
+        }
+        if (found || evidence == null || evidence.isBlank()) return false;
+        for (int i = 0; i < clauses.size(); i++) {
+            String c = clauses.get(i).strip();
+            if ((c.contains(evidence.strip()) || evidence.contains(c)) && doubtful.get(i)) return true;
+        }
+        return false;
     }
     /** Still-uncertain ownership stops requiring a place once the student was asked about it. */
     static boolean placeRequired(Map<String,Object> report, Map<String,Object> state) {

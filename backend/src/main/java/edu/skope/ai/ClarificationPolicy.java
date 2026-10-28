@@ -25,6 +25,10 @@ final class ClarificationPolicy {
         if(placeChanged)for(String k:List.of("locationEvidence","scopeEvidence"))known.remove(k);
         if(symptomChanged)for(String k:List.of("symptomEvidence","targetEvidence","workflowEvidence"))known.remove(k);
         if(targetChanged)known.remove("targetEvidence");
+        // Doubt the student already volunteered counts as an answer: ownership is not asked again,
+        // and an object they cannot name goes to review instead of a repeated question.
+        if(field!=null&&"UNCERTAIN".equals(report.get("campusRelevance"))&&FollowUpPolicy.ownershipDoubt(answer,"")&&!asked.contains("CAMPUS_RELEVANCE"))asked.add("CAMPUS_RELEVANCE");
+        if(field!=null&&targetChanged&&report.get("targetText")==null&&FollowUpPolicy.targetDoubt(answer,Objects.toString(previous.get("targetText"),""),""))unavailable.add("TARGET_UNCLEAR");
         Map<?,?> proposed=suggestion.get("known") instanceof Map<?,?> m?m:Map.of();
         for(String key:FACTS){
             if(targetChanged&&report.get("targetText")==null&&key.equals("targetEvidence"))continue;
