@@ -21,12 +21,16 @@ final class ClarificationPolicy {
         if(field!=null&&!last.isEmpty()&&!asked.contains(last)&&asked.size()<3)asked.add(last);
         boolean placeChanged=!Objects.equals(previous.get("building"),report.get("building")) || changed(updates,"LOCATION");
         boolean symptomChanged=changed(updates,"SYMPTOM")||changed(updates,"CATEGORY");
+        boolean targetChanged=!Objects.equals(previous.get("targetText"),report.get("targetText"));
         if(placeChanged)for(String k:List.of("locationEvidence","scopeEvidence"))known.remove(k);
         if(symptomChanged)for(String k:List.of("symptomEvidence","targetEvidence","workflowEvidence"))known.remove(k);
+        if(targetChanged)known.remove("targetEvidence");
         Map<?,?> proposed=suggestion.get("known") instanceof Map<?,?> m?m:Map.of();
         for(String key:FACTS){
+            if(targetChanged&&report.get("targetText")==null&&key.equals("targetEvidence"))continue;
             String evidence=proposed.get(key) instanceof String s?s.strip():"";
-            String source=field!=null&&((key.startsWith("location")||key.startsWith("scope"))?placeChanged:symptomChanged)?answer:original+"\n"+answer;
+            String source=field!=null&&((key.startsWith("location")||key.startsWith("scope"))?placeChanged:
+                    key.equals("targetEvidence")?symptomChanged||targetChanged:symptomChanged)?answer:original+"\n"+answer;
             if(!evidence.isBlank()&&evidence.length()<=200&&source.contains(evidence) && contextualEvidence(source,evidence))known.put(key,evidence);
         }
         // A rewritten model summary cannot establish details absent from the student's words.
@@ -62,6 +66,7 @@ final class ClarificationPolicy {
             }
         }
         if(physical) {
+            if(field!=null&&targetChanged&&report.get("targetText")==null)needed.add("TARGET_UNCLEAR");
             if(type.equals("WIFI")&&!wifiDetail(compact(known.get("symptomEvidence"))))needed.add("SYMPTOM_DETAIL");
             if(type.equals("ELECTRIC")&&!observedFault&&!target(compact(field!=null&&symptomChanged?answer:original+"\n"+answer))&&!concreteTarget(known.get("targetEvidence")))needed.add("TARGET_UNCLEAR");
             if(type.equals("UNKNOWN")&&current.matches(".*(?:시설|설비|장비|기기|뭔가).*(?:고장|이상|안됨|안돼).*" )&&!target(current)&&known.get("targetEvidence")==null)needed.add("TARGET_UNCLEAR");

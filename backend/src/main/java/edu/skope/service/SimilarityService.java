@@ -211,11 +211,18 @@ public class SimilarityService {
     static boolean broadScope(Map<String, Object> a, Map<String, Object> b, Double score) {
         if (!Codes.broad(a.get("subcategory")) || !Codes.broad(b.get("subcategory"))) return true;
         if (!Codes.workGroup("UNKNOWN", a.get("workGroup")).equals(Codes.workGroup("UNKNOWN", b.get("workGroup")))) return false;
-        String targetA = normalized(a.get("targetText")), targetB = normalized(b.get("targetText"));
+        String targetA = targetKey(a.get("targetText")), targetB = targetKey(b.get("targetText"));
         boolean bothTargets = !targetA.isBlank() && !targetB.isBlank();
         if (score != null) return !bothTargets || targetA.equals(targetB);
         return bothTargets && targetA.equals(targetB)
                 && !normalized(a.get("symptom")).isBlank() && !normalized(b.get("symptom")).isBlank();
+    }
+
+    /** Limited compatibility for older literal labels. New extraction uses common Korean object names.
+     * Unknown aliases remain conservative; a high whole-report cosine cannot prove object equivalence. */
+    private static String targetKey(Object value) {
+        String key = normalized(java.text.Normalizer.normalize(Objects.toString(value,""), java.text.Normalizer.Form.NFKC));
+        return switch (key) { case "미러", "mirror" -> "거울"; default -> key; };
     }
 
     private static String semanticBasis(Map<String, Object> left, Map<String, Object> right,

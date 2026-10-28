@@ -1,0 +1,26 @@
+{
+  "id": "work-group-v1",
+  "labelLimitation": "Codex-authored synthetic DEVELOPMENT smoke regressions, expectations fixed before execution. Not independently human-reviewed, not an independent accuracy estimate. Two corrections fork from the same initial analysis; five calls do not mean five independent reports. No embeddings, application DB writes or paid retries.",
+  "plannedCalls": 5,
+  "groups": [
+    {
+      "id": "W1",
+      "text": "학교 공용 화장실 미러가 깨졌어요. 신고합니다.",
+      "steps": [
+        {"expectedStatus":"CONTINUE","allowedReasons":["LOCATION_REQUIRED"],"equals":{"/report/targetText":"거울","/report/campusRelevance":"CAMPUS_FACILITY","/report/workGroup":"FACILITY_MAINTENANCE","/report/building":null,"/report/emergencyHint":false}},
+        {"fromStep":1,"answer":"아니요, 학교 물건이 아니라 제 개인 거울이에요.","expectedStatus":"COMPLETE","equals":{"/report/targetText":"거울","/report/campusRelevance":"PERSONAL_ON_CAMPUS","/report/workGroup":"GENERAL_REVIEW","/report/building":null,"/report/occurredAtText":null},"contains":{"/report/symptom":"깨"}},
+        {"fromStep":1,"answer":"거울이 아니고 학교의 다른 물건이 고장났어요. 은주2관 3층 화장실이에요.","expectedStatus":"CONTINUE","allowedReasons":["TARGET_UNCLEAR","ISSUE_UNCLEAR"],"equals":{"/report/targetText":null,"/report/building":"은주2관","/report/floor":"3","/report/campusRelevance":"CAMPUS_FACILITY"},"notContains":{"/report/symptom":"거울"}}
+      ]
+    },
+    {
+      "id":"W2",
+      "text":"학교에서 대여한 실습복이 찢어졌어요. 교환을 접수하고 싶어요.",
+      "steps":[{"expectedStatus":"COMPLETE","equals":{"/report/targetText":"실습복","/report/campusRelevance":"SCHOOL_SERVICE","/report/workGroup":"SHARED_EQUIPMENT","/report/building":null,"/report/occurredAtText":null}}]
+    },
+    {
+      "id":"W3",
+      "text":"연필이 부러졌어요. 접수해주세요.",
+      "steps":[{"expectedStatus":"CONTINUE","allowedReasons":["CAMPUS_RELEVANCE"],"equals":{"/report/targetText":"연필","/report/campusRelevance":"UNCERTAIN","/report/building":null,"/report/occurredAtText":null}}]
+    }
+  ]
+}
