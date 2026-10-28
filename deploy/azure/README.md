@@ -138,7 +138,21 @@ sudo bash /opt/skope/deploy/check.sh
 | 11/12 | 본선 시연 |
 | 11/13 이후 | 최종 백업을 PC로 내려받은 뒤 리소스 그룹 삭제(크레딧 소모 중단) |
 
-## 10. 확인하지 않은 것
+## 10. 첫 배포 확인 결과 (2026-10-28)
 
-- 이 문서의 스크립트는 2026-10-28 현재 **서버에서 아직 실행해 보지 않았다.** bash 문법 검사와 릴리스 빌드만 로컬에서 확인했다. 실제 확인 결과는 서버 생성 후 이 절에 기록한다.
-- 학생 구독의 지역·크기 제한, Caddy 인증서 발급(Let's Encrypt)·갱신, 재부팅 후 유지는 서버 생성 후 확인한다.
+- 서버: `skope-rg`/`skope-vm`, Korea Central, **Standard_B2ls_v2**(2 vCPU/4GB, $0.05/시간, B2s는 이 지역 학생 구독에 없음), Ubuntu 24.04.5, Standard SSD 32GB, 고정 IP. 지출 제한 On, 허용 지역 정책에 koreacentral 포함.
+- 주소: `https://skope-team10.koreacentral.cloudapp.azure.com` (Let's Encrypt 인증서, 2027-01-26까지 자동 갱신 대상).
+- 배포 커밋: `c259e354af31f4080f264286dae4132131d71aeb`, Flyway V10, DEMO/RULE_ONLY, 시연용 배정 켬. 유료 AI 호출 0회.
+- NSG: SSH(22)는 관리자 IP 1개만, 80·443 공개. 그 외 포트 규칙 없음. 서버 안 ufw도 22·80·443만.
+
+| 확인 | 결과 |
+|---|---|
+| `check.sh` | 전 항목 PASS(첫 백업 전 "no backup yet"만 예상대로 FAIL → 백업 후 해소) |
+| 외부에서 3306·8080 접속 | 실패(차단됨), 443 성공, HTTP→HTTPS 이동, HSTS |
+| `smoke.sh`(공개 HTTPS로 실제 요청) | 16/16 PASS: 학생 로그인, 세션 쿠키 Secure·HttpOnly, 자연어 접수 ACCEPTED(정수기→시연용 배정), 사진 업로드·조회, 관리자 처리 중→완료, 관리자 사진 조회, 학생 결과 조회, 다른 학생 404, 학생의 관리자 API 403, CSRF 없는 로그인 403 |
+| 강제 종료(`systemctl kill -s KILL skope`) | 약 14초 뒤 자동 재시작·응답 |
+| 재부팅 | 같은 주소·인증서, 서비스 자동 시작, 신고 1·사진 1 유지 |
+| 서버 밖 백업 | `Pull-Backup.ps1`로 PC에 내려받고 해시 검증 |
+| 복원 | 점검 전 백업으로 `restore.sh` → 신고·사진 0건으로 돌아감(점검 데이터 제거), 서비스 정상 |
+
+남은 것: LIVE 전환(조장), 팀원 PC·휴대폰 화면 확인, 로그인 요청 제한(429) 실제 발동은 기존 테스트로만 확인, 제출 전 디스크 스냅샷.
