@@ -1,6 +1,7 @@
 package edu.skope.service;
 
 import edu.skope.ai.AiService;
+import edu.skope.domain.Codes;
 import edu.skope.repository.Db;
 import jakarta.servlet.http.HttpSession;
 import org.springframework.dao.DuplicateKeyException;
@@ -92,10 +93,16 @@ public class IntakeService {
         return response;
     }
     private Map<String,Object> existing(long user,String key){var r=db.one("SELECT id FROM reports WHERE student_id=? AND client_request_id=?",user,key);return r==null?null:reports.detail(Db.id(r,"id"),user,false);}
-    private Map<String,Object> accepted(Map<String,Object> report){return Map.of("status","ACCEPTED","report",report,"aiMode",ai.mode());}
+    static final String SCOPE_NOTICE="SKOPE는 학교 시설·비품·행정 문제를 접수하는 서비스예요. 개인 물건 구매·추천은 도와드리기 어려워 담당 부서로 자동 전달하지 않았어요. 총괄 담당자가 내용을 확인할 수 있어요.";
+    private Map<String,Object> accepted(Map<String,Object> report){
+        var response=new LinkedHashMap<String,Object>(Map.of("status","ACCEPTED","report",report,"aiMode",ai.mode()));
+        // Optional field: present only for an out-of-scope request, so existing clients can ignore it.
+        if(Codes.broad(report.get("subcategory"))&&"OUT_OF_SCOPE".equals(report.get("campusRelevance")))response.put("scopeNotice",SCOPE_NOTICE);
+        return response;
+    }
     private String fieldNames(Object value){
         var labels=new HashMap<>(Map.of("LOCATION","장소","SYMPTOM","문제 내용 또는 문의 내용","OCCURRED_AT","발생 시점","CATEGORY","유형"));
-        labels.putAll(Map.of("ISSUE_UNCLEAR","구체적인 문제 내용","LOCATION_REQUIRED","발생 장소","LOCATION_DETAIL","점검할 공간","SYMPTOM_DETAIL","장애가 나타나는 방식","TARGET_UNCLEAR","점검 대상 설비","WORKFLOW_UNCLEAR","업무 단계","CONFLICT","정보 충돌"));
+        labels.putAll(Map.of("ISSUE_UNCLEAR","구체적인 문제 내용","LOCATION_REQUIRED","발생 장소","LOCATION_DETAIL","점검할 공간","SYMPTOM_DETAIL","장애가 나타나는 방식","TARGET_UNCLEAR","점검 대상 설비","WORKFLOW_UNCLEAR","업무 단계","CONFLICT","정보 충돌","CAMPUS_RELEVANCE","학교 물건인지 여부"));
         return value instanceof List<?> fields && !fields.isEmpty()?String.join(", ",fields.stream().map(f->labels.getOrDefault(f.toString(),"추가 정보")).toList()):"없음";
     }
     @SuppressWarnings("unchecked") private Map<String,Object> save(long user,String key,Draft draft,boolean review) {
@@ -105,7 +112,9 @@ public class IntakeService {
         payload.putIfAbsent("category","OTHER");payload.putIfAbsent("subcategory","UNKNOWN");
         if(payload.get("symptom")==null)payload.put("symptom",draft.text.substring(0,Math.min(500,draft.text.length())));
         String intent=draft.analysis==null?draft.preferred:Objects.toString(draft.analysis.get("intent"));
-        payload.put("requestKind","QUESTION".equals(intent)?"QUESTION":"REPORT");
+        // A personal or out-of-scope OTHER request is an inquiry for general review, never a facility fault.
+        boolean general=Codes.broad(payload.get("subcategory"))&&Codes.generalInquiry(payload.get("campusRelevance"));
+        payload.put("requestKind","QUESTION".equals(intent)||general?"QUESTION":"REPORT");
         if(review) {
             payload.put("reviewNote",draft.failure!=null?"AI 분석 실패: 원문과 기존 추출 내용을 확인해 주세요."+(draft.failedAnswer==null?"":" / 미분석 추가 답변: "+draft.failedAnswer):
                     (Boolean.TRUE.equals(state(draft).get("urgentReview"))?"추가 질문 없이 접수한 내용의 관리자 확인이 필요합니다. ":"학생이 관리자 검토를 요청했습니다. ")+"부족한 정보: "+fieldNames(payload.get("missingFields"))+". 처리 전 확인 사항: "+fieldNames(state(draft).get("neededReasons"))+". 충돌하거나 미확정인 정보: "+fieldNames(state(draft).get("reviewFields"))+"."+(draft.latestAnswer==null?"":" / 마지막 추가 답변: "+draft.latestAnswer)+(draft.failedAnswer==null?"":" / 미분석 추가 답변: "+draft.failedAnswer));

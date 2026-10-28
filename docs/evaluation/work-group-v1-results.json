@@ -1,0 +1,671 @@
+{
+  "fixtureSha256" : "eaac4ceb439e34cd3e1e356e75812fb909c8b61b877e538c57e7f84bc5d44e7d",
+  "suite" : "work-group-v1",
+  "sourceHashes" : {
+    "AiService.java" : "8de699c0ae19fe6b13879befeddb31c1876cef35613e5949738e2fca852993ac",
+    "ClarificationPolicy.java" : "7047b238d6da6f4d2c51f1ee915540c100d3965219a874fd61cf4bd1cfb291f9",
+    "EmergencySignals.java" : "1866dc34cc23629a0b9af8b106b136f2148d45157ef20d79f058761a1d17fe07",
+    "FollowUpPolicy.java" : "9ac89554cd761fc0356cd76267f9af470e80d713198e3034b90bd3b0bb9553d5"
+  },
+  "evaluatedAt" : "2026-10-27T23:47:25.907691200+09:00",
+  "promptVersion" : "hybrid-intake-v6",
+  "policyVersion" : "hybrid-check-v7",
+  "model" : "gpt-6-luna",
+  "labelLimitation" : "Codex-authored synthetic DEVELOPMENT smoke regressions, expectations fixed before execution. Not independently human-reviewed, not an independent accuracy estimate. Two corrections fork from the same initial analysis; five calls do not mean five independent reports. No embeddings, application DB writes or paid retries.",
+  "scope" : "Production AiService only; no DEMO, embeddings, browser or DB writes. Local API integration tested separately.",
+  "preflight" : {
+    "automaticRetries" : 0,
+    "budgetUsd" : 0.05,
+    "pricingDate" : "2026-10-27",
+    "plannedCalls" : 5,
+    "maxCalls" : 5,
+    "conservativeMaximumUsd" : 0.04768,
+    "pricingSource" : "https://developers.openai.com/api/docs/models/gpt-6-luna"
+  },
+  "rows" : [ {
+    "id" : "W1-1",
+    "expected" : {
+      "expectedStatus" : "CONTINUE",
+      "allowedReasons" : [ "LOCATION_REQUIRED" ],
+      "equals" : {
+        "/report/targetText" : "거울",
+        "/report/campusRelevance" : "CAMPUS_FACILITY",
+        "/report/workGroup" : "FACILITY_MAINTENANCE",
+        "/report/building" : null,
+        "/report/emergencyHint" : false
+      }
+    },
+    "input" : {
+      "preferredIntent" : "AUTO",
+      "hybrid" : true,
+      "text" : "학교 공용 화장실 미러가 깨졌어요. 신고합니다."
+    },
+    "rawModelOutput" : {
+      "intent" : "REPORT",
+      "report" : {
+        "category" : "OTHER",
+        "subcategory" : "UNKNOWN",
+        "locationText" : "학교 공용 화장실",
+        "building" : null,
+        "floor" : null,
+        "symptom" : "공용 화장실의 거울이 깨졌습니다.",
+        "occurredAtText" : null,
+        "followUpQuestion" : "어느 건물의 몇 층 공용 화장실인가요?",
+        "missingFields" : [ "LOCATION" ],
+        "emergencyHint" : false,
+        "workGroup" : "FACILITY_MAINTENANCE",
+        "targetText" : "거울",
+        "campusRelevance" : "CAMPUS_FACILITY"
+      },
+      "assessment" : {
+        "reason" : "LOCATION_REQUIRED",
+        "evidence" : "학교 공용 화장실",
+        "rationale" : "깨진 거울은 확인되었지만, 시설을 찾을 수 있는 건물이나 층 정보가 없습니다.",
+        "question" : "어느 건물의 몇 층 공용 화장실인가요?",
+        "known" : {
+          "locationEvidence" : null,
+          "scopeEvidence" : null,
+          "symptomEvidence" : "깨졌어요",
+          "targetEvidence" : "미러",
+          "workflowEvidence" : null
+        }
+      }
+    },
+    "actual" : {
+      "intent" : "REPORT",
+      "report" : {
+        "category" : "OTHER",
+        "subcategory" : "UNKNOWN",
+        "locationText" : "학교 공용 화장실",
+        "building" : null,
+        "floor" : null,
+        "symptom" : "공용 화장실의 거울이 깨졌습니다.",
+        "occurredAtText" : null,
+        "followUpQuestion" : "어느 건물이나 장소에서 발생했나요?",
+        "missingFields" : [ "LOCATION" ],
+        "emergencyHint" : false,
+        "workGroup" : "FACILITY_MAINTENANCE",
+        "targetText" : "거울",
+        "campusRelevance" : "CAMPUS_FACILITY"
+      },
+      "clarification" : {
+        "reason" : "LOCATION_REQUIRED",
+        "neededReasons" : [ "LOCATION_REQUIRED" ],
+        "message" : "담당자가 확인할 장소를 정하기 위해 필요해요.",
+        "source" : "AI_AND_RULES"
+      },
+      "followUpState" : {
+        "turns" : 0,
+        "noProgress" : 0,
+        "askedFields" : [ ],
+        "reviewFields" : [ ],
+        "status" : "CONTINUE",
+        "nextField" : "LOCATION",
+        "nextReason" : "LOCATION_REQUIRED",
+        "askedReasons" : [ ],
+        "unavailableReasons" : [ ],
+        "knownEvidence" : {
+          "symptomEvidence" : "깨졌어요",
+          "targetEvidence" : "미러"
+        },
+        "neededReasons" : [ "LOCATION_REQUIRED" ],
+        "urgentReview" : false
+      },
+      "aiMode" : "LIVE"
+    },
+    "failedChecks" : [ ],
+    "status" : "PASS",
+    "source" : "NEW_LIVE",
+    "cacheKey" : "3730635fa9684b13f2900da3e8df417aa779ef9f6912b4a8454eb0eb8f89e438",
+    "usage" : {
+      "outputTokens" : 223,
+      "inputTokens" : 2499,
+      "totalTokens" : 2722
+    },
+    "providerModel" : "gpt-6-luna"
+  }, {
+    "id" : "W1-2",
+    "expected" : {
+      "fromStep" : 1,
+      "answer" : "아니요, 학교 물건이 아니라 제 개인 거울이에요.",
+      "expectedStatus" : "COMPLETE",
+      "equals" : {
+        "/report/targetText" : "거울",
+        "/report/campusRelevance" : "PERSONAL_ON_CAMPUS",
+        "/report/workGroup" : "GENERAL_REVIEW",
+        "/report/building" : null,
+        "/report/occurredAtText" : null
+      },
+      "contains" : {
+        "/report/symptom" : "깨"
+      }
+    },
+    "input" : {
+      "preferredIntent" : "AUTO",
+      "hybrid" : true,
+      "text" : "학교 공용 화장실 미러가 깨졌어요. 신고합니다.",
+      "followUp" : {
+        "state" : {
+          "turns" : 0,
+          "noProgress" : 0,
+          "askedFields" : [ ],
+          "reviewFields" : [ ],
+          "status" : "CONTINUE",
+          "nextField" : "LOCATION",
+          "nextReason" : "LOCATION_REQUIRED",
+          "askedReasons" : [ ],
+          "unavailableReasons" : [ ],
+          "knownEvidence" : {
+            "symptomEvidence" : "깨졌어요",
+            "targetEvidence" : "미러"
+          },
+          "neededReasons" : [ "LOCATION_REQUIRED" ],
+          "urgentReview" : false
+        },
+        "field" : "LOCATION",
+        "previousReport" : {
+          "category" : "OTHER",
+          "subcategory" : "UNKNOWN",
+          "locationText" : "학교 공용 화장실",
+          "building" : null,
+          "floor" : null,
+          "symptom" : "공용 화장실의 거울이 깨졌습니다.",
+          "occurredAtText" : null,
+          "followUpQuestion" : "어느 건물이나 장소에서 발생했나요?",
+          "missingFields" : [ "LOCATION" ],
+          "emergencyHint" : false,
+          "workGroup" : "FACILITY_MAINTENANCE",
+          "targetText" : "거울",
+          "campusRelevance" : "CAMPUS_FACILITY"
+        },
+        "answer" : "아니요, 학교 물건이 아니라 제 개인 거울이에요."
+      }
+    },
+    "rawModelOutput" : {
+      "intent" : "REPORT",
+      "report" : {
+        "category" : "OTHER",
+        "subcategory" : "UNKNOWN",
+        "locationText" : "학교 공용 화장실",
+        "building" : null,
+        "floor" : null,
+        "symptom" : "개인 거울이 깨졌습니다.",
+        "occurredAtText" : null,
+        "followUpQuestion" : null,
+        "missingFields" : [ ],
+        "emergencyHint" : false,
+        "workGroup" : "GENERAL_REVIEW",
+        "targetText" : "거울",
+        "campusRelevance" : "PERSONAL_ON_CAMPUS"
+      },
+      "assessment" : {
+        "reason" : "NONE",
+        "evidence" : null,
+        "rationale" : null,
+        "question" : null,
+        "known" : {
+          "locationEvidence" : null,
+          "scopeEvidence" : null,
+          "symptomEvidence" : "깨졌어요",
+          "targetEvidence" : "미러",
+          "workflowEvidence" : null
+        }
+      },
+      "updates" : {
+        "LOCATION" : {
+          "action" : "KEEP",
+          "evidence" : null
+        },
+        "SYMPTOM" : {
+          "action" : "KEEP",
+          "evidence" : null
+        },
+        "OCCURRED_AT" : {
+          "action" : "KEEP",
+          "evidence" : null
+        },
+        "CATEGORY" : {
+          "action" : "KEEP",
+          "evidence" : null
+        },
+        "TARGET" : {
+          "action" : "KEEP",
+          "evidence" : null
+        },
+        "CAMPUS_RELEVANCE" : {
+          "action" : "SET",
+          "evidence" : "학교 물건이 아니라 제 개인 거울이에요."
+        }
+      }
+    },
+    "actual" : {
+      "intent" : "REPORT",
+      "report" : {
+        "category" : "OTHER",
+        "subcategory" : "UNKNOWN",
+        "locationText" : "학교 공용 화장실",
+        "building" : null,
+        "floor" : null,
+        "symptom" : "공용 화장실의 거울이 깨졌습니다.",
+        "occurredAtText" : null,
+        "followUpQuestion" : null,
+        "missingFields" : [ ],
+        "emergencyHint" : false,
+        "workGroup" : "GENERAL_REVIEW",
+        "targetText" : "거울",
+        "campusRelevance" : "PERSONAL_ON_CAMPUS"
+      },
+      "clarification" : {
+        "reason" : null,
+        "neededReasons" : [ ],
+        "message" : null,
+        "source" : "SERVER_RULES"
+      },
+      "followUpState" : {
+        "turns" : 1,
+        "noProgress" : 0,
+        "askedFields" : [ "LOCATION" ],
+        "reviewFields" : [ ],
+        "status" : "COMPLETE",
+        "nextField" : null,
+        "nextReason" : null,
+        "askedReasons" : [ "LOCATION_REQUIRED" ],
+        "unavailableReasons" : [ ],
+        "knownEvidence" : {
+          "symptomEvidence" : "깨졌어요",
+          "targetEvidence" : "미러"
+        },
+        "neededReasons" : [ ],
+        "urgentReview" : false
+      },
+      "aiMode" : "LIVE"
+    },
+    "failedChecks" : [ ],
+    "status" : "PASS",
+    "source" : "NEW_LIVE",
+    "cacheKey" : "f987d16dcea49cd5d6907d8d9f55d0fbd339854cac082f9a3e38b7ed66abcabd",
+    "usage" : {
+      "outputTokens" : 244,
+      "inputTokens" : 3260,
+      "totalTokens" : 3504
+    },
+    "providerModel" : "gpt-6-luna"
+  }, {
+    "id" : "W1-3",
+    "expected" : {
+      "fromStep" : 1,
+      "answer" : "거울이 아니고 학교의 다른 물건이 고장났어요. 은주2관 3층 화장실이에요.",
+      "expectedStatus" : "CONTINUE",
+      "allowedReasons" : [ "TARGET_UNCLEAR", "ISSUE_UNCLEAR" ],
+      "equals" : {
+        "/report/targetText" : null,
+        "/report/building" : "은주2관",
+        "/report/floor" : "3",
+        "/report/campusRelevance" : "CAMPUS_FACILITY"
+      },
+      "notContains" : {
+        "/report/symptom" : "거울"
+      }
+    },
+    "input" : {
+      "preferredIntent" : "AUTO",
+      "hybrid" : true,
+      "text" : "학교 공용 화장실 미러가 깨졌어요. 신고합니다.",
+      "followUp" : {
+        "state" : {
+          "turns" : 0,
+          "noProgress" : 0,
+          "askedFields" : [ ],
+          "reviewFields" : [ ],
+          "status" : "CONTINUE",
+          "nextField" : "LOCATION",
+          "nextReason" : "LOCATION_REQUIRED",
+          "askedReasons" : [ ],
+          "unavailableReasons" : [ ],
+          "knownEvidence" : {
+            "symptomEvidence" : "깨졌어요",
+            "targetEvidence" : "미러"
+          },
+          "neededReasons" : [ "LOCATION_REQUIRED" ],
+          "urgentReview" : false
+        },
+        "field" : "LOCATION",
+        "previousReport" : {
+          "category" : "OTHER",
+          "subcategory" : "UNKNOWN",
+          "locationText" : "학교 공용 화장실",
+          "building" : null,
+          "floor" : null,
+          "symptom" : "공용 화장실의 거울이 깨졌습니다.",
+          "occurredAtText" : null,
+          "followUpQuestion" : "어느 건물이나 장소에서 발생했나요?",
+          "missingFields" : [ "LOCATION" ],
+          "emergencyHint" : false,
+          "workGroup" : "FACILITY_MAINTENANCE",
+          "targetText" : "거울",
+          "campusRelevance" : "CAMPUS_FACILITY"
+        },
+        "answer" : "거울이 아니고 학교의 다른 물건이 고장났어요. 은주2관 3층 화장실이에요."
+      }
+    },
+    "rawModelOutput" : {
+      "intent" : "REPORT",
+      "report" : {
+        "category" : "OTHER",
+        "subcategory" : "UNKNOWN",
+        "locationText" : "은주2관 3층 화장실",
+        "building" : "은주2관",
+        "floor" : "3",
+        "symptom" : "학교의 다른 물건이 고장났습니다.",
+        "occurredAtText" : null,
+        "followUpQuestion" : "고장난 물건은 무엇인가요?",
+        "missingFields" : [ ],
+        "emergencyHint" : false,
+        "workGroup" : "GENERAL_REVIEW",
+        "targetText" : null,
+        "campusRelevance" : "CAMPUS_FACILITY"
+      },
+      "assessment" : {
+        "reason" : "TARGET_UNCLEAR",
+        "evidence" : "거울이 아니고 학교의 다른 물건이 고장났어요.",
+        "rationale" : "거울은 명시적으로 부정했지만 대체 고장 물건이 특정되지 않았습니다.",
+        "question" : "고장난 물건은 무엇인가요?",
+        "known" : {
+          "locationEvidence" : "은주2관 3층 화장실이에요.",
+          "scopeEvidence" : null,
+          "symptomEvidence" : "학교의 다른 물건이 고장났어요.",
+          "targetEvidence" : null,
+          "workflowEvidence" : null
+        }
+      },
+      "updates" : {
+        "LOCATION" : {
+          "action" : "SET",
+          "evidence" : "은주2관 3층 화장실이에요."
+        },
+        "SYMPTOM" : {
+          "action" : "SET",
+          "evidence" : "학교의 다른 물건이 고장났어요."
+        },
+        "OCCURRED_AT" : {
+          "action" : "KEEP",
+          "evidence" : null
+        },
+        "CATEGORY" : {
+          "action" : "KEEP",
+          "evidence" : null
+        },
+        "TARGET" : {
+          "action" : "SET",
+          "evidence" : "거울이 아니고 학교의 다른 물건이 고장났어요."
+        },
+        "CAMPUS_RELEVANCE" : {
+          "action" : "KEEP",
+          "evidence" : null
+        }
+      }
+    },
+    "actual" : {
+      "intent" : "REPORT",
+      "report" : {
+        "category" : "OTHER",
+        "subcategory" : "UNKNOWN",
+        "locationText" : "은주2관 3층",
+        "building" : "은주2관",
+        "floor" : "3",
+        "symptom" : "학교의 다른 물건이 고장났습니다.",
+        "occurredAtText" : null,
+        "followUpQuestion" : "어떤 설비나 물건에 문제가 있나요? 담당자가 찾을 수 있게 알려주세요.",
+        "missingFields" : [ ],
+        "emergencyHint" : false,
+        "workGroup" : "GENERAL_REVIEW",
+        "targetText" : null,
+        "campusRelevance" : "CAMPUS_FACILITY"
+      },
+      "clarification" : {
+        "reason" : "TARGET_UNCLEAR",
+        "neededReasons" : [ "TARGET_UNCLEAR" ],
+        "message" : "어떤 설비를 점검해야 하는지 확인하려고 해요.",
+        "source" : "AI_AND_RULES"
+      },
+      "followUpState" : {
+        "turns" : 1,
+        "noProgress" : 0,
+        "askedFields" : [ "LOCATION" ],
+        "reviewFields" : [ ],
+        "status" : "CONTINUE",
+        "nextField" : "SYMPTOM",
+        "nextReason" : "TARGET_UNCLEAR",
+        "askedReasons" : [ "LOCATION_REQUIRED" ],
+        "unavailableReasons" : [ ],
+        "knownEvidence" : { },
+        "neededReasons" : [ "TARGET_UNCLEAR" ],
+        "urgentReview" : false
+      },
+      "aiMode" : "LIVE"
+    },
+    "failedChecks" : [ ],
+    "status" : "PASS",
+    "source" : "NEW_LIVE",
+    "cacheKey" : "f3bc6792568914954b0a15f4fc41194979a804cae2b1b1e6160ca11cdd3f9484",
+    "usage" : {
+      "outputTokens" : 487,
+      "inputTokens" : 3273,
+      "totalTokens" : 3760
+    },
+    "providerModel" : "gpt-6-luna"
+  }, {
+    "id" : "W2-1",
+    "expected" : {
+      "expectedStatus" : "COMPLETE",
+      "equals" : {
+        "/report/targetText" : "실습복",
+        "/report/campusRelevance" : "SCHOOL_SERVICE",
+        "/report/workGroup" : "SHARED_EQUIPMENT",
+        "/report/building" : null,
+        "/report/occurredAtText" : null
+      }
+    },
+    "input" : {
+      "preferredIntent" : "AUTO",
+      "hybrid" : true,
+      "text" : "학교에서 대여한 실습복이 찢어졌어요. 교환을 접수하고 싶어요."
+    },
+    "rawModelOutput" : {
+      "intent" : "REPORT",
+      "report" : {
+        "category" : "OTHER",
+        "subcategory" : "UNKNOWN",
+        "locationText" : null,
+        "building" : null,
+        "floor" : null,
+        "symptom" : "학교에서 대여한 실습복이 찢어져 교환을 요청함",
+        "occurredAtText" : null,
+        "followUpQuestion" : null,
+        "missingFields" : [ ],
+        "emergencyHint" : false,
+        "workGroup" : "SHARED_EQUIPMENT",
+        "targetText" : "실습복",
+        "campusRelevance" : "SCHOOL_SERVICE"
+      },
+      "assessment" : {
+        "reason" : "NONE",
+        "evidence" : null,
+        "rationale" : null,
+        "question" : null,
+        "known" : {
+          "locationEvidence" : null,
+          "scopeEvidence" : null,
+          "symptomEvidence" : "실습복이 찢어졌어요",
+          "targetEvidence" : "실습복",
+          "workflowEvidence" : "교환을 접수하고 싶어요"
+        }
+      }
+    },
+    "actual" : {
+      "intent" : "REPORT",
+      "report" : {
+        "category" : "OTHER",
+        "subcategory" : "UNKNOWN",
+        "locationText" : null,
+        "building" : null,
+        "floor" : null,
+        "symptom" : "학교에서 대여한 실습복이 찢어져 교환을 요청함",
+        "occurredAtText" : null,
+        "followUpQuestion" : null,
+        "missingFields" : [ ],
+        "emergencyHint" : false,
+        "workGroup" : "SHARED_EQUIPMENT",
+        "targetText" : "실습복",
+        "campusRelevance" : "SCHOOL_SERVICE"
+      },
+      "clarification" : {
+        "reason" : null,
+        "neededReasons" : [ ],
+        "message" : null,
+        "source" : "SERVER_RULES"
+      },
+      "followUpState" : {
+        "turns" : 0,
+        "noProgress" : 0,
+        "askedFields" : [ ],
+        "reviewFields" : [ ],
+        "status" : "COMPLETE",
+        "nextField" : null,
+        "nextReason" : null,
+        "askedReasons" : [ ],
+        "unavailableReasons" : [ ],
+        "knownEvidence" : {
+          "symptomEvidence" : "실습복이 찢어졌어요",
+          "targetEvidence" : "실습복",
+          "workflowEvidence" : "교환을 접수하고 싶어요"
+        },
+        "neededReasons" : [ ],
+        "urgentReview" : false
+      },
+      "aiMode" : "LIVE"
+    },
+    "failedChecks" : [ ],
+    "status" : "PASS",
+    "source" : "NEW_LIVE",
+    "cacheKey" : "68ecea6fe8fdf31001521fa24b706a4e3a111594acda3f03e7489602e8ff6066",
+    "usage" : {
+      "outputTokens" : 173,
+      "inputTokens" : 2507,
+      "totalTokens" : 2680
+    },
+    "providerModel" : "gpt-6-luna"
+  }, {
+    "id" : "W3-1",
+    "expected" : {
+      "expectedStatus" : "CONTINUE",
+      "allowedReasons" : [ "CAMPUS_RELEVANCE" ],
+      "equals" : {
+        "/report/targetText" : "연필",
+        "/report/campusRelevance" : "UNCERTAIN",
+        "/report/building" : null,
+        "/report/occurredAtText" : null
+      }
+    },
+    "input" : {
+      "preferredIntent" : "AUTO",
+      "hybrid" : true,
+      "text" : "연필이 부러졌어요. 접수해주세요."
+    },
+    "rawModelOutput" : {
+      "intent" : "REPORT",
+      "report" : {
+        "category" : "OTHER",
+        "subcategory" : "UNKNOWN",
+        "locationText" : null,
+        "building" : null,
+        "floor" : null,
+        "symptom" : "연필이 부러짐",
+        "occurredAtText" : null,
+        "followUpQuestion" : null,
+        "missingFields" : [ ],
+        "emergencyHint" : false,
+        "workGroup" : "GENERAL_REVIEW",
+        "targetText" : "연필",
+        "campusRelevance" : "UNCERTAIN"
+      },
+      "assessment" : {
+        "reason" : "CAMPUS_RELEVANCE",
+        "evidence" : "연필이 부러졌어요.",
+        "rationale" : "연필이 학교 물품인지 개인 물품인지에 따라 처리 방법이 달라집니다.",
+        "question" : "부러진 연필은 학교에서 대여하거나 제공한 물품인가요?",
+        "known" : {
+          "locationEvidence" : null,
+          "scopeEvidence" : null,
+          "symptomEvidence" : "연필이 부러졌어요.",
+          "targetEvidence" : "연필이 부러졌어요.",
+          "workflowEvidence" : null
+        }
+      }
+    },
+    "actual" : {
+      "intent" : "REPORT",
+      "report" : {
+        "category" : "OTHER",
+        "subcategory" : "UNKNOWN",
+        "locationText" : null,
+        "building" : null,
+        "floor" : null,
+        "symptom" : "연필이 부러짐",
+        "occurredAtText" : null,
+        "followUpQuestion" : "학교 시설이나 학교에서 빌린 물건인가요, 개인 물건인가요? 학교 물건이면 장소도 함께 알려주세요.",
+        "missingFields" : [ "LOCATION" ],
+        "emergencyHint" : false,
+        "workGroup" : "GENERAL_REVIEW",
+        "targetText" : "연필",
+        "campusRelevance" : "UNCERTAIN"
+      },
+      "clarification" : {
+        "reason" : "CAMPUS_RELEVANCE",
+        "neededReasons" : [ "CAMPUS_RELEVANCE" ],
+        "message" : "학교 물건이면 담당자가 점검하고, 개인 물건이면 일반 문의로 안내해요.",
+        "source" : "AI_AND_RULES"
+      },
+      "followUpState" : {
+        "turns" : 0,
+        "noProgress" : 0,
+        "askedFields" : [ ],
+        "reviewFields" : [ ],
+        "status" : "CONTINUE",
+        "nextField" : "CATEGORY",
+        "nextReason" : "CAMPUS_RELEVANCE",
+        "askedReasons" : [ ],
+        "unavailableReasons" : [ ],
+        "knownEvidence" : { },
+        "neededReasons" : [ "CAMPUS_RELEVANCE" ],
+        "urgentReview" : false
+      },
+      "aiMode" : "LIVE"
+    },
+    "failedChecks" : [ ],
+    "status" : "PASS",
+    "source" : "NEW_LIVE",
+    "cacheKey" : "7ff29652bc5438f4b7b81b48470e9e34e724f0413808fca1d0d74a6a4c563be7",
+    "usage" : {
+      "outputTokens" : 200,
+      "inputTokens" : 2495,
+      "totalTokens" : 2695
+    },
+    "providerModel" : "gpt-6-luna"
+  } ],
+  "measurement" : {
+    "embeddingCalls" : 0,
+    "cacheHits" : 0,
+    "inputTokens" : 14034,
+    "newCalls" : 5,
+    "estimatedNewCostUsd" : 0.0020669,
+    "cumulativeAttempts" : 5,
+    "outputTokens" : 1327,
+    "automaticRetries" : 0
+  },
+  "summary" : {
+    "pass" : 5,
+    "unverified" : 0,
+    "fail" : 0
+  }
+}

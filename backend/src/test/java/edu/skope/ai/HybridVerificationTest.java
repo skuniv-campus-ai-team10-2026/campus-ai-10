@@ -14,11 +14,14 @@ class HybridVerificationTest {
     static final ObjectMapper JSON=new ObjectMapper();
     static final String SUITE=System.getenv().getOrDefault("HYBRID_SUITE","hybrid-v1");
     static final boolean REPLAY="1".equals(System.getenv("HYBRID_REPLAY"));
-    static final int CAP=SUITE.equals("hybrid-stress-v1")?40:SUITE.equals("intake-review-v1")?3:9;
+    static final boolean WORK_GROUP=SUITE.equals("work-group-v1");
+    static final int CAP=WORK_GROUP?5:SUITE.equals("hybrid-stress-v1")?40:SUITE.equals("intake-review-v1")?3:9;
+    static final int MAX_COMPLETION=WORK_GROUP?1536:2048;
     static final Path DIR=Path.of("..","docs","evaluation"), CACHE=Path.of("..",".runtime","ai-quality-cache",SUITE);
-    static final double RESERVATION=.010048; // 2x (40k input * .10/M + 2048 output * .50/M).
+    static final double RESERVATION=2*(40000*.10+MAX_COMPLETION*.50)/1_000_000;
     @Test void measureFrozenCases()throws Exception{
-        assertTrue(Set.of("hybrid-v1","hybrid-stress-v1","intake-review-v1").contains(SUITE));
+        assertTrue(Set.of("hybrid-v1","hybrid-stress-v1","intake-review-v1","work-group-v1").contains(SUITE));
+        if(WORK_GROUP)assertTrue(CAP*RESERVATION<.05,"Five conservative reservations must fit the authorized budget");
         String hash=AiQualityCache.digest(Files.readAllBytes(DIR.resolve(SUITE+".json")));
         assertEquals(System.getenv("HYBRID_FIXTURE_SHA256"),hash);
         Files.createDirectories(CACHE);
@@ -28,11 +31,12 @@ class HybridVerificationTest {
             var sourceHashes=new TreeMap<String,String>();for(String source:List.of("AiService.java","FollowUpPolicy.java","ClarificationPolicy.java","EmergencySignals.java")){var path=Path.of("src/main/java/edu/skope/ai",source);sourceHashes.put(source,AiQualityCache.digest(Files.readAllBytes(path)));}result.put("sourceHashes",sourceHashes);result.put("evaluatedAt",java.time.OffsetDateTime.now().toString());
             result.put("promptVersion",AiService.PROMPT_VERSION);result.put("policyVersion",AiService.POLICY_VERSION);result.put("model","gpt-6-luna");
             result.put("labelLimitation",fixture.get("labelLimitation"));result.put("scope",REPLAY?"Saved LIVE output replay by text/answer; prior context may differ under the new policy. Not a fresh LIVE quality measurement. No network fallback.":"Production AiService only; no DEMO, embeddings, browser or DB writes. Local API integration tested separately.");
-            result.put("preflight",Map.of("plannedCalls",fixture.path("plannedCalls").asInt(),"maxCalls",CAP,"automaticRetries",0,"conservativeMaximumUsd",CAP*RESERVATION,"budgetUsd",SUITE.equals("intake-review-v1")?.05:SUITE.equals("hybrid-stress-v1")?.45:.10,"pricingSource","https://developers.openai.com/api/docs/models/gpt-6-luna","pricingDate",SUITE.equals("intake-review-v1")?"2026-10-27":"2026-10-16"));
+            result.put("preflight",Map.of("plannedCalls",fixture.path("plannedCalls").asInt(),"maxCalls",CAP,"automaticRetries",0,"conservativeMaximumUsd",CAP*RESERVATION,"budgetUsd",WORK_GROUP||SUITE.equals("intake-review-v1")?.05:SUITE.equals("hybrid-stress-v1")?.45:.10,"pricingSource","https://developers.openai.com/api/docs/models/gpt-6-luna","pricingDate",WORK_GROUP||SUITE.equals("intake-review-v1")?"2026-10-27":"2026-10-16"));
             var rows=new ArrayList<Map<String,Object>>();result.put("rows",rows);
             for(var group:fixture.path("groups")){
-                Map<String,Object> prior=null;int step=0;
+                Map<String,Object> prior=null;int step=0;var previousSteps=new ArrayList<Map<String,Object>>();
                 for(var sample:group.path("steps")){
+                    if(sample.has("fromStep"))prior=previousSteps.get(sample.path("fromStep").asInt()-1);
                     var row=new LinkedHashMap<String,Object>();rows.add(row);row.put("id",group.path("id").asText()+"-"+(++step));row.put("expected",sample);
                     var input=new LinkedHashMap<String,Object>(Map.of("text",group.path("text").asText(),"preferredIntent","AUTO","hybrid",true));
                     if(sample.has("answer")){
@@ -50,8 +54,9 @@ class HybridVerificationTest {
                         sample.path("equals").fields().forEachRemaining(e->{if(!e.getValue().equals(actual.at(e.getKey())))failed.add(e.getKey());});
                         sample.path("contains").fields().forEachRemaining(e->{if(!actual.at(e.getKey()).asText().contains(e.getValue().asText()))failed.add(e.getKey());});
                         for(String mode:List.of("alsoContains","notContains"))sample.path(mode).fields().forEachRemaining(e->{boolean contains=actual.at(e.getKey()).asText().contains(e.getValue().asText());if(mode.equals("alsoContains")!=contains)failed.add(mode+":"+e.getKey());});
-                        row.put("rawModelOutput",ai.raw);row.put("actual",prior);row.put("failedChecks",failed);row.put("status",failed.isEmpty()?"PASS":"FAIL");row.put("source",ai.source);row.put("cacheKey",ai.key);
+                        row.put("rawModelOutput",ai.raw);row.put("actual",prior);row.put("failedChecks",failed);row.put("status",failed.isEmpty()?"PASS":"FAIL");row.put("source",ai.source);row.put("cacheKey",ai.key);row.put("usage",ai.usage);row.put("providerModel",ai.providerModel);
                     }catch(RuntimeException error){ai.stopped=true;prior=null;row.put("status","UNVERIFIED");row.put("cause",error instanceof edu.skope.service.ApiException e?e.code:error.getClass().getSimpleName());}
+                    previousSteps.add(prior);
                     result.put("measurement",ai.measurement());JSON.writerWithDefaultPrettyPrinter().writeValue(DIR.resolve(SUITE+(REPLAY?"-policy-v2-results.json":"-results.json")).toFile(),result);
                 }
             }
@@ -61,12 +66,12 @@ class HybridVerificationTest {
         }
     }
     static class Measured extends AiService {
-        final AiQualityCache cache;int calls,hits;long in,out;boolean stopped;String key,source;Map<String,Object> raw;Map<String,Long> usage=Map.of();
-        Measured()throws Exception{super("LIVE","https://api.openai.com/v1",REPLAY?"local-replay-placeholder":System.getenv().getOrDefault("AI_API_KEY",""),"gpt-6-luna","RULE_ONLY","",60,2048,"none");cache=new AiQualityCache(CACHE);}
+        final AiQualityCache cache;int calls,hits;long in,out;boolean stopped;String key,source,providerModel;Map<String,Object> raw;Map<String,Long> usage=Map.of();
+        Measured()throws Exception{super("LIVE","https://api.openai.com/v1",REPLAY?"local-replay-placeholder":System.getenv().getOrDefault("AI_API_KEY",""),"gpt-6-luna","RULE_ONLY","",60,MAX_COMPLETION,"none");cache=new AiQualityCache(CACHE);}
         @Override protected JsonNode complete(Map<String,Object> body){
             try{
                 // Pin Standard pricing for the small review suite; leave production routing unchanged.
-                if(SUITE.equals("intake-review-v1")){body=new LinkedHashMap<>(body);body.put("service_tier","default");}
+                if(WORK_GROUP||SUITE.equals("intake-review-v1")){body=new LinkedHashMap<>(body);body.put("service_tier","default");}
                 if(REPLAY){
                     var request=JSON.readTree(JSON.valueToTree(body).at("/messages/1/content").asText());
                     for(var row:JSON.readTree(DIR.resolve(SUITE+"-results.json").toFile()).path("rows")){
@@ -80,11 +85,11 @@ class HybridVerificationTest {
                 }
                 key=AiQualityCache.key("analysis","gpt-6-luna",PROMPT_VERSION,canonical(JSON.valueToTree(body)));
                 var cached=cache.read(key);
-                if(cached!=null){if(!cached.path("status").asText().equals("SUCCESS"))throw new IllegalStateException("NO_RETRY");hits++;source="CACHED_LIVE";return cached.path("payload");}
+                if(cached!=null){if(!cached.path("status").asText().equals("SUCCESS"))throw new IllegalStateException("NO_RETRY");hits++;source="CACHED_LIVE";usage=JSON.convertValue(cached.path("usage"),new com.fasterxml.jackson.core.type.TypeReference<Map<String,Long>>(){});providerModel=cached.at("/payload/model").asText();return cached.path("payload");}
                 if(!"LIVE".equals(System.getenv("HYBRID_MODE"))||stopped||cache.attempts()>=CAP||JSON.writeValueAsBytes(body).length+1024>40000)throw new IllegalStateException("PAID_GUARD");
                 try(var files=Files.list(CACHE)){for(var p:files.filter(p->p.toString().endsWith(".json")).toList())if(!JSON.readTree(p.toFile()).path("status").asText().equals("SUCCESS"))throw new IllegalStateException("PREVIOUS_FAILURE");}
                 cache.begin(key,"analysis","gpt-6-luna",PROMPT_VERSION);calls++;usage=Map.of();source="NEW_LIVE";
-                try{var response=super.complete(body);if(usage.isEmpty())throw new IllegalStateException("NO_USAGE");cache.complete(key,response,usage);return response;}
+                try{var response=super.complete(body);if(usage.isEmpty())throw new IllegalStateException("NO_USAGE");providerModel=response.path("model").asText();cache.complete(key,response,usage);return response;}
                 catch(RuntimeException e){stopped=true;cache.fail(key,"PROVIDER_FAILURE",usage);throw e;}
             }catch(java.io.IOException e){stopped=true;throw new IllegalStateException("CACHE_FAILURE");}
         }
