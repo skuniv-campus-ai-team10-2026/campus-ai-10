@@ -1,9 +1,9 @@
 {
-  "promptVersion" : "hybrid-intake-v3",
+  "calls" : 0,
   "rows" : [ {
-    "source" : "CACHED_REAL_RESPONSE_NO_NEW_INFERENCE",
-    "id" : "P1-standard",
     "semanticStatus" : "PASS",
+    "id" : "P1-standard",
+    "source" : "CACHED_REAL_RESPONSE_NO_NEW_INFERENCE",
     "actual" : {
       "intent" : "REPORT",
       "report" : {
@@ -16,7 +16,10 @@
         "occurredAtText" : null,
         "followUpQuestion" : null,
         "missingFields" : [ ],
-        "emergencyHint" : false
+        "emergencyHint" : false,
+        "workGroup" : "IT_SUPPORT",
+        "targetText" : null,
+        "campusRelevance" : null
       },
       "clarification" : {
         "reason" : null,
@@ -45,9 +48,9 @@
       "aiMode" : "LIVE"
     }
   }, {
-    "source" : "CACHED_REAL_RESPONSE_NO_NEW_INFERENCE",
-    "id" : "P1-variant",
     "semanticStatus" : "PASS",
+    "id" : "P1-variant",
+    "source" : "CACHED_REAL_RESPONSE_NO_NEW_INFERENCE",
     "actual" : {
       "intent" : "REPORT",
       "report" : {
@@ -60,7 +63,10 @@
         "occurredAtText" : null,
         "followUpQuestion" : null,
         "missingFields" : [ ],
-        "emergencyHint" : false
+        "emergencyHint" : false,
+        "workGroup" : "IT_SUPPORT",
+        "targetText" : null,
+        "campusRelevance" : null
       },
       "clarification" : {
         "reason" : null,
@@ -89,9 +95,9 @@
       "aiMode" : "LIVE"
     }
   }, {
-    "source" : "CACHED_REAL_RESPONSE_NO_NEW_INFERENCE",
-    "id" : "P2-standard",
     "semanticStatus" : "PASS",
+    "id" : "P2-standard",
+    "source" : "CACHED_REAL_RESPONSE_NO_NEW_INFERENCE",
     "actual" : {
       "intent" : "REPORT",
       "report" : {
@@ -104,7 +110,10 @@
         "occurredAtText" : null,
         "followUpQuestion" : null,
         "missingFields" : [ ],
-        "emergencyHint" : false
+        "emergencyHint" : false,
+        "workGroup" : "IT_SUPPORT",
+        "targetText" : null,
+        "campusRelevance" : null
       },
       "clarification" : {
         "reason" : null,
@@ -133,9 +142,9 @@
       "aiMode" : "LIVE"
     }
   }, {
-    "source" : "CACHED_REAL_RESPONSE_NO_NEW_INFERENCE",
-    "id" : "P2-variant",
     "semanticStatus" : "PASS",
+    "id" : "P2-variant",
+    "source" : "CACHED_REAL_RESPONSE_NO_NEW_INFERENCE",
     "actual" : {
       "intent" : "REPORT",
       "report" : {
@@ -148,7 +157,10 @@
         "occurredAtText" : null,
         "followUpQuestion" : null,
         "missingFields" : [ ],
-        "emergencyHint" : false
+        "emergencyHint" : false,
+        "workGroup" : "IT_SUPPORT",
+        "targetText" : null,
+        "campusRelevance" : null
       },
       "clarification" : {
         "reason" : null,
@@ -177,9 +189,9 @@
       "aiMode" : "LIVE"
     }
   }, {
-    "source" : "CACHED_REAL_RESPONSE_NO_NEW_INFERENCE",
-    "id" : "P3-standard",
     "semanticStatus" : "PASS",
+    "id" : "P3-standard",
+    "source" : "CACHED_REAL_RESPONSE_NO_NEW_INFERENCE",
     "actual" : {
       "intent" : "REPORT",
       "report" : {
@@ -192,7 +204,10 @@
         "occurredAtText" : null,
         "followUpQuestion" : null,
         "missingFields" : [ ],
-        "emergencyHint" : false
+        "emergencyHint" : false,
+        "workGroup" : "FACILITY_MAINTENANCE",
+        "targetText" : null,
+        "campusRelevance" : null
       },
       "clarification" : {
         "reason" : null,
@@ -221,9 +236,9 @@
       "aiMode" : "LIVE"
     }
   }, {
-    "source" : "CACHED_REAL_RESPONSE_NO_NEW_INFERENCE",
-    "id" : "P3-variant",
     "semanticStatus" : "PASS",
+    "id" : "P3-variant",
+    "source" : "CACHED_REAL_RESPONSE_NO_NEW_INFERENCE",
     "actual" : {
       "intent" : "REPORT",
       "report" : {
@@ -236,7 +251,10 @@
         "occurredAtText" : null,
         "followUpQuestion" : null,
         "missingFields" : [ ],
-        "emergencyHint" : false
+        "emergencyHint" : false,
+        "workGroup" : "FACILITY_MAINTENANCE",
+        "targetText" : null,
+        "campusRelevance" : null
       },
       "clarification" : {
         "reason" : null,
@@ -265,9 +283,9 @@
       "aiMode" : "LIVE"
     }
   }, {
-    "source" : "CACHED_REAL_RESPONSE_NO_NEW_INFERENCE",
-    "id" : "P4-standard",
     "semanticStatus" : "PASS",
+    "id" : "P4-standard",
+    "source" : "CACHED_REAL_RESPONSE_NO_NEW_INFERENCE",
     "actual" : {
       "intent" : "REPORT",
       "report" : {
@@ -280,7 +298,10 @@
         "occurredAtText" : null,
         "followUpQuestion" : null,
         "missingFields" : [ ],
-        "emergencyHint" : false
+        "emergencyHint" : false,
+        "workGroup" : "GENERAL_REVIEW",
+        "targetText" : null,
+        "campusRelevance" : null
       },
       "clarification" : {
         "reason" : null,
@@ -308,9 +329,9 @@
       "aiMode" : "LIVE"
     }
   }, {
-    "source" : "CACHED_REAL_RESPONSE_NO_NEW_INFERENCE",
-    "id" : "P4-variant",
     "semanticStatus" : "KNOWN_MODEL_FAILURE_REQUIRES_NEW_PROMPT_LIVE",
+    "id" : "P4-variant",
+    "source" : "CACHED_REAL_RESPONSE_NO_NEW_INFERENCE",
     "actual" : {
       "intent" : "UNKNOWN",
       "report" : {
@@ -323,7 +344,10 @@
         "occurredAtText" : null,
         "followUpQuestion" : "어떤 점이 불편한가요? 직접 겪은 문제를 알려주세요.",
         "missingFields" : [ "SYMPTOM" ],
-        "emergencyHint" : false
+        "emergencyHint" : false,
+        "workGroup" : "GENERAL_REVIEW",
+        "targetText" : null,
+        "campusRelevance" : null
       },
       "clarification" : {
         "reason" : "ISSUE_UNCLEAR",
@@ -350,9 +374,9 @@
       "aiMode" : "LIVE"
     }
   }, {
-    "source" : "CACHED_REAL_RESPONSE_NO_NEW_INFERENCE",
-    "id" : "P5-standard",
     "semanticStatus" : "PASS",
+    "id" : "P5-standard",
+    "source" : "CACHED_REAL_RESPONSE_NO_NEW_INFERENCE",
     "actual" : {
       "intent" : "REPORT",
       "report" : {
@@ -365,7 +389,10 @@
         "occurredAtText" : null,
         "followUpQuestion" : null,
         "missingFields" : [ ],
-        "emergencyHint" : true
+        "emergencyHint" : true,
+        "workGroup" : "ELECTRICAL_MAINTENANCE",
+        "targetText" : null,
+        "campusRelevance" : null
       },
       "clarification" : {
         "reason" : null,
@@ -394,9 +421,9 @@
       "aiMode" : "LIVE"
     }
   }, {
-    "source" : "CACHED_REAL_RESPONSE_NO_NEW_INFERENCE",
-    "id" : "P5-variant",
     "semanticStatus" : "PASS",
+    "id" : "P5-variant",
+    "source" : "CACHED_REAL_RESPONSE_NO_NEW_INFERENCE",
     "actual" : {
       "intent" : "REPORT",
       "report" : {
@@ -409,7 +436,10 @@
         "occurredAtText" : null,
         "followUpQuestion" : null,
         "missingFields" : [ ],
-        "emergencyHint" : true
+        "emergencyHint" : true,
+        "workGroup" : "ELECTRICAL_MAINTENANCE",
+        "targetText" : null,
+        "campusRelevance" : null
       },
       "clarification" : {
         "reason" : null,
@@ -438,9 +468,9 @@
       "aiMode" : "LIVE"
     }
   }, {
-    "source" : "CACHED_REAL_RESPONSE_NO_NEW_INFERENCE",
-    "id" : "P6-standard",
     "semanticStatus" : "PASS",
+    "id" : "P6-standard",
+    "source" : "CACHED_REAL_RESPONSE_NO_NEW_INFERENCE",
     "actual" : {
       "intent" : "UNKNOWN",
       "report" : {
@@ -453,7 +483,10 @@
         "occurredAtText" : null,
         "followUpQuestion" : "어떤 점이 불편한가요? 직접 겪은 문제를 알려주세요.",
         "missingFields" : [ "SYMPTOM", "LOCATION" ],
-        "emergencyHint" : false
+        "emergencyHint" : false,
+        "workGroup" : "GENERAL_REVIEW",
+        "targetText" : null,
+        "campusRelevance" : null
       },
       "clarification" : {
         "reason" : "ISSUE_UNCLEAR",
@@ -478,9 +511,9 @@
       "aiMode" : "LIVE"
     }
   }, {
-    "source" : "CACHED_REAL_RESPONSE_NO_NEW_INFERENCE",
-    "id" : "P6-variant",
     "semanticStatus" : "PASS",
+    "id" : "P6-variant",
+    "source" : "CACHED_REAL_RESPONSE_NO_NEW_INFERENCE",
     "actual" : {
       "intent" : "UNKNOWN",
       "report" : {
@@ -493,7 +526,10 @@
         "occurredAtText" : null,
         "followUpQuestion" : "어떤 점이 불편한가요? 직접 겪은 문제를 알려주세요.",
         "missingFields" : [ "SYMPTOM", "LOCATION" ],
-        "emergencyHint" : false
+        "emergencyHint" : false,
+        "workGroup" : "GENERAL_REVIEW",
+        "targetText" : null,
+        "campusRelevance" : null
       },
       "clarification" : {
         "reason" : "ISSUE_UNCLEAR",
@@ -518,7 +554,7 @@
       "aiMode" : "LIVE"
     }
   } ],
-  "calls" : 0,
-  "sourceSha256" : "257efc330ee17c002ac88543f831b42cec72b6bade4f9ede33a368420614e8fa",
-  "policyVersion" : "hybrid-check-v5"
+  "promptVersion" : "hybrid-intake-v6",
+  "policyVersion" : "hybrid-check-v7",
+  "sourceSha256" : "257efc330ee17c002ac88543f831b42cec72b6bade4f9ede33a368420614e8fa"
 }
