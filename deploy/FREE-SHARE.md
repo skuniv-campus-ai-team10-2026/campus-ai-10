@@ -17,7 +17,7 @@
 - 공유 스크립트 기본 제한은 앱 컴포넌트 기본값($2/500/500)과 구분한다. 필요 시 `-AiBudgetPeriod TOTAL -AiBudgetMaxUsd 1 -AiBudgetMaxLlmCalls 200 -AiBudgetMaxEmbeddingCalls 200`으로 명시한다. 재시작해도 TOTAL 사용량은 유지하며 자동 초기화하지 않는다.
 - 현재 모델 `gpt-6-luna` 입력/출력은 100만 토큰당 `$0.10/$0.50`, `text-embedding-3-small`은 `$0.02`를 명시한다. 2026-10-27 [LLM 모델 문서](https://developers.openai.com/api/docs/models/gpt-6-luna), [Embedding 모델 문서](https://developers.openai.com/api/docs/models/text-embedding-3-small) 기준이다. 모델/티어 변경 시 `-AiInputUsdPerMtok`, `-AiOutputUsdPerMtok`, `-EmbeddingUsdPerMtok`를 함께 검토한다.
 - 예약 입력량은 글자 수 기반이므로 최대 실제 비용을 보장하지 않는다. OpenAI 예산 알림과 요청 차단 `Enforce a hard limit`을 구분하고, 계정 소유자가 해당 설정을 확인한다. Hard limit도 반영 지연으로 소액 초과가 가능하다. [공식 안내](https://developers.openai.com/api/docs/guides/spend-limits).
-- 외부 팀 공용 암호는 이번 통합에서도 유지한다. 비용 제한을 적용했다고 익명 공개 서비스·회원가입 화면 연결까지 완료한 것은 아니다.
+- 이후 사용자 요청으로 외부 팀 공용 암호 팝업을 제거했다. SKOPE 로그인·CSRF·역할 권한과 AI 비용 제한은 유지한다. 관리자·부서 계정은 학생용 초기 공통 비밀번호와 분리한 뒤 공개한다. 회원가입·프로필 화면 연결은 별도다.
 - 새 가입·프로필 API 및 냉난방/정수기/집기 유형을 포함한다. 해당 화면·새 유형 표시·미배정 사유 표시는 프런트 담당 후속이며, v4 프롬프트의 실제 AI 품질도 미검증이다.
 
 ## 어떤 방식인가요?
@@ -27,7 +27,7 @@
 - 서버 임대료·도메인 구매·AWS/Cloudflare 계정 불필요. PC 전기·인터넷은 기존 환경을 사용한다.
 - 기본 실행은 **AI DEMO / Embedding RULE_ONLY**로 유료 AI 호출이 없다. **LIVE OpenAI는 별도 사용료가 발생**하며 무료 AI로 대체한 것이 아니다.
 - PC가 켜져 있고 MySQL·공유 프로그램이 실행 중이어야 한다. 주소는 다시 시작할 때 바뀐다. 상시 운영 서버가 아니라 팀 테스트/발표 시연용이다.
-- 첫 접속 때 브라우저의 팀 전용 암호 창을 통과한 뒤 SKOPE에 로그인한다. 팀 접속 암호와 학생/관리자 비밀번호는 별개다. 이메일 PIN 인증은 사용하지 않는다.
+- 첫 접속부터 SKOPE 로그인 화면을 표시한다. 브라우저의 팀 공용 암호 팝업과 이메일 PIN 인증은 사용하지 않는다.
 - 서비스는 학교의 공식 접수 시스템과 연결되지 않았다. 합성 데이터로 테스트한다.
 
 근거: [Cloudflare Quick Tunnels](https://developers.cloudflare.com/tunnel/get-started/quick-tunnels/), [Caddy 암호 보호](https://caddyserver.com/docs/caddyfile/directives/basic_auth). 공식 터널 제한은 동시 진행 요청 200개, SSE 미지원, 가용성 보장 없음이다. 현재 SKOPE는 이 경로에서 SSE를 사용하지 않는다. 이메일 세션 반복 만료와 같은 증상 때문에 `--allowed-mail`을 팀 전용 암호로 대체했다. [관련 공개 이슈](https://github.com/cloudflare/cloudflared/issues/1752)
@@ -44,15 +44,17 @@ cd C:\Users\82107\SKOPE-Experiment\exports\campus-ai-10-deploy
 .\scripts\Start-FreeShare.ps1
 ```
 
-표시된 `https://....trycloudflare.com` 주소를 휴대폰 또는 PC에서 연다. 첫 브라우저 인증창의 아이디는 `team`이고 암호는 **`.runtime/team-access.txt`**에 있다. 그 다음 SKOPE 학생/관리자 계정으로 로그인한다. 브라우저는 보통 실행 중 접속 암호를 유지하지만 재실행·시크릿 창·주소 변경 시 다시 물을 수 있다. 로컬 HTTP 주소로 접속하는 방식은 Secure 쿠키 검증에 사용할 수 없다.
+표시된 `https://....trycloudflare.com` 주소를 휴대폰 또는 PC에서 열고 SKOPE 계정으로 한 번 로그인한다. 비밀번호는 **`.runtime/demo-accounts.txt`**에 있다. 새 주소에서 로그인하며, 로컬 HTTP 주소로 접속하는 방식은 Secure 쿠키 검증에 사용할 수 없다.
 
-팀 접속 암호는 암호학적 난수로 만들고 프록시는 bcrypt 해시만 사용한다. 평문은 사용자 전달용으로 Git에서 제외된 `.runtime`에만 보관한다. 팀 접속 암호는 백엔드로 전달하지 않는다. 이 암호를 아는 사람은 첫 관문을 통과할 수 있으므로 신뢰하는 팀에만 전달한다. 외부에 유출되면 공유를 종료하고 암호를 교체한다.
+이전 `.runtime/team-access.*` 파일은 더 이상 인증에 사용하지 않는다. 실제 계정 비밀번호는 Git 제외 파일에만 저장한다. 공개 전에 총괄·부서 계정의 공통 초기 비밀번호를 변경하고 `APP_DEMO_RESET_PASSWORD=false`를 유지한다. `share-accounts.json`이 있는 환경에서는 초기화 스크립트가 계정 안내를 초기 공통 암호로 덮어쓰지 않는다. DB를 새로 만들면 저장된 안내만 재사용하지 말고 실제 계정과 다시 대조한다.
 
-계정/비밀번호는 **이 작업 폴더의 `.runtime/demo-accounts.txt`**에 있다. 기존 루트 폴더의 비밀번호와 다르다. 부서 계정은 `dept1`~`dept4`이며 초기 비밀번호는 같은 파일의 시연 비밀번호다. 시연 계정들이 비밀번호를 공유하므로 신뢰하는 팀원에게만 접근을 허용한다. 이 구조로 전체 학생에게 공개하지 않는다.
+공유 스크립트는 `PUBLIC_AUTH_LIMIT_ENABLED=true`, `PUBLIC_AUTH_LOGIN_PER_MINUTE=120`, `PUBLIC_AUTH_REGISTER_PER_MINUTE=10`을 명시한다. 로그인·가입 POST의 서버 전체 1분 제한이며, 초과 시 429·`Retry-After`를 반환한다. 로그인 화면이나 접수 내역 조회는 차단하지 않는다. 이 제한은 단일 서버 메모리 기준이며 계정/IP별 차단·분산 방어를 대신하지 않는다. Azure 공개 배포에도 명시한다.
+
+계정/비밀번호는 **이 작업 폴더의 `.runtime/demo-accounts.txt`**에 있다. 기존 루트 폴더의 비밀번호와 다르다. 부서 계정은 `dept1`~`dept4`이며 총괄·부서 비밀번호는 각각 분리했다. 학생용 시연 계정은 공유 계정이므로 실제 개인정보를 입력하지 않고 전체 학생 대상 정식 운영 계정으로 사용하지 않는다.
 
 종료는 공유 PowerShell 창에서 **Ctrl+C**, 또는 별도 PowerShell에서 `./scripts/Stop-FreeShare.ps1`을 실행한다. 후자는 시작 시각·실행 파일·프로젝트 경로를 확인하여 기록된 공유 프로세스만 종료한다. MySQL과 데이터는 보존한다. 강제 창 종료/프로세스 강제 종료 때의 정리는 보장하지 않는다. 다음 실행에서 포트 점유가 발견되면 기존 프로세스를 임의 종료하지 않고 중단한다.
 
-백그라운드에서 실행한 경우 현재 주소는 `.runtime/free-share-url.txt`, 도구 로그는 `.runtime/free-share-*.log`에서 확인한다. 주소가 기록되었다고 실제 터널 연결이 완료된 것은 아니다. 암호 없는 요청은 화면·API·사진 모두 401로 차단되고, 올바른 팀 암호로는 SKOPE 로그인 화면에 도달하는지 확인한다.
+백그라운드에서 실행한 경우 현재 주소는 `.runtime/free-share-url.txt`, 도구 로그는 `.runtime/free-share-*.log`에서 확인한다. 주소가 기록되었다고 실제 터널 연결이 완료된 것은 아니다. 인증 없이 로그인 페이지는 200으로 열리고 `WWW-Authenticate`가 없어야 한다. 비로그인 접수·사진 API는 401, 다른 학생·타 부서 자료는 기존 정책대로 차단되는지 확인한다.
 
 ## 다른 PC에서 처음 준비
 

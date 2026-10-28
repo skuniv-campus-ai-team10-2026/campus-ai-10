@@ -33,24 +33,8 @@ $secrets=Get-Content (Join-Path $runtime 'local-secrets.json') -Raw | ConvertFro
 $config=Get-Content (Join-Path $runtime 'local-config.json') -Raw | ConvertFrom-Json
 $identity=& $mysql "--defaults-extra-file=$runtime/mysql-admin.cnf" --batch --skip-column-names --execute='SELECT @@datadir'
 if($LASTEXITCODE -ne 0 -or [IO.Path]::GetFullPath($identity.Trim()).TrimEnd('\') -ne [IO.Path]::GetFullPath((Join-Path $runtime 'mysql')).TrimEnd('\')){throw 'Expected the isolated MySQL belonging to this checkout. No database changed.'}
-$accessPath=Join-Path $runtime 'team-access.json'
-if(!(Test-Path -LiteralPath $accessPath)){
-    $password=[Convert]::ToHexString([Security.Cryptography.RandomNumberGenerator]::GetBytes(20))
-    # Caddy expects an LF-terminated line; avoid PowerShell's extra CR byte.
-    $hashProcess=[Diagnostics.Process]::new()
-    $hashProcess.StartInfo=[Diagnostics.ProcessStartInfo]::new($caddy,'hash-password --algorithm bcrypt --bcrypt-cost 12')
-    $hashProcess.StartInfo.UseShellExecute=$false;$hashProcess.StartInfo.CreateNoWindow=$true
-    $hashProcess.StartInfo.RedirectStandardInput=$true;$hashProcess.StartInfo.RedirectStandardOutput=$true
-    [void]$hashProcess.Start()
-    $hashProcess.StandardInput.Write($password+"`n");$hashProcess.StandardInput.Close()
-    $hash=$hashProcess.StandardOutput.ReadToEnd().Trim();$hashProcess.WaitForExit()
-    $hashExit=$hashProcess.ExitCode;$hashProcess.Dispose()
-    if($hashExit -ne 0 -or !$hash.StartsWith('$2')){throw 'Team password hashing failed; sharing was not started.'}
-    @{username='team';password=$password;hash=$hash.Trim()} | ConvertTo-Json | Set-Content -Encoding UTF8 $accessPath
-}
-$access=Get-Content -LiteralPath $accessPath -Raw | ConvertFrom-Json
-if($access.username -ne 'team' -or $access.password.Length -lt 24 -or !$access.hash.StartsWith('$2')){throw 'Invalid team access configuration.'}
-"TEAM ACCESS (first browser prompt):`nUsername: team`nPassword: $($access.password)`n`nSKOPE accounts (second login): .runtime/demo-accounts.txt`nDo not publish this file or commit it to GitHub." | Set-Content -Encoding UTF8 (Join-Path $runtime 'team-access.txt')
+# The public page uses only the application's session login; no HTTP Basic challenge.
+"The browser team-password popup has been removed. Use SKOPE accounts in .runtime/demo-accounts.txt. Do not publish account credentials." | Set-Content -Encoding UTF8 (Join-Path $runtime 'team-access.txt')
 $aiNames=@('AI_BASE_URL','AI_API_KEY','AI_MODEL','EMBEDDING_MODEL','AI_TIMEOUT_SECONDS','AI_MAX_COMPLETION_TOKENS','AI_REASONING_EFFORT')
 $values=@{
     DB_URL="jdbc:mysql://127.0.0.1:$($config.mysqlPort)/skope?useUnicode=true&characterEncoding=UTF-8&serverTimezone=Asia/Seoul"
@@ -64,7 +48,7 @@ $values=@{
     AI_BASE_URL='https://api.openai.com/v1'; AI_TIMEOUT_SECONDS='20'; AI_MAX_COMPLETION_TOKENS='1536'; AI_REASONING_EFFORT=''
     JAVA_TOOL_OPTIONS='-Djavax.net.ssl.trustStoreType=Windows-ROOT -Djavax.net.ssl.trustStore=NONE'
     WEB_ROOT=$dist.Replace('\','/'); BACKEND_PORT="$BackendPort"; SHARE_PORT="$SharePort"
-    SHARE_PASSWORD_HASH=$access.hash
+    PUBLIC_AUTH_LIMIT_ENABLED='true'; PUBLIC_AUTH_LOGIN_PER_MINUTE='120'; PUBLIC_AUTH_REGISTER_PER_MINUTE='10'
     AI_BUDGET_PERIOD=$AiBudgetPeriod
     AI_BUDGET_MAX_USD=$AiBudgetMaxUsd.ToString([Globalization.CultureInfo]::InvariantCulture)
     AI_BUDGET_MAX_LLM_CALLS="$AiBudgetMaxLlmCalls"; AI_BUDGET_MAX_EMBEDDING_CALLS="$AiBudgetMaxEmbeddingCalls"
@@ -107,10 +91,11 @@ try {
         if($proxy.HasExited){throw 'Proxy stopped; check .runtime/free-share-proxy-error.log.'}
         try{
             $probe=Invoke-WebRequest -Uri "http://127.0.0.1:$SharePort/api/meta" -TimeoutSec 2 -SkipHttpErrorCheck
-            if([int]$probe.StatusCode -ne 401 -or ($probe.Headers['WWW-Authenticate'] -join '') -notmatch '^Basic '){throw 'Team authentication gate is not active.'}
-            $auth='Basic '+[Convert]::ToBase64String([Text.Encoding]::UTF8.GetBytes("team:$($access.password)"))
-            $meta=Invoke-RestMethod -Uri "http://127.0.0.1:$SharePort/api/meta" -Headers @{Authorization=$auth} -TimeoutSec 5
+            if([int]$probe.StatusCode -ne 200 -or $probe.Headers['WWW-Authenticate']){throw 'Unexpected external authentication challenge.'}
+            $meta=$probe.Content | ConvertFrom-Json
             if($meta.databaseMode -ne 'MYSQL' -or $meta.aiMode -ne $values.AI_MODE){throw 'Unexpected proxy backend.'}
+            $private=Invoke-WebRequest -Uri "http://127.0.0.1:$SharePort/api/auth/me" -TimeoutSec 2 -SkipHttpErrorCheck
+            if([int]$private.StatusCode -ne 401 -or $private.Headers['WWW-Authenticate']){throw 'Application session protection failed.'}
             $proxyReady=$true;break
         }catch{}
         Start-Sleep -Milliseconds 500
@@ -118,7 +103,7 @@ try {
     if(!$proxyReady){throw 'Proxy readiness check timed out.'}
     Write-Output "Mode: $($values.AI_MODE) / $($values.EMBEDDING_MODE). Use the HTTPS URL printed below. Ctrl+C ends sharing."
     $arguments=@('tunnel','--no-autoupdate','--url',"http://127.0.0.1:$SharePort",'--http-host-header',"127.0.0.1:$SharePort")
-    Write-Output 'Team password protection is active. Credentials: .runtime/team-access.txt (not printed). Email verification is not used.'
+    Write-Output 'Single SKOPE login is active. Account credentials: .runtime/demo-accounts.txt (not printed). Public auth request limits are enabled.'
     $tunnel=Start-Process -FilePath $cloud -ArgumentList $arguments -WorkingDirectory $root -WindowStyle Hidden -PassThru -RedirectStandardOutput "$runtime/free-share-tunnel.log" -RedirectStandardError "$runtime/free-share-tunnel-error.log"
     $started+=$tunnel
     @($started | ForEach-Object {@{id=$_.Id;startedUtc=$_.StartTime.ToUniversalTime().ToString('o');path=$_.Path}}) | ConvertTo-Json | Set-Content -Encoding UTF8 $statePath

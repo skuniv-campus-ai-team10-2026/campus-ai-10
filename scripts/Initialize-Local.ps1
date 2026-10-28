@@ -53,10 +53,12 @@ if($LASTEXITCODE -ne 0){throw 'Database setup failed'}
 # Persist only after verifying the workspace server and successfully preparing both databases.
 # Start-Backend and Test-Backend share this port; existing installations without this file use 3307.
 [PSCustomObject]@{mysqlPort=$Port} | ConvertTo-Json | Set-Content -Encoding UTF8 $configPath
+if(!(Test-Path -LiteralPath (Join-Path $runtime 'share-accounts.json')) -or !(Test-Path -LiteralPath (Join-Path $runtime 'demo-accounts.txt'))){
 @"
 LOCAL DEMO ONLY. Do not publish this file.
 student1 / $($secrets.demoPassword)
 student2 / $($secrets.demoPassword)
 admin / $($secrets.demoPassword)
 "@ | Set-Content -Encoding UTF8 (Join-Path $runtime 'demo-accounts.txt')
+}
 Write-Output 'Isolated MySQL ready. Credentials: .runtime/demo-accounts.txt (ignored).'

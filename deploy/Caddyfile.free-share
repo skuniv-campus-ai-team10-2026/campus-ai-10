@@ -5,9 +5,6 @@
 
 http://127.0.0.1:{$SHARE_PORT:4186} {
 	bind 127.0.0.1
-	basic_auth {
-		team {env.SHARE_PASSWORD_HASH}
-	}
 	encode gzip
 	header {
 		>Cache-Control "no-store"
