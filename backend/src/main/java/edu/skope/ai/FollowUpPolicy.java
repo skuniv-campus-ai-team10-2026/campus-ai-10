@@ -243,13 +243,14 @@ final class FollowUpPolicy {
         return result;
     }
     /**
-     * Clauses split at sentence ends and contrast connectors, then cut at each doubt word, so a doubt marks only
+     * Clauses split at sentence ends and connectors (지만, 는데, ~고, ~며), then cut at each doubt word, so a doubt marks only
      * the words it is attached to: "장소는 모르겠고 제 개인 물건이에요" doubts the place, not the ownership.
      * A bare "확실하지 않아요" doubts the whole clause before it; doubt words with nothing beside them doubt their clause.
      */
     private static List<List<Part>> parts(String answer) {
         var clauses = new ArrayList<List<Part>>();
-        for (String raw : answer.split("[.!?;,\\n]|(?<=지만)|(?<=[는은인]데)")) {
+        // "~고 " / "~며 " joins two statements like a period does, so a doubt after it cannot reach the fact before it.
+        for (String raw : answer.split("[.!?;,\\n]|(?<=지만)|(?<=[는은인]데)|(?<=[가-힣][고며])(?=\\s)")) {
             if (raw.isBlank()) continue;
             if (BARE_DOUBT.matcher(raw).matches() && !clauses.isEmpty()) {
                 clauses.set(clauses.size()-1, clauses.getLast().stream().map(p -> new Part(p.text(), true)).toList()); continue;

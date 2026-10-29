@@ -145,6 +145,17 @@ class FollowUpUncertaintyTest {
             assertEquals("UNCERTAIN",report(r).get("campusRelevance"),answer);
         }
     }
+    @Test void aClearFactBeforeAnotherFieldsDoubtSurvivesTheReversedOrder(){
+        // Lead review (10/29 #2): the same answers with the clear fact first, joined by "~고".
+        String personal="제 개인 물건이고 장소는 모르겠어요";
+        var r=run(new ScriptedAi().on(personal,PERSONAL,set("CAMPUS_RELEVANCE","제 개인 물건이고")),personal);
+        assertEquals("PERSONAL_ON_CAMPUS",report(r).get("campusRelevance"));
+        String target="문손잡이가 고장났고 학교 물건인지는 모르겠어요";
+        var updates=new LinkedHashMap<String,String[]>();
+        updates.put("CAMPUS_RELEVANCE",new String[]{"SET","학교 물건인지는"});updates.put("TARGET",new String[]{"SET","문손잡이가 고장났고"});
+        r=run(new ScriptedAi().on(target,Map.of("campusRelevance","PERSONAL_ON_CAMPUS","workGroup","GENERAL_REVIEW","targetText","문손잡이"),updates),target);
+        assertEquals("문손잡이",report(r).get("targetText"));assertEquals("UNCERTAIN",report(r).get("campusRelevance"));
+    }
     @Test void anOwnershipDoubtLeavesAnAdministratorNote(){
         String answer="제 개인 물건인지 학교 물건인지 모르겠어요";
         var r=run(new ScriptedAi().on(answer,PERSONAL,set("CAMPUS_RELEVANCE","제 개인 물건")),answer);
@@ -162,8 +173,13 @@ class FollowUpUncertaintyTest {
             // Doubt belongs to the word it is attached to, not to every subject in the clause or answer.
             assertFalse(FollowUpPolicy.targetDoubt("학교 물건인지는 모르겠어요. "+object+"가 고장났어요",object,""),object);
             assertTrue(FollowUpPolicy.targetDoubt("어떤 물건인지 모르겠어요",object,""),object);
+            assertFalse(FollowUpPolicy.targetDoubt(object+"가 고장났고 학교 물건인지는 모르겠어요",object,""),object);
+            assertTrue(FollowUpPolicy.targetDoubt("장소는 알고 "+object+"인지는 모르겠어요",object,""),object);
         }
         assertFalse(FollowUpPolicy.ownershipDoubt("장소는 모르겠고 제 개인 물건이에요",""));
+        assertFalse(FollowUpPolicy.ownershipDoubt("제 개인 물건이고 장소는 모르겠어요",""));
+        assertFalse(FollowUpPolicy.ownershipDoubt("제 개인 물건이며 몇 층인지는 모르겠어요",""));
+        assertTrue(FollowUpPolicy.ownershipDoubt("제 개인 물건 같고 확실하지 않아요",""));
         assertTrue(FollowUpPolicy.ownershipDoubt("아마 제 개인 물건이에요",""));
         assertTrue(FollowUpPolicy.ownershipDoubt("제 거 아니면 학교 거예요",""));
     }
