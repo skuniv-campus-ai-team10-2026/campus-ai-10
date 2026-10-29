@@ -104,7 +104,9 @@ final class ClarificationPolicy {
         }
         state.put("status",status);state.put("nextReason",reason);state.put("askedReasons",asked);
         state.put("unavailableReasons",List.copyOf(unavailable));state.put("knownEvidence",known);
-        state.put("neededReasons",List.copyOf(needed));state.put("urgentReview",status.equals("COMPLETE")&&(!needed.isEmpty()||!reviews.isEmpty()));
+        // Ownership left open after it was asked (or volunteered) is filed without another question, so it needs a supervisor note.
+        boolean ownershipOpen=field!=null&&physical&&"UNCERTAIN".equals(report.get("campusRelevance"))&&asked.contains("CAMPUS_RELEVANCE");
+        state.put("neededReasons",List.copyOf(needed));state.put("urgentReview",status.equals("COMPLETE")&&(!needed.isEmpty()||!reviews.isEmpty()||ownershipOpen));
         String next=reason==null?null:reason.startsWith("LOCATION")?"LOCATION":reason.equals("CONFLICT")&&reviews.contains("LOCATION")?"LOCATION":reason.equals("CAMPUS_RELEVANCE")?"CATEGORY":"SYMPTOM";
         state.put("nextField",next);
         report.put("followUpQuestion",reason==null?null:question(reason,type,academic,intent));

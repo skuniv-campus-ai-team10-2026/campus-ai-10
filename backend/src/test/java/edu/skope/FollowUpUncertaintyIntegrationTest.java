@@ -33,8 +33,13 @@ class FollowUpUncertaintyIntegrationTest {
         assertEquals("UNCERTAIN",row.get("campusRelevance"));assertEquals("GENERAL_REVIEW",row.get("workGroup"));
         assertEquals("거울",row.get("targetText"));assertEquals("학교 공용 화장실",row.get("locationText"));
         assertNotEquals("QUESTION",accepted.at("/report/requestKind").asText(),"not filed as a personal general inquiry");
+        // Filed without another question: the existing supervisor note carries the open item and the student's words.
+        String note=Objects.toString(db.one("SELECT review_note FROM reports WHERE id=?",id).get("reviewNote"),"");
+        assertTrue(note.contains("학교 물건인지 여부"),note);assertTrue(note.contains("마지막 추가 답변: "+answer),note);
         var admin=http.new Session().login("admin");
-        assertEquals("AI_UNCLASSIFIED",admin.ok("GET","/admin/reports/"+id,null,200).path("unassignedReason").asText());
+        var detail=admin.ok("GET","/admin/reports/"+id,null,200);
+        assertEquals(note,detail.path("reviewNote").asText(),"visible on the administrator screen");
+        assertEquals("REVIEW_HOLD",detail.path("unassignedReason").asText());
         assertEquals(2,ai.calls);
     }
     @Test void undecidedTargetGoesToReviewWithoutAChosenObject()throws Exception{

@@ -121,7 +121,10 @@ class WorkGroupRoutingIntegrationTest {
         var talk = new Talk("연필이 부러졌어요").answer("잘 모르겠어요");
         assertEquals("ACCEPTED", talk.status(), "asked once; the supervisor reviews the rest");
         scope(talk.report(), "GENERAL_REVIEW", "연필", "UNCERTAIN");
-        assertEquals("AI_UNCLASSIFIED", talk.admin().get("unassignedReason"));
+        // Filed without another question: the supervisor note names the open item and the student's answer.
+        assertEquals("REVIEW_HOLD", talk.admin().get("unassignedReason"));
+        String note = String.valueOf(talk.admin().get("reviewNote"));
+        assertTrue(note.contains("학교 물건인지 여부") && note.contains("마지막 추가 답변: 잘 모르겠어요"), note);
     }
 
     @Test void e5PurchaseRecommendationIsOutOfScopeWithANotice() {

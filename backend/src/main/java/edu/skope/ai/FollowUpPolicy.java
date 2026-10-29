@@ -19,8 +19,13 @@ final class FollowUpPolicy {
     private static final Pattern DOUBT = Pattern.compile("인지(?![가-힣])|인지(?=는|도|를|모르|헷갈|확실|잘)|아마|둘\\s*중|중\\s*(?:에\\s*)?하나|아니면|혹은|또는|확실하지|확실치|헷갈|기억.{0,8}(?:안|않)|모르|일\\s*수도");
     private static final Pattern NOT_DOUBT = Pattern.compile("모르(?:지는|지도|는\\s*(?:건|게|것은?))\\s*(?:않|아니)\\S*");
     private static final Pattern BARE_DOUBT = Pattern.compile("^\\s*(?:근데|그런데|하지만|다만|사실|솔직히)?\\s*(?:잘\\s*)?(?:모르겠|확실하지\\s*않|확실치\\s*않|헷갈)\\S*\\s*$");
+    // Where a doubt word points: "아마" doubts what follows, alternatives doubt both sides, the rest doubt what precedes.
+    private static final Pattern DOUBT_AHEAD = Pattern.compile("아마");
+    private static final Pattern DOUBT_BOTH = Pattern.compile("둘\\s*중|중\\s*(?:에\\s*)?하나|아니면|혹은|또는");
     private static final Pattern OWNERSHIP = Pattern.compile("개인|소지품|소유|주인|[제내]\\s*(?:것|거|꺼|물건)|학교\\s*(?:것|거|꺼|물건|소유|비품|시설|장비)|공용|비품|대여|빌린|빌려");
-    private static final String OBJECT_WORDS = "물건|설비|기기|장비|대상|뭔지|무엇인지|어떤\\s*(?:것|거)|어느\\s*(?:것|거)";
+    // Generic object words, except an ownership phrase such as "학교 물건" (that is the ownership question, not the target).
+    private static final Pattern OBJECT_WORDS = Pattern.compile("(?<!학교|개인|공용|제|내)(?:물건|설비|기기|장비)|대상|뭔지|무엇인지|어떤(?:것|거)|어느(?:것|거)");
+    private record Part(String text, boolean doubtful) { }
     private static final Pattern EMPTY =Pattern.compile("^(?:거기|여기|저기|그곳|어딘가|모름|몰라|모르겠|잘모르겠|글쎄|그냥|문제|불편|이상|학교|강의실)(?:요|어요|습니다|해요|이에요|예요|가있어요|이있어요|같아요|어요|\\p{Punct})*$");
     record Outcome(Map<String,Object> report, Map<String,Object> state) { }
 
@@ -167,10 +172,13 @@ final class FollowUpPolicy {
             report.put("targetText", proposed != null && targetDoubt(answer, proposed, evidence(updates,"TARGET")) ? null : extracted.get("targetText"));
         }
         boolean scopeChanged = relevanceSet || personalCorrection || settled;
-        if (scopeChanged && ownershipDoubt) { report.put("campusRelevance","UNCERTAIN"); report.put("workGroup","GENERAL_REVIEW"); return; }
-        if (scopeChanged) report.put("campusRelevance", newRelevance);
-        boolean specific = extracted.get("workGroup") != null && !"GENERAL_REVIEW".equals(extracted.get("workGroup"));
-        if ((problem && extracted.get("workGroup") != null) || (scopeChanged && specific)) report.put("workGroup", extracted.get("workGroup"));
+        // Doubted ownership stays UNCERTAIN, but the TARGET/CAMPUS_RELEVANCE corrections below still apply.
+        if (scopeChanged && ownershipDoubt) { report.put("campusRelevance","UNCERTAIN"); report.put("workGroup","GENERAL_REVIEW"); }
+        else {
+            if (scopeChanged) report.put("campusRelevance", newRelevance);
+            boolean specific = extracted.get("workGroup") != null && !"GENERAL_REVIEW".equals(extracted.get("workGroup"));
+            if ((problem && extracted.get("workGroup") != null) || (scopeChanged && specific)) report.put("workGroup", extracted.get("workGroup"));
+        }
         for (String group : List.of("TARGET","CAMPUS_RELEVANCE")) {
             Map<?,?> update = updates.get(group) instanceof Map<?,?> m ? m : Map.of();
             String evidence = Objects.toString(update.get("evidence"), "");
@@ -200,33 +208,72 @@ final class FollowUpPolicy {
     static boolean ownershipDoubt(String answer, String evidence) { return doubt(answer, OWNERSHIP, evidence); }
     /** The student hedges about the affected object (a model-chosen name or a generic "which thing" phrase). */
     static boolean targetDoubt(String answer, String target, String evidence) {
-        String name = target == null || target.isBlank() ? "" : Pattern.quote(normalize(target)) + "|";
-        return doubt(answer, Pattern.compile(name + OBJECT_WORDS), evidence);
+        // A named object is judged by the parts naming it; generic words only when the name is absent.
+        if (target != null && !target.isBlank()) {
+            Boolean named = stated(answer, Pattern.compile(Pattern.quote(normalize(target))));
+            if (named != null) return named;
+        }
+        return doubt(answer, OBJECT_WORDS, evidence);
     }
     /**
-     * Shared SET check, independent of the object: a fact counts only if the clauses stating it carry no doubt.
-     * Clauses split at sentence ends and contrast connectors; a bare "확실하지 않아요" belongs to the clause before it.
+     * Shared SET check, independent of the object: a fact counts only if the words stating it carry no doubt.
      * Without a subject word, the clauses overlapping the model's evidence are checked instead.
      */
     static boolean doubt(String answer, Pattern subject, String evidence) {
         if (answer == null) return false;
-        var clauses = new ArrayList<String>(); var doubtful = new ArrayList<Boolean>();
-        for (String clause : answer.split("[.!?;,\\n]|(?<=지만)|(?<=[는은인]데)")) {
-            if (clause.isBlank()) continue;
-            if (BARE_DOUBT.matcher(clause).matches() && !clauses.isEmpty()) { doubtful.set(doubtful.size()-1, true); continue; }
-            clauses.add(clause); doubtful.add(DOUBT.matcher(NOT_DOUBT.matcher(clause).replaceAll("")).find());
-        }
-        boolean found = false;
-        for (int i = 0; i < clauses.size(); i++) {
-            if (!subject.matcher(normalize(clauses.get(i))).find()) continue;
-            found = true; if (doubtful.get(i)) return true;
-        }
-        if (found || evidence == null || evidence.isBlank()) return false;
-        for (int i = 0; i < clauses.size(); i++) {
-            String c = clauses.get(i).strip();
-            if ((c.contains(evidence.strip()) || evidence.contains(c)) && doubtful.get(i)) return true;
+        Boolean stated = stated(answer, subject);
+        if (stated != null) return stated;
+        if (evidence == null || evidence.isBlank()) return false;
+        for (List<Part> clause : parts(answer)) {
+            String c = String.join("", clause.stream().map(Part::text).toList()).strip();
+            if ((c.contains(evidence.strip()) || evidence.contains(c)) && clause.stream().anyMatch(Part::doubtful)) return true;
         }
         return false;
+    }
+    /** null when no part mentions the subject; otherwise whether any part mentioning it is doubtful. */
+    private static Boolean stated(String answer, Pattern subject) {
+        if (answer == null) return null;
+        Boolean result = null;
+        for (List<Part> clause : parts(answer))
+            for (Part part : clause) {
+                if (!subject.matcher(normalize(part.text())).find()) continue;
+                if (part.doubtful()) return true;
+                result = false;
+            }
+        return result;
+    }
+    /**
+     * Clauses split at sentence ends and contrast connectors, then cut at each doubt word, so a doubt marks only
+     * the words it is attached to: "장소는 모르겠고 제 개인 물건이에요" doubts the place, not the ownership.
+     * A bare "확실하지 않아요" doubts the whole clause before it; doubt words with nothing beside them doubt their clause.
+     */
+    private static List<List<Part>> parts(String answer) {
+        var clauses = new ArrayList<List<Part>>();
+        for (String raw : answer.split("[.!?;,\\n]|(?<=지만)|(?<=[는은인]데)")) {
+            if (raw.isBlank()) continue;
+            if (BARE_DOUBT.matcher(raw).matches() && !clauses.isEmpty()) {
+                clauses.set(clauses.size()-1, clauses.getLast().stream().map(p -> new Part(p.text(), true)).toList()); continue;
+            }
+            String clause = NOT_DOUBT.matcher(raw).replaceAll(" ");
+            var texts = new ArrayList<String>(); var marks = new ArrayList<Boolean>(); var kinds = new ArrayList<Pattern>();
+            var m = DOUBT.matcher(clause); int from = 0;
+            while (m.find()) {
+                texts.add(clause.substring(from, m.start())); marks.add(false); from = m.end();
+                kinds.add(DOUBT_AHEAD.matcher(m.group()).matches() ? DOUBT_AHEAD : DOUBT_BOTH.matcher(m.group()).matches() ? DOUBT_BOTH : DOUBT);
+            }
+            texts.add(clause.substring(from)); marks.add(false);
+            for (int i = 0; i < kinds.size(); i++) {
+                boolean before = kinds.get(i) != DOUBT_AHEAD, after = kinds.get(i) != DOUBT;
+                // "…인지 모르겠어요": the second word repeats the first one's doubt and adds nothing.
+                if (before && !texts.get(i).isBlank()) marks.set(i, true);
+                if (after && !texts.get(i+1).isBlank()) marks.set(i+1, true);
+            }
+            if (!kinds.isEmpty() && !marks.contains(true)) Collections.fill(marks, true);
+            var clauseParts = new ArrayList<Part>();
+            for (int i = 0; i < texts.size(); i++) clauseParts.add(new Part(texts.get(i), marks.get(i)));
+            clauses.add(clauseParts);
+        }
+        return clauses;
     }
     /** Still-uncertain ownership stops requiring a place once the student was asked about it. */
     static boolean placeRequired(Map<String,Object> report, Map<String,Object> state) {

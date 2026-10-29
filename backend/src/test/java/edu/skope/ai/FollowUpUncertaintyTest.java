@@ -113,13 +113,58 @@ class FollowUpUncertaintyTest {
         assertEquals("PERSONAL_ON_CAMPUS",report(r).get("campusRelevance"));
     }
 
-    // 3. The shared clause rule itself, independent of any object name.
+    // 3. Lead review (10/29): one field's doubt must not skip or erase another field's handling.
+
+    @Test void anOwnershipDoubtStillAppliesATargetClearInTheSameAnswer(){
+        String answer="학교 물건인지 모르겠어요. 대상 정보는 삭제해 주세요";
+        var updates=new LinkedHashMap<String,String[]>();
+        updates.put("CAMPUS_RELEVANCE",new String[]{"SET","학교 물건인지 모르겠어요"});updates.put("TARGET",new String[]{"CLEAR","대상 정보는 삭제해 주세요"});
+        var r=run(new ScriptedAi().on(answer,PERSONAL,updates),answer);
+        assertEquals("UNCERTAIN",report(r).get("campusRelevance"));
+        assertNull(report(r).get("targetText"),"the explicit target clear is not skipped");keptFacts(report(r));
+    }
+    @Test void anOwnershipDoubtStillAppliesATargetClarifyInTheSameAnswer(){
+        String answer="학교 물건인지 모르겠어요. 거울인지 다른 건지도 헷갈려요";
+        var updates=new LinkedHashMap<String,String[]>();
+        updates.put("CAMPUS_RELEVANCE",new String[]{"SET","학교 물건인지 모르겠어요"});updates.put("TARGET",new String[]{"CLARIFY","거울인지 다른 건지도 헷갈려요"});
+        var r=run(new ScriptedAi().on(answer,PERSONAL,updates),answer);
+        assertEquals("UNCERTAIN",report(r).get("campusRelevance"));assertNull(report(r).get("targetText"));
+    }
+    @Test void anUnknownPlaceInTheSameClauseDoesNotMakeOwnershipUnknown(){
+        for(String answer:List.of("장소는 모르겠고 제 개인 물건이에요","장소는 모르겠어요. 제 개인 물건이에요")){
+            var r=run(new ScriptedAi().on(answer,PERSONAL,set("CAMPUS_RELEVANCE","제 개인 물건이에요")),answer);
+            assertEquals("PERSONAL_ON_CAMPUS",report(r).get("campusRelevance"),answer);
+        }
+    }
+    @Test void anOwnershipDoubtDoesNotEraseAClearTarget(){
+        for(String answer:List.of("학교 물건인지는 모르겠어요. 문손잡이가 고장났어요","학교 물건인지는 모르겠지만 문손잡이가 고장났어요")){
+            var updates=new LinkedHashMap<String,String[]>();
+            updates.put("CAMPUS_RELEVANCE",new String[]{"SET",answer.substring(0,answer.indexOf("모르"))});updates.put("TARGET",new String[]{"SET","문손잡이가 고장났어요"});
+            var r=run(new ScriptedAi().on(answer,Map.of("campusRelevance","PERSONAL_ON_CAMPUS","workGroup","GENERAL_REVIEW","targetText","문손잡이"),updates),answer);
+            assertEquals("문손잡이",report(r).get("targetText"),answer);
+            assertEquals("UNCERTAIN",report(r).get("campusRelevance"),answer);
+        }
+    }
+    @Test void anOwnershipDoubtLeavesAnAdministratorNote(){
+        String answer="제 개인 물건인지 학교 물건인지 모르겠어요";
+        var r=run(new ScriptedAi().on(answer,PERSONAL,set("CAMPUS_RELEVANCE","제 개인 물건")),answer);
+        assertEquals("COMPLETE",state(r).get("status"));
+        assertEquals(true,state(r).get("urgentReview"),"filed without another question, so the supervisor sees why");
+    }
+
+    // 4. The shared clause rule itself, independent of any object name.
 
     @Test void clauseRuleIsObjectIndependent(){
         for(String object:List.of("실험복","프로젝터","사물함 열쇠","연필")){
             assertTrue(FollowUpPolicy.targetDoubt(object+"인지 다른 건지 모르겠어요",object,""),object);
             assertFalse(FollowUpPolicy.targetDoubt("장소는 모르겠지만 "+object+"가 고장났어요",object,""),object);
             assertFalse(FollowUpPolicy.targetDoubt(object+"가 고장났어요",object,""),object);
+            // Doubt belongs to the word it is attached to, not to every subject in the clause or answer.
+            assertFalse(FollowUpPolicy.targetDoubt("학교 물건인지는 모르겠어요. "+object+"가 고장났어요",object,""),object);
+            assertTrue(FollowUpPolicy.targetDoubt("어떤 물건인지 모르겠어요",object,""),object);
         }
+        assertFalse(FollowUpPolicy.ownershipDoubt("장소는 모르겠고 제 개인 물건이에요",""));
+        assertTrue(FollowUpPolicy.ownershipDoubt("아마 제 개인 물건이에요",""));
+        assertTrue(FollowUpPolicy.ownershipDoubt("제 거 아니면 학교 거예요",""));
     }
 }
