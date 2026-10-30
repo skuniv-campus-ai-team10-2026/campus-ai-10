@@ -437,6 +437,10 @@ public class AiService {
             Set<String> allowed = new HashSet<>(FIELDS); allowed.addAll(OPTIONAL_FIELDS);
             if (!node.isObject() || !allowed.containsAll(keys(node)) || (exact && !keys(node).containsAll(FIELDS))) throw new IllegalArgumentException();
             String category = requiredText(node, "category"), subcategory = requiredText(node, "subcategory");
+            // A model may pair an allowed subcategory with another parent (ACADEMIC/UNKNOWN for a scholarship delay).
+            // The subcategory is the specific choice and has exactly one parent, so that parent is used. An unknown
+            // subcategory is still rejected, and client input (a returned previousReport) stays strict.
+            if (!clientInput && TYPES.containsKey(subcategory)) category = TYPES.get(subcategory);
             if (!category.equals(TYPES.get(subcategory))) throw new IllegalArgumentException();
             Map<String, Object> result = new LinkedHashMap<>();
             result.put("category", category);
