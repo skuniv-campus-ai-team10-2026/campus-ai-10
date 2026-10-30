@@ -301,14 +301,28 @@ class SimilarityServiceTest {
         assertFalse(SimilarityService.sameTarget(stated("WIFI", "무선망", "와이파이가 끊겨요"),
                 stated("WIFI", "무선망 안내문", "무선망 안내문 글씨가 지워졌어요")), "the name must end the longer one");
         assertTrue(SimilarityService.sameTarget(stated("UNKNOWN", "거울", "거울 균열"), stated("UNKNOWN", "미러", "미러 균열")));
+        // Lead review (10/30 #2): a longer name the report calls fine is not evidence for it.
+        assertFalse(SimilarityService.sameTarget(door, stated("UNKNOWN", "손잡이", "문손잡이는 정상이고 서랍 손잡이가 빠졌어요")));
+        assertFalse(SimilarityService.sameTarget(door, stated("UNKNOWN", "손잡이", "문손잡이가 아니라 서랍 손잡이가 빠졌어요")));
+        assertTrue(SimilarityService.sameTarget(door, stated("UNKNOWN", "손잡이", "출입문 손잡이를 돌려도 걸쇠가 움직이지 않고 손잡이만 돌아가요")),
+                "a fault description with 않 is not a 'fine' statement");
     }
 
-    @Test void differentStatedObjectsNeverPairInNarrowTypesEither() {
+    @Test void narrowTypesSeparateObjectsOnlyOnTheStudentsOwnDistinction() {
         var pipe = stated("LEAK", "천장 배관", "천장 배관에서 물이 샙니다");
-        assertFalse(SimilarityService.broadScope(pipe, stated("LEAK", "창틀", "창틀에 비가 들이칩니다"), .86), "a high score cannot join them");
-        assertFalse(SimilarityService.broadScope(pipe, stated("LEAK", "창틀", "창틀에 비가 들이칩니다"), null));
+        var frame = stated("LEAK", "창틀", "반대쪽 창틀에 비가 들이칩니다. 천장 배관은 마른 상태입니다.");
+        assertFalse(SimilarityService.broadScope(pipe, frame, .86), "the report itself says the pipe is fine: a high score cannot join them");
+        assertFalse(SimilarityService.broadScope(frame, pipe, null));
         assertTrue(SimilarityService.broadScope(pipe, stated("LEAK", "천장 배관", "배관 연결 부위에서 물이 떨어져요"), .93));
         assertTrue(SimilarityService.broadScope(pipe, stated("LEAK", null, "물이 떨어져요"), null), "a missing target keeps the existing rule");
+        // Lead review (10/30 #1): a different word alone is a naming difference, so the score and place rules decide.
+        assertTrue(SimilarityService.broadScope(stated("ELECTRIC", "천장 조명", "출입문 바로 위 천장 조명이 깜빡거립니다"),
+                stated("ELECTRIC", "전등", "문 위 전등이 밝아졌다 꺼졌다를 반복합니다"), .863109));
+        assertTrue(SimilarityService.broadScope(stated("WIFI", "와이파이", "와이파이가 자꾸 끊겨요"),
+                stated("WIFI", "무선망", "무선망 접속이 반복 해제됩니다"), null));
+        // OTHER/UNKNOWN keeps the stricter rule from before: different objects never pair.
+        assertFalse(SimilarityService.broadScope(stated("UNKNOWN", "거울", "벽 거울이 갈라졌어요"),
+                stated("UNKNOWN", "문손잡이", "문손잡이가 빠졌어요"), .81));
     }
 
     @SuppressWarnings("unchecked")

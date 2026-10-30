@@ -204,25 +204,26 @@ public class SimilarityService {
     }
 
     /**
-     * A candidate is the same observed problem, so two different stated objects never pair, in any type:
-     * a shared type and room do not make a ceiling pipe and a window frame one problem, and an embedding
-     * score cannot join them. OTHER/UNKNOWN spans many objects, so both reports must also have the same work
-     * group; without an embedding they also need the same stated object and a stated symptom each.
+     * A candidate is the same observed problem. OTHER/UNKNOWN spans many objects, so both reports must have the
+     * same work group and, when both state an object, the same object; without an embedding they also need a
+     * stated object and a symptom each. A narrow type is one object family where names vary (조명/전등,
+     * 와이파이/무선망), so a different word alone proves nothing: two objects are separated only when a report
+     * itself calls the other one fine or separate ("천장 배관은 마른 상태"), and then no score can join them.
      */
     static boolean broadScope(Map<String, Object> a, Map<String, Object> b, Double score) {
         boolean broad = Codes.broad(a.get("subcategory")) && Codes.broad(b.get("subcategory"));
         if (broad && !Codes.workGroup("UNKNOWN", a.get("workGroup")).equals(Codes.workGroup("UNKNOWN", b.get("workGroup")))) return false;
         String targetA = targetKey(a.get("targetText")), targetB = targetKey(b.get("targetText"));
         boolean bothTargets = !targetA.isBlank() && !targetB.isBlank();
-        if (bothTargets && !sameTarget(a, b)) return false;
+        if (bothTargets && !sameTarget(a, b) && (broad || statedApart(a, targetB) || statedApart(b, targetA))) return false;
         if (!broad || score != null) return true;
         return bothTargets && !normalized(a.get("symptom")).isBlank() && !normalized(b.get("symptom")).isBlank();
     }
 
     /**
      * Same object name, or a shorter name for it backed by the report's own words: "손잡이" matches "문손잡이"
-     * when that report says "출입문 손잡이", while a "서랍 손잡이" report stays a different object.
-     * The name must end the longer one, so "무선망" never matches "무선망 안내문".
+     * when that report says "출입문 손잡이", while a "서랍 손잡이" report stays a different object, and so does
+     * "문손잡이는 정상이고 서랍 손잡이가…". The name must end the longer one, so "무선망" never matches "무선망 안내문".
      */
     static boolean sameTarget(Map<String, Object> a, Map<String, Object> b) {
         String targetA = targetKey(a.get("targetText")), targetB = targetKey(b.get("targetText"));
@@ -231,7 +232,22 @@ public class SimilarityService {
         String longName = aLonger ? targetA : targetB, shortName = aLonger ? targetB : targetA;
         Map<String, Object> shortReport = aLonger ? b : a;
         return shortName.length() >= 2 && longName.endsWith(shortName)
-                && normalized(Db.str(shortReport, "symptom") + Db.str(shortReport, "originalText")).contains(longName);
+                && clauses(shortReport).anyMatch(c -> c.contains(longName) && !FINE_OR_OTHER.matcher(c).find());
+    }
+
+    // "Not the broken one" wording, kept to state words: 않/아니 also describe faults ("열리지 않아요").
+    private static final Pattern FINE_OR_OTHER = Pattern.compile("정상|괜찮|멀쩡|문제없|이상없|마른|말랐|별개|아니라|아니고|말고");
+
+    /** The report names this object only to say it is fine or a different one. */
+    private static boolean statedApart(Map<String, Object> report, String object) {
+        return clauses(report).anyMatch(c -> c.contains(object) && FINE_OR_OTHER.matcher(c).find());
+    }
+
+    /** The report's own words, normalized, split at sentence ends and clause connectors (…고, …지만, …는데). */
+    private static java.util.stream.Stream<String> clauses(Map<String, Object> report) {
+        return Arrays.stream((Db.str(report, "symptom") + "\n" + Db.str(report, "originalText"))
+                        .split("[.!?;,\\n]|(?<=지만)|(?<=[는은인]데)|(?<=[이았었했났됐졌있없같않되맞]고)(?=\\s)"))
+                .map(SimilarityService::normalized).filter(c -> !c.isBlank());
     }
 
     /** Limited compatibility for older literal labels. New extraction uses common Korean object names.
