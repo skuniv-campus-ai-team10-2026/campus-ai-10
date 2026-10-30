@@ -326,6 +326,21 @@ class SimilarityServiceTest {
         assertFalse(SimilarityService.apart("정상인문손잡이옆서랍손잡이가빠졌어요", "서랍손잡이"), "the modifier belongs to the nearer object");
     }
 
+    @Test void onlyAPresentAffirmativeFineStateSetsAnObjectApart() {
+        // Lead review (10/30 #4): a past fine state or a denied normal operation is a fault description.
+        var wifi = stated("WIFI", "와이파이", "와이파이 접속이 자꾸 끊겨요");
+        for (String fault : List.of("와이파이가 아까는 정상이었는데 지금은 접속이 계속 끊겨요",
+                "와이파이가 정상적으로 작동하지 않습니다. 접속이 계속 끊겨요",
+                "와이파이가 정상적으로 연결이 안 돼요", "와이파이가 정상적으로 동작을 못 해요",
+                "와이파이가 어제까지 괜찮았는데 지금은 끊겨요", "와이파이가 멀쩡했는데 오늘 끊겼어요"))
+            assertTrue(SimilarityService.broadScope(wifi, stated("WIFI", "무선망", fault), null), fault);
+        // Present affirmative states still set the other object apart (S09, S10).
+        for (String fine : List.of("와이파이는 정상인데 안내문 글씨가 지워졌어요", "와이파이는 정상이고 안내문이 훼손됐어요",
+                "와이파이는 정상적으로 작동합니다. 안내문이 훼손됐어요", "와이파이는 괜찮아요. 안내문이 훼손됐어요"))
+            assertFalse(SimilarityService.broadScope(wifi, stated("WIFI", "무선망 안내문", fine), null), fine);
+        assertTrue(SimilarityService.apart("천장배관은마른상태입니다", "천장배관"));
+    }
+
     @Test void narrowTypesSeparateObjectsOnlyOnTheStudentsOwnDistinction() {
         var pipe = stated("LEAK", "천장 배관", "천장 배관에서 물이 샙니다");
         var frame = stated("LEAK", "창틀", "반대쪽 창틀에 비가 들이칩니다. 천장 배관은 마른 상태입니다.");
