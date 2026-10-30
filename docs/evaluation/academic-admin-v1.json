@@ -1,0 +1,28 @@
+{
+  "id": "academic-admin-v1",
+  "preparedDate": "2026-10-31",
+  "purpose": "ACADEMIC_ADMIN prompt guidance for application, payment and processing-delay requests (fix/academic-admin-prompt).",
+  "labelProvenance": "Written by Claude Code for 조성익 before any run; not an independent human review.",
+  "limits": {"maxLlmCalls": 6, "maxEmbeddingCalls": 0, "maxEstimatedUsd": 0.01, "automaticRetries": 0},
+  "scoring": "A case passes only if every listed expectation holds. 'department' is computed by RoutingService.assign on a freshly seeded H2 directory (same rules as the server); null means not assigned. A case whose state is CONTINUE is not filed, so its department is null.",
+  "cases": [
+    {"id": "R1", "set": "DEV_REGRESSION", "note": "C3 of the 71e88bb LIVE check (GENERAL_REVIEW, no target).",
+     "text": "장학금 신청을 완료했는데 지급 예정일이 지나도 아직 입금되지 않았어요",
+     "expect": {"workGroup": ["ACADEMIC_ADMIN"], "targetText": ["장학금"], "campusRelevance": ["SCHOOL_SERVICE"], "state": ["COMPLETE"], "department": ["학생처 장학과"]}},
+    {"id": "E1", "set": "EVALUATION", "note": "Certificate issuance delay.",
+     "text": "재학증명서 발급을 신청한 지 일주일이 지났는데 아직 발급되지 않았어요",
+     "expect": {"workGroup": ["ACADEMIC_ADMIN"], "targetContains": "증명서", "campusRelevance": ["SCHOOL_SERVICE", null], "state": ["COMPLETE"], "department": ["교무처 교무과"]}},
+    {"id": "E2", "set": "EVALUATION", "note": "Tuition application decision delay.",
+     "text": "등록금 분할 납부를 신청했는데 승인 여부를 아직 못 들었어요",
+     "expect": {"workGroup": ["ACADEMIC_ADMIN"], "targetContains": "등록금", "campusRelevance": ["SCHOOL_SERVICE", null], "state": ["COMPLETE"], "department": ["교무처 교무과"]}},
+    {"id": "N1", "set": "EVALUATION", "note": "Ordinary school furniture: unchanged facility behaviour.",
+     "text": "북악관 503호 강의실 의자 다리가 부러졌어요",
+     "expect": {"workGroup": ["SHARED_EQUIPMENT"], "campusRelevance": ["CAMPUS_FACILITY", null], "state": ["COMPLETE"], "department": ["총무처 총무과"]}},
+    {"id": "P1", "set": "EVALUATION", "note": "Personal item: never routed to an office.",
+     "text": "도서관에서 제 노트북 충전기가 고장났어요",
+     "expect": {"campusRelevance": ["PERSONAL_ON_CAMPUS"], "workGroupNot": ["ACADEMIC_ADMIN"], "department": [null]}},
+    {"id": "A1", "set": "EVALUATION", "note": "Ambiguous complaint: no automatic office; either a question or general review.",
+     "text": "학교 처리가 너무 늦어요",
+     "expect": {"department": [null], "anyOf": [{"state": ["CONTINUE"]}, {"workGroup": ["GENERAL_REVIEW"]}]}}
+  ]
+}
