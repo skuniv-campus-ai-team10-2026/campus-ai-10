@@ -204,18 +204,87 @@ public class SimilarityService {
     }
 
     /**
-     * OTHER/UNKNOWN spans many objects, so a shared type and place prove little. Both reports must have the
-     * same work group; without an embedding they also need the same stated object and a stated symptom each,
-     * and an embedding score cannot join two different stated objects. Narrow types are unaffected.
+     * A candidate is the same observed problem. OTHER/UNKNOWN spans many objects, so both reports must have the
+     * same work group and, when both state an object, the same object; without an embedding they also need a
+     * stated object and a symptom each. A narrow type is one object family where names vary (조명/전등,
+     * 와이파이/무선망), so a different word alone proves nothing: two objects are separated only when a report
+     * itself calls the other one fine or separate ("천장 배관은 마른 상태"), and then no score can join them.
      */
     static boolean broadScope(Map<String, Object> a, Map<String, Object> b, Double score) {
-        if (!Codes.broad(a.get("subcategory")) || !Codes.broad(b.get("subcategory"))) return true;
-        if (!Codes.workGroup("UNKNOWN", a.get("workGroup")).equals(Codes.workGroup("UNKNOWN", b.get("workGroup")))) return false;
+        boolean broad = Codes.broad(a.get("subcategory")) && Codes.broad(b.get("subcategory"));
+        if (broad && !Codes.workGroup("UNKNOWN", a.get("workGroup")).equals(Codes.workGroup("UNKNOWN", b.get("workGroup")))) return false;
         String targetA = targetKey(a.get("targetText")), targetB = targetKey(b.get("targetText"));
         boolean bothTargets = !targetA.isBlank() && !targetB.isBlank();
-        if (score != null) return !bothTargets || targetA.equals(targetB);
-        return bothTargets && targetA.equals(targetB)
-                && !normalized(a.get("symptom")).isBlank() && !normalized(b.get("symptom")).isBlank();
+        if (bothTargets && !sameTarget(a, b) && (broad || statedApart(a, targetB) || statedApart(b, targetA))) return false;
+        if (!broad || score != null) return true;
+        return bothTargets && !normalized(a.get("symptom")).isBlank() && !normalized(b.get("symptom")).isBlank();
+    }
+
+    /**
+     * Same object name, or a shorter name for it backed by the report's own words: "손잡이" matches "문손잡이"
+     * when that report says "출입문 손잡이", while a "서랍 손잡이" report stays a different object, and so does
+     * "문손잡이는 정상이고 서랍 손잡이가…". The name must end the longer one, so "무선망" never matches "무선망 안내문".
+     */
+    static boolean sameTarget(Map<String, Object> a, Map<String, Object> b) {
+        String targetA = targetKey(a.get("targetText")), targetB = targetKey(b.get("targetText"));
+        if (targetA.equals(targetB)) return true;
+        boolean aLonger = targetA.length() > targetB.length();
+        String longName = aLonger ? targetA : targetB, shortName = aLonger ? targetB : targetA;
+        Map<String, Object> shortReport = aLonger ? b : a;
+        return shortName.length() >= 2 && longName.endsWith(shortName)
+                && clauses(shortReport).anyMatch(c -> c.contains(longName) && !apart(c, longName));
+    }
+
+    // "Not the broken one" wording. State words only: 않/아니 alone also describe faults ("열리지 않아요").
+    private static final Pattern FINE = Pattern.compile("정상|괜찮|멀쩡|문제없|이상없|마른|말랐|별개");
+    // "A가 아니라 B": the contrast denies the words before it (A), not the broken object after it (B).
+    private static final Pattern CONTRAST = Pattern.compile("아니라|아니고|말고");
+    // A fine word that is itself denied describes a fault: "정상은 아니고", "괜찮지 않아요", "정상이 아니라".
+    private static final Pattern FINE_DENIED_BY_CONTRAST = Pattern.compile("(?:정상|괜찮|멀쩡|문제없|이상없|별개)(?:은|는|이|가|도|인|인건|인게|이진|이지는|하진|하지는|하지|한건|한게)?$");
+    // After a fine word, any past tense or denial up to the clause end makes it a fault description:
+    // "정상이었는데"(was fine), "정상적으로 작동하지 않습니다", "정상적으로 연결이 안 돼요". Only a present affirmative remains.
+    private static final Pattern NOT_PRESENT_FINE = Pattern.compile("었|였|았|했|됐|졌|던|않|아니|못|안되|안돼|안됨|안됩");
+    // A fine word right before the object as its present-tense modifier: "정상인 X", "멀쩡한 X", "정상 사용 중인 X".
+    // "정상이던 X가 끊겨요" (was fine, now broken) does not match.
+    private static final Pattern FINE_MODIFIER = Pattern.compile("인|한|적인|(?:사용|작동|동작)(?:중인|하는)");
+
+    /** The report names this object only to say it is fine or a different one. */
+    private static boolean statedApart(Map<String, Object> report, String object) {
+        return clauses(report).anyMatch(c -> apart(c, object));
+    }
+
+    /**
+     * In one normalized clause, the object is set apart when a contrast denies the part naming it ("문손잡이가
+     * 아니라…") or a fine word follows it in its part as a present affirmative state ("천장배관은마른상태"),
+     * or modifies it directly ("정상사용중인무선망"). A past or denied fine state is a fault: it never sets apart.
+     * A contrast that denies a fine word ("정상은 아니고") states a fault, so it sets nothing apart.
+     */
+    static boolean apart(String clause, String object) {
+        var m = CONTRAST.matcher(clause);
+        int from = 0;
+        while (true) {
+            boolean contrast = m.find();
+            String part = clause.substring(from, contrast ? m.start() : clause.length());
+            boolean fineDenied = contrast && FINE_DENIED_BY_CONTRAST.matcher(part).find();
+            int at = part.indexOf(object);
+            if (at >= 0) {
+                if (contrast && !fineDenied) return true;
+                var fine = FINE.matcher(part);
+                while (!fineDenied && fine.find()) {
+                    if (fine.start() > at && !NOT_PRESENT_FINE.matcher(part.substring(fine.end())).find()) return true;
+                    if (fine.end() <= at && FINE_MODIFIER.matcher(part.substring(fine.end(), at)).matches()) return true;
+                }
+            }
+            if (!contrast) return false;
+            from = m.end();
+        }
+    }
+
+    /** The report's own words, normalized, split at sentence ends and clause connectors (…고, …지만, …는데). */
+    private static java.util.stream.Stream<String> clauses(Map<String, Object> report) {
+        return Arrays.stream((Db.str(report, "symptom") + "\n" + Db.str(report, "originalText"))
+                        .split("[.!?;,\\n]|(?<=지만)|(?<=[는은인]데)|(?<=[이았었했났됐졌있없같않되맞]고)(?=\\s)"))
+                .map(SimilarityService::normalized).filter(c -> !c.isBlank());
     }
 
     /** Limited compatibility for older literal labels. New extraction uses common Korean object names.

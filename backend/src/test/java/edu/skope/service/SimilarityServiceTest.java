@@ -286,6 +286,78 @@ class SimilarityServiceTest {
         return result;
     }
 
+    // Target gate (similarity-review-v2 review, 10/30): no object list, only the stated names and each report's words.
+    private static Map<String, Object> stated(String subcategory, String target, String words) {
+        var r = new HashMap<String, Object>();
+        r.put("subcategory", subcategory); r.put("workGroup", "FACILITY_MAINTENANCE");
+        r.put("targetText", target); r.put("symptom", words); r.put("originalText", words);
+        return r;
+    }
+
+    @Test void aShorterNameMatchesOnlyWhenTheReportItselfStatesTheLongerOne() {
+        var door = stated("UNKNOWN", "문손잡이", "출입문 문손잡이가 헛돌아요");
+        assertTrue(SimilarityService.sameTarget(door, stated("UNKNOWN", "손잡이", "출입문 손잡이를 돌려도 안 열려요")));
+        assertFalse(SimilarityService.sameTarget(door, stated("UNKNOWN", "손잡이", "서랍 손잡이가 빠졌어요")), "a drawer handle is another object");
+        assertFalse(SimilarityService.sameTarget(stated("WIFI", "무선망", "와이파이가 끊겨요"),
+                stated("WIFI", "무선망 안내문", "무선망 안내문 글씨가 지워졌어요")), "the name must end the longer one");
+        assertTrue(SimilarityService.sameTarget(stated("UNKNOWN", "거울", "거울 균열"), stated("UNKNOWN", "미러", "미러 균열")));
+        // Lead review (10/30 #2): a longer name the report calls fine is not evidence for it.
+        assertFalse(SimilarityService.sameTarget(door, stated("UNKNOWN", "손잡이", "문손잡이는 정상이고 서랍 손잡이가 빠졌어요")));
+        assertFalse(SimilarityService.sameTarget(door, stated("UNKNOWN", "손잡이", "문손잡이가 아니라 서랍 손잡이가 빠졌어요")));
+        assertTrue(SimilarityService.sameTarget(door, stated("UNKNOWN", "손잡이", "출입문 손잡이를 돌려도 걸쇠가 움직이지 않고 손잡이만 돌아가요")),
+                "a fault description with 않 is not a 'fine' statement");
+        // Lead review (10/30 #3): "A가 아니라 B" denies only A; B is the broken object.
+        assertTrue(SimilarityService.sameTarget(door, stated("UNKNOWN", "손잡이", "서랍 손잡이가 아니라 출입문 손잡이가 고장났어요")));
+    }
+
+    @Test void aDeniedFineStateIsAFaultNotADistinction() {
+        // Lead review (10/30 #3): "정상은 아니고" says the object is broken; it does not set it apart.
+        var wifi = stated("WIFI", "와이파이", "와이파이 접속이 자꾸 끊겨요");
+        assertTrue(SimilarityService.broadScope(wifi, stated("WIFI", "무선망", "와이파이가 정상은 아니고 접속이 계속 끊깁니다"), null));
+        assertTrue(SimilarityService.broadScope(wifi, stated("WIFI", "무선망", "와이파이가 괜찮지 않아요. 접속이 계속 끊깁니다"), null));
+        assertTrue(SimilarityService.broadScope(wifi, stated("WIFI", "무선망", "와이파이가 정상이 아니라 접속이 계속 끊깁니다"), null));
+        // A stated fine object still sets the other report apart, also when the contrast names the other one first.
+        assertFalse(SimilarityService.broadScope(wifi, stated("WIFI", "무선망 안내문", "와이파이는 정상인데 안내문 글씨가 지워졌어요"), null));
+        assertFalse(SimilarityService.broadScope(wifi, stated("WIFI", "무선망 안내문", "와이파이가 아니라 안내문이 훼손됐어요"), null));
+        // A present-tense modifier sets it apart (S09); a past state that broke does not.
+        assertFalse(SimilarityService.broadScope(wifi, stated("WIFI", "무선망 안내문", "정상 사용 중인 와이파이의 안내문 훼손"), null));
+        assertTrue(SimilarityService.broadScope(wifi, stated("WIFI", "무선망", "정상이던 와이파이가 오늘부터 끊겨요"), null));
+        assertTrue(SimilarityService.apart("정상인문손잡이옆서랍손잡이가빠졌어요", "문손잡이"));
+        assertFalse(SimilarityService.apart("정상인문손잡이옆서랍손잡이가빠졌어요", "서랍손잡이"), "the modifier belongs to the nearer object");
+    }
+
+    @Test void onlyAPresentAffirmativeFineStateSetsAnObjectApart() {
+        // Lead review (10/30 #4): a past fine state or a denied normal operation is a fault description.
+        var wifi = stated("WIFI", "와이파이", "와이파이 접속이 자꾸 끊겨요");
+        for (String fault : List.of("와이파이가 아까는 정상이었는데 지금은 접속이 계속 끊겨요",
+                "와이파이가 정상적으로 작동하지 않습니다. 접속이 계속 끊겨요",
+                "와이파이가 정상적으로 연결이 안 돼요", "와이파이가 정상적으로 동작을 못 해요",
+                "와이파이가 어제까지 괜찮았는데 지금은 끊겨요", "와이파이가 멀쩡했는데 오늘 끊겼어요"))
+            assertTrue(SimilarityService.broadScope(wifi, stated("WIFI", "무선망", fault), null), fault);
+        // Present affirmative states still set the other object apart (S09, S10).
+        for (String fine : List.of("와이파이는 정상인데 안내문 글씨가 지워졌어요", "와이파이는 정상이고 안내문이 훼손됐어요",
+                "와이파이는 정상적으로 작동합니다. 안내문이 훼손됐어요", "와이파이는 괜찮아요. 안내문이 훼손됐어요"))
+            assertFalse(SimilarityService.broadScope(wifi, stated("WIFI", "무선망 안내문", fine), null), fine);
+        assertTrue(SimilarityService.apart("천장배관은마른상태입니다", "천장배관"));
+    }
+
+    @Test void narrowTypesSeparateObjectsOnlyOnTheStudentsOwnDistinction() {
+        var pipe = stated("LEAK", "천장 배관", "천장 배관에서 물이 샙니다");
+        var frame = stated("LEAK", "창틀", "반대쪽 창틀에 비가 들이칩니다. 천장 배관은 마른 상태입니다.");
+        assertFalse(SimilarityService.broadScope(pipe, frame, .86), "the report itself says the pipe is fine: a high score cannot join them");
+        assertFalse(SimilarityService.broadScope(frame, pipe, null));
+        assertTrue(SimilarityService.broadScope(pipe, stated("LEAK", "천장 배관", "배관 연결 부위에서 물이 떨어져요"), .93));
+        assertTrue(SimilarityService.broadScope(pipe, stated("LEAK", null, "물이 떨어져요"), null), "a missing target keeps the existing rule");
+        // Lead review (10/30 #1): a different word alone is a naming difference, so the score and place rules decide.
+        assertTrue(SimilarityService.broadScope(stated("ELECTRIC", "천장 조명", "출입문 바로 위 천장 조명이 깜빡거립니다"),
+                stated("ELECTRIC", "전등", "문 위 전등이 밝아졌다 꺼졌다를 반복합니다"), .863109));
+        assertTrue(SimilarityService.broadScope(stated("WIFI", "와이파이", "와이파이가 자꾸 끊겨요"),
+                stated("WIFI", "무선망", "무선망 접속이 반복 해제됩니다"), null));
+        // OTHER/UNKNOWN keeps the stricter rule from before: different objects never pair.
+        assertFalse(SimilarityService.broadScope(stated("UNKNOWN", "거울", "벽 거울이 갈라졌어요"),
+                stated("UNKNOWN", "문손잡이", "문손잡이가 빠졌어요"), .81));
+    }
+
     @SuppressWarnings("unchecked")
     private static List<Map<String, Object>> items(Map<String, Object> response) {
         return (List<Map<String, Object>>) response.get("items");
