@@ -141,6 +141,56 @@ class WorkGroupAssignmentIntegrationTest {
         var moved=admin.ok("PATCH","/admin/reports/"+id+"/routing",Map.of("routingRuleId",wifiRule,"reason","정보전산원 확인 필요"),200);
         assertEquals("MANUAL",moved.path("routeStatus").asText());assertEquals(IT,moved.at("/assignedDepartment/name").asText());
     }
+    // Lead review of e349274 (10/31).
+
+    @Test void d9ANarrowTypeWithAnExplicitPersonalOrUncertainOwnerNeverUsesItsGroupFallback()throws Exception{
+        record Case(String text,String relevance,String reason){}
+        for(var c:List.of(new Case("북악관 503호 제 의자 바퀴가 빠졌어요","PERSONAL_ON_CAMPUS","GENERAL_INQUIRY"),
+                new Case("북악관 503호 책상이 부서졌는데 학교 건지 모르겠어요","UNCERTAIN","SCOPE_UNCONFIRMED"))){
+            var model=facility("북악관 503호","북악관","가구가 파손됐습니다","SHARED_EQUIPMENT","의자",c.relevance());
+            model.put("category","FACILITY");model.put("subcategory","FURNITURE");
+            ai.first(c.text(),model,"NONE",null);
+            unassigned(accepted(c.text()),c.reason());
+        }
+        // The same type with confirmed school relevance (or an older row without it) still uses the group default.
+        String school="북악관 503호 강의실 의자 바퀴가 빠졌어요";
+        var model=facility("북악관 503호","북악관","의자 바퀴가 빠졌습니다","SHARED_EQUIPMENT","의자","CAMPUS_FACILITY");
+        model.put("category","FACILITY");model.put("subcategory","FURNITURE");
+        ai.first(school,model,"NONE",null);
+        assigned(accepted(school),SUPPLY);
+    }
+    @Test void d10TheAnalysisPreviewAndTheSavedReportAgree()throws Exception{
+        var student=http.new Session().login("student1");
+        record Case(String text,Map<String,Object> model,String department){}
+        var furniture=facility("북악관 503호","북악관","가구가 파손됐습니다","SHARED_EQUIPMENT","의자","PERSONAL_ON_CAMPUS");
+        furniture.put("category","FACILITY");furniture.put("subcategory","FURNITURE");
+        for(var c:List.of(new Case("미리보기 북악관 503호 보드마카 없음",facility("북악관 503호","북악관","보드마카가 없습니다","SHARED_EQUIPMENT","보드마카","CAMPUS_FACILITY"),SUPPLY),
+                new Case("미리보기 장학금 결과가 안 나와요",facility(null,null,"장학금 결과가 나오지 않았습니다","ACADEMIC_ADMIN","장학금","SCHOOL_SERVICE"),SCHOLARSHIP),
+                new Case("미리보기 북악관 503호 제 의자가 부서졌어요",furniture,null))){
+            ai.first(c.text(),c.model(),"NONE",null);
+            var preview=student.ok("POST","/assistant/analyze",Map.of("text",c.text(),"preferredIntent","AUTO","hybrid",true),200).path("routingPreview");
+            var saved=accepted(c.text());
+            assertEquals(saved.path("routeStatus").asText(),preview.path("routeStatus").asText(),c.text());
+            assertEquals(c.department()==null?"NEEDS_REVIEW":"MATCHED",preview.path("routeStatus").asText(),c.text());
+            if(c.department()!=null){assertEquals(c.department(),preview.path("departmentName").asText());assertEquals(saved.at("/assignedDepartment/name").asText(),preview.path("departmentName").asText());}
+            else assertTrue(preview.path("departmentName").isNull());
+        }
+    }
+    @Test void d11StudentsNeverReceiveManualOnlyRulesAsReportTypes()throws Exception{
+        var student=http.new Session().login("student1").ok("GET","/report-types",null,200).path("items");
+        for(var rule:student){
+            assertNotEquals("MANUAL",rule.path("category").asText(),"manual-only rules are not report types");
+            assertNotEquals("WORK_GROUP",rule.path("category").asText());
+            assertFalse(rule.path("manualOnly").asBoolean());
+        }
+        var admin=http.new Session().login("admin").ok("GET","/report-types",null,200).path("items");
+        long manual=java.util.stream.StreamSupport.stream(admin.spliterator(),false).filter(r->r.path("manualOnly").asBoolean()).count();
+        assertEquals(8,manual,"the supervisor's reassignment list keeps them");
+        assertEquals(student.size()+8,admin.size());
+        // A student cannot file one as a report type either.
+        var s=http.new Session().login("student1");
+        assertEquals(400,s.call("POST","/reports",Map.of("clientRequestId",UUID.randomUUID().toString(),"originalText","총무 업무 수동 배정으로 접수","category","MANUAL","subcategory","DEPARTMENT","symptom","시험"),true).statusCode());
+    }
     @Test void d8OfficialDepartmentsAreReachedBySeededRulesAndSensitiveOnesAreNot()throws Exception{
         // A: the seeded ACADEMIC_ADMIN exception for 장학금 (department-routes.tsv), no place needed for a school service.
         String scholarship="장학금 신청했는데 결과가 아직 안 나왔어요";

@@ -47,9 +47,11 @@ class RoutingServiceTest {
     @Test void demoModeAssignsKnownLeakWithoutPretendingItsContactIsVerified(){
         var db=fixture();seed(db,true,PASSWORD);var routes=new RoutingService(db,true);var rule=routes.find("FACILITY","LEAK");
         // 4 original routes + demo-only HVAC and WATER_DISPENSER added by SeedData.addMissingDemoRoutes (FURNITURE has no rule)
-        // + 8 manual-only department rules (department-routes.tsv). Work-group rules are not listed.
-        assertNotNull(rule);assertEquals(14,routes.types().size());
-        assertEquals(6,routes.types().stream().filter(r->!"MANUAL".equals(r.get("category"))).count());
+        // Students: those 6 report types only. Supervisor: + 8 manual-only department rules (department-routes.tsv).
+        // Work-group rules are never listed.
+        assertNotNull(rule);assertEquals(6,routes.types().size());assertEquals(14,routes.types(true).size());
+        assertTrue(routes.types().stream().noneMatch(r->Boolean.TRUE.equals(r.get("manualOnly"))));
+        assertEquals(8,routes.types(true).stream().filter(r->Boolean.TRUE.equals(r.get("manualOnly"))).count());
         for(var value:new Map[]{routes.preview(rule),routes.department(rule),routes.types().stream().filter(r->"LEAK".equals(r.get("subcategory"))).findFirst().orElseThrow()}){
             assertEquals(false,value.get("verified"));assertEquals("DEMO",value.get("assignmentBasis"));
             assertEquals(true,value.get("demoOnly"));assertNotNull(value.get("warning"));
