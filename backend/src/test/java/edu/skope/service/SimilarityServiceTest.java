@@ -306,6 +306,24 @@ class SimilarityServiceTest {
         assertFalse(SimilarityService.sameTarget(door, stated("UNKNOWN", "손잡이", "문손잡이가 아니라 서랍 손잡이가 빠졌어요")));
         assertTrue(SimilarityService.sameTarget(door, stated("UNKNOWN", "손잡이", "출입문 손잡이를 돌려도 걸쇠가 움직이지 않고 손잡이만 돌아가요")),
                 "a fault description with 않 is not a 'fine' statement");
+        // Lead review (10/30 #3): "A가 아니라 B" denies only A; B is the broken object.
+        assertTrue(SimilarityService.sameTarget(door, stated("UNKNOWN", "손잡이", "서랍 손잡이가 아니라 출입문 손잡이가 고장났어요")));
+    }
+
+    @Test void aDeniedFineStateIsAFaultNotADistinction() {
+        // Lead review (10/30 #3): "정상은 아니고" says the object is broken; it does not set it apart.
+        var wifi = stated("WIFI", "와이파이", "와이파이 접속이 자꾸 끊겨요");
+        assertTrue(SimilarityService.broadScope(wifi, stated("WIFI", "무선망", "와이파이가 정상은 아니고 접속이 계속 끊깁니다"), null));
+        assertTrue(SimilarityService.broadScope(wifi, stated("WIFI", "무선망", "와이파이가 괜찮지 않아요. 접속이 계속 끊깁니다"), null));
+        assertTrue(SimilarityService.broadScope(wifi, stated("WIFI", "무선망", "와이파이가 정상이 아니라 접속이 계속 끊깁니다"), null));
+        // A stated fine object still sets the other report apart, also when the contrast names the other one first.
+        assertFalse(SimilarityService.broadScope(wifi, stated("WIFI", "무선망 안내문", "와이파이는 정상인데 안내문 글씨가 지워졌어요"), null));
+        assertFalse(SimilarityService.broadScope(wifi, stated("WIFI", "무선망 안내문", "와이파이가 아니라 안내문이 훼손됐어요"), null));
+        // A present-tense modifier sets it apart (S09); a past state that broke does not.
+        assertFalse(SimilarityService.broadScope(wifi, stated("WIFI", "무선망 안내문", "정상 사용 중인 와이파이의 안내문 훼손"), null));
+        assertTrue(SimilarityService.broadScope(wifi, stated("WIFI", "무선망", "정상이던 와이파이가 오늘부터 끊겨요"), null));
+        assertTrue(SimilarityService.apart("정상인문손잡이옆서랍손잡이가빠졌어요", "문손잡이"));
+        assertFalse(SimilarityService.apart("정상인문손잡이옆서랍손잡이가빠졌어요", "서랍손잡이"), "the modifier belongs to the nearer object");
     }
 
     @Test void narrowTypesSeparateObjectsOnlyOnTheStudentsOwnDistinction() {

@@ -232,15 +232,50 @@ public class SimilarityService {
         String longName = aLonger ? targetA : targetB, shortName = aLonger ? targetB : targetA;
         Map<String, Object> shortReport = aLonger ? b : a;
         return shortName.length() >= 2 && longName.endsWith(shortName)
-                && clauses(shortReport).anyMatch(c -> c.contains(longName) && !FINE_OR_OTHER.matcher(c).find());
+                && clauses(shortReport).anyMatch(c -> c.contains(longName) && !apart(c, longName));
     }
 
-    // "Not the broken one" wording, kept to state words: 않/아니 also describe faults ("열리지 않아요").
-    private static final Pattern FINE_OR_OTHER = Pattern.compile("정상|괜찮|멀쩡|문제없|이상없|마른|말랐|별개|아니라|아니고|말고");
+    // "Not the broken one" wording. State words only: 않/아니 alone also describe faults ("열리지 않아요").
+    private static final Pattern FINE = Pattern.compile("정상|괜찮|멀쩡|문제없|이상없|마른|말랐|별개");
+    // "A가 아니라 B": the contrast denies the words before it (A), not the broken object after it (B).
+    private static final Pattern CONTRAST = Pattern.compile("아니라|아니고|말고");
+    // A fine word that is itself denied describes a fault: "정상은 아니고", "괜찮지 않아요", "정상이 아니라".
+    private static final Pattern FINE_DENIED_BY_CONTRAST = Pattern.compile("(?:정상|괜찮|멀쩡|문제없|이상없|별개)(?:은|는|이|가|도|인|인건|인게|이진|이지는|하진|하지는|하지|한건|한게)?$");
+    private static final Pattern DENIAL_AFTER = Pattern.compile("^\\S{0,4}?(?:아니|않|못)");
+    // A fine word right before the object as its present-tense modifier: "정상인 X", "멀쩡한 X", "정상 사용 중인 X".
+    // "정상이던 X가 끊겨요" (was fine, now broken) does not match.
+    private static final Pattern FINE_MODIFIER = Pattern.compile("인|한|적인|(?:사용|작동|동작)(?:중인|하는)");
 
     /** The report names this object only to say it is fine or a different one. */
     private static boolean statedApart(Map<String, Object> report, String object) {
-        return clauses(report).anyMatch(c -> c.contains(object) && FINE_OR_OTHER.matcher(c).find());
+        return clauses(report).anyMatch(c -> apart(c, object));
+    }
+
+    /**
+     * In one normalized clause, the object is set apart when a contrast denies the part naming it ("문손잡이가
+     * 아니라…") or a fine word follows it in its part and is not itself denied ("천장배관은마른상태"),
+     * or modifies it directly ("정상사용중인무선망").
+     * A contrast that denies a fine word ("정상은 아니고") states a fault, so it sets nothing apart.
+     */
+    static boolean apart(String clause, String object) {
+        var m = CONTRAST.matcher(clause);
+        int from = 0;
+        while (true) {
+            boolean contrast = m.find();
+            String part = clause.substring(from, contrast ? m.start() : clause.length());
+            boolean fineDenied = contrast && FINE_DENIED_BY_CONTRAST.matcher(part).find();
+            int at = part.indexOf(object);
+            if (at >= 0) {
+                if (contrast && !fineDenied) return true;
+                var fine = FINE.matcher(part);
+                while (!fineDenied && fine.find()) {
+                    if (fine.start() > at && !DENIAL_AFTER.matcher(part.substring(fine.end())).find()) return true;
+                    if (fine.end() <= at && FINE_MODIFIER.matcher(part.substring(fine.end(), at)).matches()) return true;
+                }
+            }
+            if (!contrast) return false;
+            from = m.end();
+        }
     }
 
     /** The report's own words, normalized, split at sentence ends and clause connectors (…고, …지만, …는데). */
