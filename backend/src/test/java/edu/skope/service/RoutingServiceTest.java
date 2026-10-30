@@ -65,7 +65,8 @@ class RoutingServiceTest {
         db.update("UPDATE routing_rules SET demo_only=FALSE,active=FALSE WHERE subcategory='LEAK'");
         seed(db,true,PASSWORD);
         assertEquals(originalVerified,db.all("SELECT * FROM routing_rules WHERE subcategory<>'LEAK' ORDER BY id"));
-        assertEquals(4,db.all("SELECT * FROM departments").size());
+        // 4 original rows (names kept) + 10 core departments from the official chart (3 chart names already existed).
+        assertEquals(14,db.all("SELECT * FROM departments").size());
         var deptAccount=db.one("SELECT * FROM users WHERE username='dept1'");assertEquals(1L,Db.id(deptAccount,"departmentId"));
         db.update("UPDATE users SET password_hash='changed-hash',department_id=2,active=FALSE,display_name='보존 이름' WHERE username='dept1'");
         db.update("UPDATE routing_rules SET active=FALSE WHERE subcategory='LEAK'");
@@ -75,9 +76,26 @@ class RoutingServiceTest {
         var preserved=db.one("SELECT * FROM users WHERE username='dept1'");
         assertEquals("changed-hash",preserved.get("passwordHash"));assertEquals(2L,Db.id(preserved,"departmentId"));
         assertEquals(false,preserved.get("active"));assertEquals("보존 이름",preserved.get("displayName"));
+        // Since the official department list (10/30), a department gets an account only once a rule routes to it.
+        assertNull(db.one("SELECT id FROM users WHERE username=?","dept"+extra));
+        db.insert("INSERT INTO routing_rules(category,subcategory,work_name,department_id,target_key,active,demo_only) VALUES(?,?,?,?,?,?,?)","WORK_GROUP","SHARED_EQUIPMENT","추가 부서 예외",extra,"시험대상",true,true);
+        seed(db,true,"different-test-password");
         assertNotNull(db.one("SELECT id FROM users WHERE username=?","dept"+extra));
         assertNull(db.one("SELECT id FROM users WHERE username=?","dept"+inactive));
         assertNull(new RoutingService(db,true).find("FACILITY","LEAK"));
+    }
+
+    @Test void officialCoreDepartmentsAreAddedOnceWithoutAccountsOrChangesToExistingRows(){
+        var db=fixture();seed(db,true,PASSWORD);
+        var original=db.all("SELECT * FROM departments WHERE id<=4 ORDER BY id");
+        var official=db.all("SELECT * FROM departments WHERE source_url=?","https://www.skuniv.ac.kr/organization-phone");
+        assertEquals(10,official.size(),"10 new core departments; 총무처 건설관리과·정보전산원·교무처 교무과 already existed");
+        assertTrue(official.stream().allMatch(d->d.get("verifiedAt")!=null&&d.get("description")!=null));
+        assertNotNull(db.one("SELECT id FROM departments WHERE name='학생처 장학과' AND description='대학본부 > 학생처'"));
+        assertEquals(4,db.all("SELECT * FROM users WHERE role='DEPT_ADMIN'").size(),"no account for a department without a rule");
+        seed(db,true,PASSWORD);
+        assertEquals(14,db.all("SELECT * FROM departments").size(),"idempotent on every start");
+        assertEquals(original,db.all("SELECT * FROM departments WHERE id<=4 ORDER BY id"),"original rows untouched");
     }
 
     @Test void demoFlagCannotBypassInactiveRuleOrDepartmentOrOrdinaryMissingEvidence(){
