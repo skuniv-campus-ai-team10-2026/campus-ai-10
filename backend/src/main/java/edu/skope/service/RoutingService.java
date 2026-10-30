@@ -14,6 +14,9 @@ public class RoutingService {
     private static final String DEMO_WARNING="시연용 배정 · 실제 담당 업무 미확인";
     /** Work-group rules: category WORK_GROUP, subcategory = group, target_key '' (default) or a target name (exception). */
     public static final String WORK_GROUP="WORK_GROUP";
+    /** Manual-only rules (category MANUAL, subcategory DEPARTMENT, target_key = department): never used by route(),
+     *  listed with the report types so a supervisor can reassign to a department that has no automatic rule. */
+    public static final String MANUAL="MANUAL", MANUAL_TYPE="DEPARTMENT";
     public Map<String,Object> find(String category,String subcategory){return db.one(SELECT+" AND rr.category=? AND rr.subcategory=? AND rr.target_key=''",demoEnabled,category,subcategory);}
     /**
      * Department for an accepted report, from managed DB rules only (never a model-generated name):

@@ -83,7 +83,7 @@ class WorkGroupRoutingIntegrationTest {
         assertTrue(report.get("symptom").toString().contains("깨졌"));
         assertEquals("REPORT", report.get("requestKind"));
         // V11 (10/31 lead request): an in-scope work group without a type rule uses its registered group default.
-        groupDefault(talk, "총무처 건설관리과");
+        groupDefault(talk, "총무처 건설관리과"); // 시설 보수 기본 (공용 비품은 총무처 총무과)
         assertFalse(talk.last.containsKey("scopeNotice"));
     }
 
@@ -93,7 +93,7 @@ class WorkGroupRoutingIntegrationTest {
         scope(talk.report(), "SHARED_EQUIPMENT", "실습복", "SCHOOL_SERVICE");
         assertNull(talk.report().get("building"));
         assertEquals("REPORT", talk.report().get("requestKind"));
-        groupDefault(talk, "총무처 건설관리과");
+        groupDefault(talk, "총무처 총무과");
     }
 
     @Test void e3LeftPersonalItemIsAGeneralInquiry() {
@@ -116,7 +116,7 @@ class WorkGroupRoutingIntegrationTest {
         scope(talk.report(), "SHARED_EQUIPMENT", "연필", "CAMPUS_FACILITY");
         assertEquals("북악관", talk.report().get("building"));
         assertEquals("연필이 부러졌어요", talk.report().get("symptom"), "an ownership answer is not a new symptom");
-        groupDefault(talk, "총무처 건설관리과");
+        groupDefault(talk, "총무처 총무과");
     }
 
     @Test void e4PersonalAnswerBecomesAGeneralInquiry() {

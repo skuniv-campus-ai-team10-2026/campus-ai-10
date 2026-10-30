@@ -27,7 +27,7 @@ class WorkGroupAssignmentIntegrationTest {
     @TestConfiguration static class Config {@Bean @Primary ScriptedAi workGroupScriptedAi(){return new ScriptedAi();}}
     @Autowired Db db; @Autowired Environment env; @Autowired ScriptedAi ai;
     ApiIntegrationTest http;
-    static final String GENERAL="총무처 건설관리과", IT="정보전산원", ELECTRIC="건설관리과 / 전기실", ACADEMIC="교무처 교무과";
+    static final String GENERAL="총무처 건설관리과", SUPPLY="총무처 총무과", SCHOLARSHIP="학생처 장학과", CLINIC="보건진료소", IT="정보전산원", ELECTRIC="건설관리과 / 전기실", ACADEMIC="교무처 교무과";
 
     @BeforeEach void setup(){
         http=new ApiIntegrationTest();http.db=db;http.env=env;http.clean();cleanRules();ai.calls=0;
@@ -36,7 +36,7 @@ class WorkGroupAssignmentIntegrationTest {
     }
     @AfterEach void cleanRules(){
         if(http!=null)http.clean();
-        db.update("DELETE FROM routing_rules WHERE category='WORK_GROUP' AND target_key<>''");
+        db.update("DELETE FROM routing_rules WHERE category='WORK_GROUP' AND work_name LIKE '%(시험용)'"); // seeded exceptions stay
         db.update("UPDATE routing_rules SET active=TRUE WHERE category='WORK_GROUP' AND target_key=''");
     }
 
@@ -79,7 +79,7 @@ class WorkGroupAssignmentIntegrationTest {
         String text="북악관 503호 보드마카 없음";
         ai.first(text,facility("북악관 503호","북악관","보드마카가 없습니다","SHARED_EQUIPMENT","보드마카","CAMPUS_FACILITY"),"NONE",null);
         var report=accepted(text);
-        assigned(report,GENERAL);
+        assigned(report,SUPPLY);
         assertEquals("DEMO",report.at("/assignedDepartment/assignmentBasis").asText(),"a group default is never shown as verified");
         assertTrue(report.at("/assignedDepartment/contactPhone").isNull());
         assertEquals("보드마카",report.path("targetText").asText());
@@ -101,7 +101,7 @@ class WorkGroupAssignmentIntegrationTest {
         var w=facility("북악관 608호","북악관","무선망 연결이 끊어지고 다시 연결되지 않습니다","IT_SUPPORT","와이파이",null);w.put("category","IT");w.put("subcategory","WIFI");
         ai.first(wifi,w,"NONE",null);
         assigned(accepted(projector),IT);   // registered exception for this target, spaces ignored
-        assigned(accepted(chair),GENERAL);  // same group, no exception: group default
+        assigned(accepted(chair),SUPPLY);   // same group, no exception: group default
         assigned(accepted(wifi),IT);        // its type rule wins over the IT_SUPPORT exception
     }
     @Test void d4PersonalItemsAndUncertainOwnershipAreNotRoutedToFacilityStaff()throws Exception{
@@ -131,7 +131,7 @@ class WorkGroupAssignmentIntegrationTest {
         String text="북악관 503호 보드마카가 다 떨어졌어요";
         ai.first(text,facility("북악관 503호","북악관","보드마카가 모두 소진됐습니다","SHARED_EQUIPMENT","보드마카","CAMPUS_FACILITY"),"NONE",null);
         var report=accepted(text);long id=report.path("id").asLong();
-        http.new Session().login("dept"+departmentId(GENERAL)).ok("GET","/admin/reports/"+id,null,200);
+        http.new Session().login("dept"+departmentId(SUPPLY)).ok("GET","/admin/reports/"+id,null,200);
         http.new Session().login("dept"+departmentId(IT)).ok("GET","/admin/reports/"+id,null,404);
         var admin=http.new Session().login("admin");
         var types=admin.ok("GET","/report-types",null,200).path("items");
@@ -140,6 +140,28 @@ class WorkGroupAssignmentIntegrationTest {
         long wifiRule=Db.id(db.one("SELECT id FROM routing_rules WHERE category='IT' AND subcategory='WIFI'"),"id");
         var moved=admin.ok("PATCH","/admin/reports/"+id+"/routing",Map.of("routingRuleId",wifiRule,"reason","정보전산원 확인 필요"),200);
         assertEquals("MANUAL",moved.path("routeStatus").asText());assertEquals(IT,moved.at("/assignedDepartment/name").asText());
+    }
+    @Test void d8OfficialDepartmentsAreReachedBySeededRulesAndSensitiveOnesAreNot()throws Exception{
+        // A: the seeded ACADEMIC_ADMIN exception for 장학금 (department-routes.tsv), no place needed for a school service.
+        String scholarship="장학금 신청했는데 결과가 아직 안 나왔어요";
+        ai.first(scholarship,facility(null,null,"장학금 신청 결과가 나오지 않았습니다","ACADEMIC_ADMIN","장학금","SCHOOL_SERVICE"),"NONE",null);
+        assigned(accepted(scholarship),SCHOLARSHIP);
+        // C: a department without an automatic rule is in the reassignment list as a manual-only rule.
+        var admin=http.new Session().login("admin");
+        var types=admin.ok("GET","/report-types",null,200).path("items");
+        var manual=new HashMap<String,Long>();
+        for(var rule:types)if("MANUAL".equals(rule.path("category").asText()))manual.put(rule.path("departmentName").asText(),rule.path("id").asLong());
+        assertEquals(Set.of(SUPPLY,"총무처 산업안전관리센터","대학원 교학과","학생처 학생과",SCHOLARSHIP,"학술정보관","생활관",CLINIC),manual.keySet());
+        assertFalse(manual.containsKey("학생처 학생상담센터")||manual.containsKey("서경인권센터"),"counselling and human-rights matters are never routed");
+        String fall="북악관 계단에서 넘어져서 다쳤어요";
+        ai.first(fall,facility("북악관 계단","북악관","계단에서 넘어져 다쳤습니다","FACILITY_MAINTENANCE","계단","CAMPUS_FACILITY"),"NONE",null);
+        long id=accepted(fall).path("id").asLong();
+        var moved=admin.ok("PATCH","/admin/reports/"+id+"/routing",Map.of("routingRuleId",manual.get(CLINIC),"reason","부상 확인 필요"),200);
+        assertEquals("MANUAL",moved.path("routeStatus").asText());assertEquals(CLINIC,moved.at("/assignedDepartment/name").asText());
+        assertEquals("DEMO",moved.at("/assignedDepartment/assignmentBasis").asText());
+        http.new Session().login("dept"+departmentId(CLINIC)).ok("GET","/admin/reports/"+id,null,200);
+        // A manual-only rule never assigns automatically, even for a matching department name.
+        assertNull(db.one("SELECT id FROM routing_rules WHERE category='MANUAL' AND subcategory<>'DEPARTMENT'"));
     }
     @Test void d7RoutedAndUnroutedReportsStayInSimilarReportComparison()throws Exception{
         String a="북악관 503호 보드마카가 없어요", b="북악관 503호 보드마카 다 썼어요";
@@ -150,12 +172,13 @@ class WorkGroupAssignmentIntegrationTest {
         assertTrue(db.one("SELECT incident_id FROM reports WHERE id=?",first).get("incidentId")==null,"a candidate is never merged automatically");
     }
 
+
     // 2. Evaluation sentences (separate from development; new objects, wording and request kinds).
 
     @Test void evaluationSentencesAcrossWorkGroupsAndRequestKinds()throws Exception{
         record Case(String id,String text,Map<String,Object> model,String department,String reason){}
         var cases=new ArrayList<Case>();
-        cases.add(new Case("E1 부족","은주2관 201호 지우개가 하나도 없어요",facility("은주2관 201호","은주2관","칠판 지우개가 없습니다","SHARED_EQUIPMENT","칠판 지우개","CAMPUS_FACILITY"),GENERAL,null));
+        cases.add(new Case("E1 부족","은주2관 201호 지우개가 하나도 없어요",facility("은주2관 201호","은주2관","칠판 지우개가 없습니다","SHARED_EQUIPMENT","칠판 지우개","CAMPUS_FACILITY"),SUPPLY,null));
         cases.add(new Case("E2 보충","유담관 4층 화장실 휴지 좀 채워주세요",facility("유담관 4층 화장실","유담관","화장지 보충이 필요합니다","FACILITY_MAINTENANCE","화장지","CAMPUS_FACILITY"),GENERAL,null));
         cases.add(new Case("E3 고장","유담관 4층 복도 형광등 하나가 계속 깜빡여요",facility("유담관 4층 복도","유담관","복도 형광등 하나가 깜빡입니다","ELECTRICAL_MAINTENANCE","형광등","CAMPUS_FACILITY"),ELECTRIC,null));
         cases.add(new Case("E4 수리","북악관 302호 블라인드 줄이 끊어졌어요",facility("북악관 302호","북악관","블라인드 줄이 끊어졌습니다","FACILITY_MAINTENANCE","블라인드","CAMPUS_FACILITY"),GENERAL,null));

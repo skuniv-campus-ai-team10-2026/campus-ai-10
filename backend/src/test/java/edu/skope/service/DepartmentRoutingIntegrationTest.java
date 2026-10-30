@@ -97,9 +97,9 @@ class DepartmentRoutingIntegrationTest {
         assertNull(hvac.get("unassignedReason"));
 
         assertEquals(OFFICE, ((Map<?, ?>) adminView("FACILITY", "WATER_DISPENSER", "북악관", null).get("assignedDepartment")).get("name"));
-        // FURNITURE still has no type rule; since V11 its work group (SHARED_EQUIPMENT) default assigns it, as demo.
+        // FURNITURE still has no type rule; since V11 its work group (SHARED_EQUIPMENT) default (총무처 총무과, department-routes.tsv) assigns it, as demo.
         var furniture = adminView("FACILITY", "FURNITURE", "북악관", null);
-        assertEquals(OFFICE, ((Map<?, ?>) furniture.get("assignedDepartment")).get("name"));
+        assertEquals("총무처 총무과", ((Map<?, ?>) furniture.get("assignedDepartment")).get("name"));
         assertEquals("DEMO", ((Map<?, ?>) furniture.get("assignedDepartment")).get("assignmentBasis"));
         assertNull(furniture.get("unassignedReason"));
         assertEquals("AI_UNCLASSIFIED", adminView("OTHER", "UNKNOWN", "북악관", null).get("unassignedReason"));

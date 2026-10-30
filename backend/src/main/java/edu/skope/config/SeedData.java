@@ -27,6 +27,7 @@ public class SeedData implements CommandLineRunner {
         if(db.one("SELECT id FROM departments LIMIT 1")==null)seedDirectory();
         addMissingOfficialDepartments();
         addMissingDemoRoutes();
+        addMissingDepartmentRoutes();
         addMissingWorkGroupDefaults();
         // Upgrade only the original unverified sample. Never relabel a verified/custom route
         // or re-enable a demo rule that an administrator has subsequently disabled.
@@ -69,17 +70,52 @@ public class SeedData implements CommandLineRunner {
      * A department alone receives no reports and gets no account until a routing rule points to it.
      */
     private void addMissingOfficialDepartments(){
-        try(var in=SeedData.class.getResourceAsStream("/seed/official-departments.tsv")){
-            if(in==null)return;
-            String source=null;
+        String source=null;
+        for(String[] cell:rows("/seed/official-departments.tsv")){
+            if(cell[0].equals("SOURCE")){source=cell[1];continue;}
+            if(db.one("SELECT id FROM departments WHERE name=?",cell[0])!=null)continue;
+            db.insert("INSERT INTO departments(name,description,source_url,verified_at) VALUES(?,?,?,?)",cell[0],cell.length>1?cell[1]:null,source,"2026-10-30 00:00:00");
+        }
+    }
+    /**
+     * Routes for the official core departments (seed/department-routes.tsv), all demo-only without contact:
+     * WORK_GROUP rows are automatic group defaults/exceptions; MANUAL rows only appear in the supervisor's
+     * reassignment list. Runs before the derived group defaults, so an explicit default wins. Inserted once;
+     * a missing department is skipped, and changed or disabled rules are never overwritten. The only upgrade is an
+     * untouched derived default (same generated name and derived department, active, no reports yet), as with the
+     * original LEAK sample.
+     */
+    private void addMissingDepartmentRoutes(){
+        for(String[] cell:rows("/seed/department-routes.tsv")){
+            if(cell.length<5)continue;
+            boolean manual=cell[0].equals(RoutingService.MANUAL);
+            String category=manual?RoutingService.MANUAL:RoutingService.WORK_GROUP,subcategory=manual?RoutingService.MANUAL_TYPE:cell[1];
+            String key=manual?RoutingService.targetKey(cell[3]):RoutingService.targetKey(cell[2]);
+            var department=db.one("SELECT id FROM departments WHERE name=?",cell[3]);
+            if(department==null||department.get("id")==null)continue;
+            long departmentId=Db.id(department,"id");
+            var existing=db.one("SELECT * FROM routing_rules WHERE category=? AND subcategory=? AND target_key=?",category,subcategory,key);
+            if(existing==null){
+                db.insert("INSERT INTO routing_rules(category,subcategory,work_name,department_id,target_key,active,demo_only) VALUES(?,?,?,?,?,?,?)",
+                        category,subcategory,cell[4],departmentId,key,true,true);
+            }else if(!manual&&key.isEmpty()&&GROUP_NAMES.containsKey(subcategory)&&derivedName(subcategory).equals(existing.get("workName"))
+                    &&Objects.equals(derivedDepartment(subcategory),Db.id(existing,"departmentId"))&&departmentId!=Db.id(existing,"departmentId")){
+                // Never relabel a rule that already carries reports: their shown department would change after the fact.
+                db.update("UPDATE routing_rules SET department_id=?,work_name=? WHERE id=? AND active=TRUE AND NOT EXISTS (SELECT 1 FROM reports WHERE routing_rule_id=?)",
+                        departmentId,cell[4],existing.get("id"),existing.get("id"));
+            }
+        }
+    }
+    private static List<String[]> rows(String resource){
+        try(var in=SeedData.class.getResourceAsStream(resource)){
+            if(in==null)return List.of();
+            var rows=new ArrayList<String[]>();
             for(String line:new String(in.readAllBytes(),java.nio.charset.StandardCharsets.UTF_8).split("\\R")){
                 if(line.isBlank()||line.startsWith("#"))continue;
-                String[] cell=line.split("\t",2);
-                if(cell[0].equals("SOURCE")){source=cell[1].strip();continue;}
-                if(db.one("SELECT id FROM departments WHERE name=?",cell[0].strip())!=null)continue;
-                db.insert("INSERT INTO departments(name,description,source_url,verified_at) VALUES(?,?,?,?)",cell[0].strip(),cell.length>1?cell[1].strip():null,source,"2026-10-30 00:00:00");
+                rows.add(Arrays.stream(line.split("\t",-1)).map(String::strip).toArray(String[]::new));
             }
-        }catch(java.io.IOException e){throw new IllegalStateException("Official department list unreadable",e);}
+            return rows;
+        }catch(java.io.IOException e){throw new IllegalStateException("Seed data unreadable: "+resource,e);}
     }
     private static final Map<String,String> GROUP_NAMES=Map.of("IT_SUPPORT","IT 지원","ELECTRICAL_MAINTENANCE","전기","FACILITY_MAINTENANCE","시설 보수","SHARED_EQUIPMENT","공용 비품","ACADEMIC_ADMIN","학사 행정");
     /**
@@ -91,16 +127,22 @@ public class SeedData implements CommandLineRunner {
     private void addMissingWorkGroupDefaults(){
         for(var group:GROUP_NAMES.entrySet()){
             if(db.one("SELECT id FROM routing_rules WHERE category=? AND subcategory=? AND target_key=''",RoutingService.WORK_GROUP,group.getKey())!=null)continue;
-            var departments=new LinkedHashSet<Long>();
-            for(var type:Codes.TYPE_GROUPS.entrySet()){
-                if(!type.getValue().equals(group.getKey()))continue;
-                var rule=db.one("SELECT department_id FROM routing_rules WHERE category=? AND subcategory=? AND target_key='' AND active=TRUE",Codes.TYPES.get(type.getKey()),type.getKey());
-                if(rule!=null)departments.add(Db.id(rule,"departmentId"));
-            }
-            if(departments.size()!=1)continue;
+            Long department=derivedDepartment(group.getKey());
+            if(department==null)continue;
             db.insert("INSERT INTO routing_rules(category,subcategory,work_name,department_id,contact_phone,source_url,verified_at,active,demo_only) VALUES(?,?,?,?,?,?,?,?,?)",
-                    RoutingService.WORK_GROUP,group.getKey(),group.getValue()+" 기본 배정 (담당 업무 미검증)",departments.iterator().next(),null,null,null,true,true);
+                    RoutingService.WORK_GROUP,group.getKey(),derivedName(group.getKey()),department,null,null,null,true,true);
         }
+    }
+    private static String derivedName(String group){return GROUP_NAMES.get(group)+" 기본 배정 (담당 업무 미검증)";}
+    /** The one department every routed type of the group points to, or null when there are none or several. */
+    private Long derivedDepartment(String group){
+        var departments=new LinkedHashSet<Long>();
+        for(var type:Codes.TYPE_GROUPS.entrySet()){
+            if(!type.getValue().equals(group))continue;
+            var rule=db.one("SELECT department_id FROM routing_rules WHERE category=? AND subcategory=? AND target_key='' AND active=TRUE",Codes.TYPES.get(type.getKey()),type.getKey());
+            if(rule!=null)departments.add(Db.id(rule,"departmentId"));
+        }
+        return departments.size()==1?departments.iterator().next():null;
     }
     private void demoRule(String c,String s,String work,long dep){
         if(db.one("SELECT id FROM routing_rules WHERE category=? AND subcategory=? AND target_key=''",c,s)!=null)return;
