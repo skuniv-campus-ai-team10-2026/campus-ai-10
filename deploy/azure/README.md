@@ -156,3 +156,25 @@ sudo bash /opt/skope/deploy/check.sh
 | 복원 | 점검 전 백업으로 `restore.sh` → 신고·사진 0건으로 돌아감(점검 데이터 제거), 서비스 정상 |
 
 남은 것: LIVE 전환(조장), 팀원 PC·휴대폰 화면 확인, 로그인 요청 제한(429) 실제 발동은 기존 테스트로만 확인, 제출 전 디스크 스냅샷.
+
+## 11. 한 번에 반영하기 (`Release-And-Verify.ps1`, 2026-10-31 추가)
+
+조장님이 준 배포 커밋 하나로 아래 8단계를 순서대로 실행한다. 하나라도 실패하면 거기서 멈추고 보고서를 남긴다.
+접수를 하지 않고 조회만 점검하므로 LIVE 모드에서도 AI 호출이 없다.
+
+```powershell
+.\deploy\azure\Release-And-Verify.ps1 -Ref <배포 커밋>
+```
+
+1. 빌드 (`Build-Release.ps1`)
+2. 서버 접속, 점검 도구 설치 (`snapshot.sh`, `verify-readonly.sh` → `/opt/skope/deploy/`)
+3. 배포 전 데이터 기록: 표별 기존 행 해시, 사용량 장부, 사진 파일, 설정 값(비밀 값 제외), 설정 파일 해시
+4. 백업 + PC 사본 (`Pull-Backup.ps1`)
+5. 배포 (`deploy-release.sh`, 실패 시 이전 버전 복구)
+6. `check.sh` (FAIL 0이어야 통과)
+7. 조회 전용 점검 (`verify-readonly.sh`): 실행 커밋, 마이그레이션 성공, 그룹·수동 규칙이 시연용인지, 민감 부서 규칙·계정 없음, 학생/총괄 관리자 유형 목록 분리, 권한 403, CSRF 403, 쿠키
+8. 배포 전에 있던 행만 다시 해시해서 3단계와 비교 (새로 추가된 부서·규칙·계정은 제외)
+
+결과: `%USERPROFILE%\skope-releases\release-<커밋>-<시각>\REPORT.md`와 단계별 원본 출력. 리허설은 `-SkipDeploy`(배포·재시작 없이 나머지 단계).
+로그인 점검은 `student2`, `admin` 세션을 새로 만들므로, 그 계정으로 접속 중인 사람은 다시 로그인해야 할 수 있다.
+2026-10-31 리허설(71e88bb, `-SkipDeploy`): 8단계 전체 PASS, AI 호출 0회.
