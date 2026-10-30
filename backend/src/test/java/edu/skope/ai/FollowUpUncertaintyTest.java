@@ -156,6 +156,12 @@ class FollowUpUncertaintyTest {
         r=run(new ScriptedAi().on(target,Map.of("campusRelevance","PERSONAL_ON_CAMPUS","workGroup","GENERAL_REVIEW","targetText","문손잡이"),updates),target);
         assertEquals("문손잡이",report(r).get("targetText"));assertEquals("UNCERTAIN",report(r).get("campusRelevance"));
     }
+    @Test void aNounEndingInGoIsNotAConnector(){
+        // Lead review (10/30): "냉장고" must not be cut like "~고", or the doubt after it loses its subject.
+        String answer="거울이 아니라 냉장고 같은데 확실하지 않아요";
+        var r=run(new ScriptedAi().on(answer,Map.of("targetText","냉장고"),set("TARGET",answer)),answer);
+        assertNull(report(r).get("targetText"));keptFacts(report(r));
+    }
     @Test void anOwnershipDoubtLeavesAnAdministratorNote(){
         String answer="제 개인 물건인지 학교 물건인지 모르겠어요";
         var r=run(new ScriptedAi().on(answer,PERSONAL,set("CAMPUS_RELEVANCE","제 개인 물건")),answer);
@@ -180,6 +186,14 @@ class FollowUpUncertaintyTest {
         assertFalse(FollowUpPolicy.ownershipDoubt("제 개인 물건이고 장소는 모르겠어요",""));
         assertFalse(FollowUpPolicy.ownershipDoubt("제 개인 물건이며 몇 층인지는 모르겠어요",""));
         assertTrue(FollowUpPolicy.ownershipDoubt("제 개인 물건 같고 확실하지 않아요",""));
+        // Nouns ending in 고 (냉장고, 창고, 금고, 사고) are not connectors; real "~고" endings still split.
+        for(String noun:List.of("냉장고","창고","금고","사고")){
+            assertTrue(FollowUpPolicy.targetDoubt("거울이 아니라 "+noun+" 같은데 확실하지 않아요",noun,""),noun);
+            assertTrue(FollowUpPolicy.targetDoubt(noun+" 같은데 확실하지 않아요",noun,""),noun);
+            assertFalse(FollowUpPolicy.targetDoubt(noun+"가 고장났고 장소는 모르겠어요",noun,""),noun);
+        }
+        for(String clear:List.of("제 개인 물건이고","제 개인 물건이었고","제 개인 물건이 맞고","제 개인 물건이 있었고"))
+            assertFalse(FollowUpPolicy.ownershipDoubt(clear+" 장소는 모르겠어요",""),clear);
         assertTrue(FollowUpPolicy.ownershipDoubt("아마 제 개인 물건이에요",""));
         assertTrue(FollowUpPolicy.ownershipDoubt("제 거 아니면 학교 거예요",""));
     }

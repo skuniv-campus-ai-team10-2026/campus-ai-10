@@ -25,6 +25,10 @@ final class FollowUpPolicy {
     private static final Pattern OWNERSHIP = Pattern.compile("개인|소지품|소유|주인|[제내]\\s*(?:것|거|꺼|물건)|학교\\s*(?:것|거|꺼|물건|소유|비품|시설|장비)|공용|비품|대여|빌린|빌려");
     // Generic object words, except an ownership phrase such as "학교 물건" (that is the ownership question, not the target).
     private static final Pattern OBJECT_WORDS = Pattern.compile("(?<!학교|개인|공용|제|내)(?:물건|설비|기기|장비)|대상|뭔지|무엇인지|어떤(?:것|거)|어느(?:것|거)");
+    // "~고 " / "~며 " joins two statements like a period does, so a doubt after it cannot reach the fact before it.
+    // Only after a verb/adjective/copula ending (물건이고, 고장났고, 같고, 있으며): a noun ending in 고 (냉장고, 창고) is not
+    // a connector. "하고" is left out because it is also the particle "and" (거울하고 문손잡이).
+    private static final String CONNECTOR = "(?<=(?:[이였았었했났됐겠졌왔갔있없같않되맞]고|[이으하되]며))(?=\\s)";
     private record Part(String text, boolean doubtful) { }
     private static final Pattern EMPTY =Pattern.compile("^(?:거기|여기|저기|그곳|어딘가|모름|몰라|모르겠|잘모르겠|글쎄|그냥|문제|불편|이상|학교|강의실)(?:요|어요|습니다|해요|이에요|예요|가있어요|이있어요|같아요|어요|\\p{Punct})*$");
     record Outcome(Map<String,Object> report, Map<String,Object> state) { }
@@ -249,8 +253,7 @@ final class FollowUpPolicy {
      */
     private static List<List<Part>> parts(String answer) {
         var clauses = new ArrayList<List<Part>>();
-        // "~고 " / "~며 " joins two statements like a period does, so a doubt after it cannot reach the fact before it.
-        for (String raw : answer.split("[.!?;,\\n]|(?<=지만)|(?<=[는은인]데)|(?<=[가-힣][고며])(?=\\s)")) {
+        for (String raw : answer.split("[.!?;,\\n]|(?<=지만)|(?<=[는은인]데)|" + CONNECTOR)) {
             if (raw.isBlank()) continue;
             if (BARE_DOUBT.matcher(raw).matches() && !clauses.isEmpty()) {
                 clauses.set(clauses.size()-1, clauses.getLast().stream().map(p -> new Part(p.text(), true)).toList()); continue;
