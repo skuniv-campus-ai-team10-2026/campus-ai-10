@@ -4,7 +4,7 @@ import {useEffect,useRef,useState} from 'react';
 import {Link,useNavigate} from 'react-router-dom';
 import {post} from './api';
 import type {Draft,IntakeResult} from './types';
-import {Emergency,ErrorBox,Loading,ModeBadge,PageHeading,Steps} from './ui';
+import {Emergency,ErrorBox,Loading,PageHeading,Steps} from './ui';
 
 export function IntakeFlow({draft,onEdit}:{draft:Draft;onEdit:()=>void}) {
  const navigate=useNavigate(),[result,setResult]=useState(draft.intakeResult),[answer,setAnswer]=useState(''),[busy,setBusy]=useState(false),[error,setError]=useState<unknown>(null),pending=useRef(false);
@@ -29,7 +29,7 @@ export function IntakeFlow({draft,onEdit}:{draft:Draft;onEdit:()=>void}) {
  return <><Link to="/" className="back-link"><ChevronLeft size={16} aria-hidden="true"/>처음으로</Link><PageHeading eyebrow="" title={<>조금만 더 알려주세요 <span className="orange-dot">!</span></>}/>
   <Steps current={1}/>
 
-  <section className="card answer-card intake-card">{result?.status==='NEEDS_INPUT'&&<div className="card-top intake-assistant-heading"><span className="icon-tile"><img className="assistant-logo" src="/skope-assistant-outline.svg" alt=""/></span><div><h2>SKOPE 도우미</h2><p>접수에 필요한 내용만 확인할게요.</p></div></div>}<ModeBadge mode={result?.aiMode}/>
+  <section className="card answer-card intake-card">{result?.status==='NEEDS_INPUT'&&<div className="card-top intake-assistant-heading"><span className="icon-tile"><img className="assistant-logo" src="/skope-assistant-outline.svg" alt=""/></span><div><h2>SKOPE 도우미</h2><p>접수에 필요한 내용만 확인할게요.</p></div></div>}
    <div className="intake-context">
     {(report?.locationText||report?.symptom||report?.occurredAtText)&&<div className="intake-summary" aria-label="현재 파악한 내용"><h3>현재 파악한 내용</h3><dl>{report.locationText&&<div><dt>장소</dt><dd>{report.locationText}</dd></div>}{report.symptom&&<div><dt>문제·문의</dt><dd>{report.symptom}</dd></div>}{report.occurredAtText&&<div><dt>발생 시점</dt><dd>{report.occurredAtText}</dd></div>}</dl></div>}
     <details><summary>처음 남긴 내용</summary><blockquote>{draft.originalText}</blockquote></details>

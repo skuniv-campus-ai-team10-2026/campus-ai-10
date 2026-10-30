@@ -5,7 +5,7 @@ import {ErrorBox} from './ui';
 
 type Photo={id:number;contentPath:string};
 let sessionVersion=0;
-type UploadState={files:File[];photos:Photo[];busy:boolean;loaded:boolean;attempted:boolean;uncertain:boolean;error:unknown;revision:number;listeners:Set<()=>void>};
+type UploadState={files:File[];photos:Photo[];busy:boolean;operation?:string;loaded:boolean;attempted:boolean;uncertain:boolean;error:unknown;revision:number;listeners:Set<()=>void>};
 const drafts=new Map<string,File[]>(),reports=new Map<string,UploadState>();
 function reportState(key:string){let state=reports.get(key);if(!state){state={files:[],photos:[],busy:false,loaded:false,attempted:false,uncertain:false,error:null,revision:0,listeners:new Set()};reports.set(key,state);}return state;}
 function notify(state:UploadState){state.revision++;state.listeners.forEach(listener=>listener());}
@@ -18,7 +18,7 @@ function ambiguous(error:unknown){return !(error instanceof ApiError)||error.sta
 async function loadPhotos(base:string,state:UploadState,version=sessionVersion){const data=await api<{items:Photo[]}>(base);if(version!==sessionVersion)return;state.photos=data?.items??[];state.loaded=true;notify(state);}
 async function uploadPhotos(base:string,state:UploadState){
  if(state.busy||state.uncertain||!state.files.length)return;
- state.busy=true;state.attempted=true;state.error=null;notify(state);
+ state.busy=true;state.operation='upload';state.attempted=true;state.error=null;notify(state);
  const version=sessionVersion;
  try{
   while(state.files.length){
@@ -55,20 +55,20 @@ export function ReportPhotos({reportId,admin=false,autoUpload=false,canUpload=tr
  },[state,base,autoUpload,admin,canUpload]);
  if(loaded&&admin&&!photos.length)return null;
  async function refresh(){
-  if(state.busy)return;state.busy=true;notify(state);const version=sessionVersion;
+  if(state.busy)return;state.busy=true;state.operation='load';notify(state);const version=sessionVersion;
   try{await loadPhotos(base,state,version);if(version===sessionVersion&&!state.uncertain)state.error=null;}
   catch(error){if(version===sessionVersion)state.error=state.uncertain?uncertainMessage:error;}
   finally{if(version===sessionVersion){state.busy=false;notify(state);}}
  }
  async function remove(id:number){
-  if(state.busy||state.uncertain)return;state.busy=true;notify(state);const version=sessionVersion;
+  if(state.busy||state.uncertain)return;state.busy=true;state.operation='delete';notify(state);const version=sessionVersion;
   try{await api(`${base}/${id}`,{method:'DELETE'});await loadPhotos(base,state,version);}
   catch(error){if(version===sessionVersion)state.error=error;}
   finally{if(version===sessionVersion){state.busy=false;notify(state);}}
  }
  return <section className="report-photos"><h3>첨부 사진</h3><ErrorBox error={error}/>
   {uncertain&&<button className="button secondary" type="button" disabled={busy} onClick={()=>void refresh()}>첨부 목록 다시 확인</button>}
-  {busy&&<p role="status">사진을 업로드하고 있어요. 잠시 기다려 주세요.</p>}
+  {(!loaded||busy)&&<p role="status">{state.operation==='upload'?'사진을 업로드하고 있어요.':state.operation==='delete'?'사진을 삭제하고 있어요.':'사진을 불러오고 있어요.'}</p>}
   <div className="photo-grid">{photos.map(photo=><figure key={photo.id}><a href={photo.contentPath} target="_blank" rel="noreferrer"><img src={photo.contentPath} alt={`첨부 사진 ${photo.id}`}/></a>{!admin&&<button type="button" disabled={busy||uncertain} aria-label={`사진 ${photo.id} 삭제`} onClick={()=>void remove(photo.id)}><Trash2 size={16}/></button>}</figure>)}</div>
   {!admin&&canUpload&&loaded&&photos.length<3&&<><PhotoPicker files={files} onChange={next=>{if(state.busy||state.uncertain)return;if(state.photos.length+next.length>3){state.error='사진은 신고당 최대 3장까지 첨부할 수 있습니다.';}else{state.files=next;}notify(state);}} disabled={busy||uncertain}/>{files.length>0&&<button className="button secondary" type="button" disabled={busy||uncertain} onClick={()=>void uploadPhotos(base,state)}>선택한 사진 업로드</button>}</>}
   {!photos.length&&loaded&&!busy&&<p className="field-hint">등록된 사진이 없습니다.</p>}
@@ -77,5 +77,16 @@ export function ReportPhotos({reportId,admin=false,autoUpload=false,canUpload=tr
 export function PhotoPicker({files,onChange,disabled=false}:{files:File[];onChange:(files:File[])=>void;disabled?:boolean}){
   const input=useRef<HTMLInputElement>(null),[error,setError]=useState<string|null>(null),[dragging,setDragging]=useState(false);
  function addPhotos(selected:File[]){if(disabled||!selected.length)return;const message=validatePhotos(selected,files.length);setError(message);if(!message)onChange([...files,...selected]);}
- return <section className={dragging?"photo-picker is-dragging":"photo-picker"} aria-label="사진 첨부" onDragOver={e=>{if(!Array.from(e.dataTransfer.types).includes('Files'))return;e.preventDefault();e.dataTransfer.dropEffect=disabled?'none':'copy';if(!disabled)setDragging(true);}} onDragLeave={e=>{if(!e.currentTarget.contains(e.relatedTarget as Node|null))setDragging(false);}} onDrop={e=>{e.preventDefault();setDragging(false);addPhotos(Array.from(e.dataTransfer.files));}}><div className="photo-heading"><strong>사진 첨부 <span>(선택)</span></strong><small>{files.length}/3</small></div><p>현장 사진을 함께 남겨 주세요.</p><button className="photo-dropzone" type="button" disabled={disabled||files.length>=3} onClick={()=>input.current?.click()}><Camera size={28}/><strong>{dragging?'여기에 사진을 놓아주세요':'사진 추가하기'}</strong><span className="photo-drag-hint">사진을 끌어다 놓아도 첨부할 수 있어요.</span><span>JPEG · PNG / 장당 5MB 이하 / 최대 3장</span></button><input ref={input} className="sr-only" type="file" accept="image/jpeg,image/png,.jpg,.jpeg,.png" multiple aria-label="첨부 사진 선택" disabled={disabled} onChange={e=>{addPhotos(Array.from(e.target.files??[]));e.target.value='';}}/>{error&&<p className="photo-error" role="alert">{error}</p>}<div className="photo-grid">{files.map((file,index)=><figure key={`${index}-${file.name}`}><Preview file={file}/><figcaption>{file.name}</figcaption><button type="button" aria-label={`${file.name} 삭제`} disabled={disabled} onClick={()=>{onChange(files.filter((_,i)=>i!==index));setError(null);}}><Trash2 size={16}/></button></figure>)}</div><small>사진은 접수 후 업로드됩니다. 새로고침하면 선택한 사진은 다시 첨부해 주세요.</small></section>;
+ return <section className={dragging?"photo-picker is-dragging":"photo-picker"} aria-label="사진 첨부" onDragOver={e=>{if(!Array.from(e.dataTransfer.types).includes('Files'))return;e.preventDefault();e.dataTransfer.dropEffect=disabled?'none':'copy';if(!disabled)setDragging(true);}} onDragLeave={e=>{if(!e.currentTarget.contains(e.relatedTarget as Node|null))setDragging(false);}} onDrop={e=>{e.preventDefault();setDragging(false);addPhotos(Array.from(e.dataTransfer.files));}}><div className="photo-heading"><strong>사진 첨부 <span>(선택)</span></strong><small>{files.length}/3</small></div><p>현장 사진을 함께 남겨 주세요.</p><button className="photo-dropzone" type="button" disabled={disabled||files.length>=3} onClick={()=>input.current?.click()}><Camera size={28}/><strong>{dragging?'여기에 사진을 놓아주세요':'사진 추가하기'}</strong></button><input ref={input} className="sr-only" type="file" accept="image/jpeg,image/png,.jpg,.jpeg,.png" multiple aria-label="첨부 사진 선택" disabled={disabled} onChange={e=>{addPhotos(Array.from(e.target.files??[]));e.target.value='';}}/>{error&&<p className="photo-error" role="alert">{error}</p>}<div className="photo-grid">{files.map((file,index)=><figure key={`${index}-${file.name}`}><Preview file={file}/><figcaption>{file.name}</figcaption><button type="button" aria-label={`${file.name} 삭제`} disabled={disabled} onClick={()=>{onChange(files.filter((_,i)=>i!==index));setError(null);}}><Trash2 size={16}/></button></figure>)}</div></section>;
+}
+
+export function AutoUploadPhotos({reportId}:{reportId:number}){
+ const state=reportState(String(reportId)),base=`/reports/${reportId}/attachments`;
+ useSyncExternalStore(listener=>{state.listeners.add(listener);return()=>{state.listeners.delete(listener);};},()=>state.revision);
+ // The shared upload belongs to the receipt, and continues when its view unmounts.
+ // Session changes still invalidate pending work before any upload can start.
+ useEffect(()=>{const version=sessionVersion;
+ if(state.files.length&&!state.attempted)void loadPhotos(base,state,version).then(()=>{if(version===sessionVersion&&!state.attempted)void uploadPhotos(base,state);}).catch(error=>{if(version===sessionVersion){state.error=error;notify(state);}});
+ },[state,base]);
+ return state.error?<ErrorBox error={state.error}/>:null;
 }

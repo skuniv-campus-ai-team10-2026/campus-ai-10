@@ -15,6 +15,7 @@
 .sk-login-form{background:#ffffffed;border-radius:30px;padding:37px 30px 29px;box-shadow:0 14px 45px #2b6a3b08;position:relative}
 .sk-login-form label{font-size:16px;color:#506568;margin-bottom:22px;gap:10px}.sk-login-form input{height:60px;border:1px solid #dce2e4;border-radius:13px;background:white;padding:16px 18px;font-size:17px;color:var(--sk-ink)}
 .sk-login-form input:focus{outline:3px solid #23c51b22;border-color:var(--sk-lime)}.sk-login-form input::placeholder{color:#8a979f}
+.sk-login-form .button.primary + .button.secondary{margin-top:16px}
 .sk-login-form .button.primary{background:#b9ed76;color:var(--sk-ink);border:0;height:58px;border-radius:14px;font-size:20px;font-weight:750;margin-top:7px;box-shadow:none}.sk-login-form .button.primary:hover{background:#a9e862}.sk-login-form .button:disabled{opacity:.6}
 .sk-login-help{text-align:center;font-size:13px;color:#6f8087;margin:23px 0 0}.sk-splash{position:fixed;inset:0;z-index:1000;display:flex;flex-direction:column;align-items:center;justify-content:center;background:#88dda4;opacity:1;transition:opacity .7s ease;pointer-events:none;padding:24px}
 .sk-splash img{width:clamp(180px,30vw,300px);aspect-ratio:1;border-radius:50%;border:0;object-fit:cover;clip-path:circle(50%)}.sk-splash p{color:white;font-size:clamp(17px,2.3vw,25px);font-weight:650;text-align:center;letter-spacing:-.5px;margin:16px 0}.sk-splash.is-fading{opacity:0}

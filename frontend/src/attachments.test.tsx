@@ -2,7 +2,7 @@ import {afterEach,beforeEach,expect,it,vi} from 'vitest';
 import {StrictMode} from 'react';
 import {cleanup,fireEvent,render,screen,waitFor} from '@testing-library/react';
 import {api,ApiError} from './api';
-import {bindPhotos,clearPendingPhotos,PhotoPicker,ReportPhotos,stagePhotos,validatePhotos} from './attachments';
+import {AutoUploadPhotos,bindPhotos,clearPendingPhotos,PhotoPicker,ReportPhotos,stagePhotos,validatePhotos} from './attachments';
 vi.mock('./api',async(importOriginal)=>({...await importOriginal<typeof import('./api')>(),api:vi.fn()}));
 beforeEach(()=>{vi.clearAllMocks();clearPendingPhotos();URL.createObjectURL=vi.fn(()=> 'blob:preview');URL.revokeObjectURL=vi.fn();});
 afterEach(cleanup);
@@ -130,4 +130,41 @@ it('stops the remaining upload queue when the session is cleared',async()=>{
  clearPendingPhotos();view.unmount();finish({});render(<ReportPhotos reportId={42} autoUpload/>);
  await screen.findByLabelText('첨부 사진 선택');expect(uploads).toBe(1);
  expect(screen.queryByRole('button',{name:'선택한 사진 업로드'})).not.toBeInTheDocument();
+});
+
+it('uploads from the receipt without rendering a gallery and never resends on remount',async()=>{
+ stagePhotos('receipt',[new File(['x'],'one.png',{type:'image/png'})]);bindPhotos('receipt',42);
+ let uploads=0;vi.mocked(api).mockImplementation(async(_path,options)=>{if(options?.method==='POST'){uploads++;throw new ApiError(500,'FAILED','failed');}return {items:[]};});
+ const view=render(<StrictMode><AutoUploadPhotos reportId={42}/></StrictMode>);
+ await screen.findByRole('alert');expect(uploads).toBe(1);expect(screen.queryByText('첨부 사진')).not.toBeInTheDocument();expect(screen.queryByLabelText('첨부 사진 선택')).not.toBeInTheDocument();
+ view.unmount();render(<AutoUploadPhotos reportId={42}/>);expect(uploads).toBe(1);
+});
+
+it('continues receipt uploads after leaving before the initial list resolves',async()=>{
+ const photo=new File(['photo'],'receipt.png',{type:'image/png'});
+ stagePhotos('receipt',[photo]);bindPhotos('receipt',42);
+ let finish!:(value:unknown)=>void;
+ const initialList=new Promise(resolve=>{finish=resolve;});let uploads=0,lists=0;
+ vi.mocked(api).mockImplementation(async(_path,options)=>{
+  if(options?.method==='POST'){uploads++;return {};}
+  if(++lists===1)return await initialList;
+  return {items:uploads?[{id:7,contentPath:'/receipt.png'}]:[]};
+ });
+ const receipt=render(<AutoUploadPhotos reportId={42}/>);
+ await waitFor(()=>expect(lists).toBe(1));receipt.unmount();
+ render(<ReportPhotos reportId={42}/>);
+ finish({items:[]});
+ expect(await screen.findByAltText('첨부 사진 7')).toBeInTheDocument();
+ await waitFor(()=>expect(uploads).toBe(1));
+ expect((vi.mocked(api).mock.calls.find(([,options])=>options?.method==='POST')![1]!.body as FormData).get('file')).toBe(photo);
+});
+
+it('does not start receipt uploads after session cleanup while the list is pending',async()=>{
+ stagePhotos('receipt',[new File(['photo'],'receipt.png',{type:'image/png'})]);bindPhotos('receipt',42);
+ let finish!:(value:unknown)=>void;const initialList=new Promise(resolve=>{finish=resolve;});
+ vi.mocked(api).mockImplementation(async()=>await initialList);
+ const receipt=render(<AutoUploadPhotos reportId={42}/>);
+ clearPendingPhotos();receipt.unmount();finish({items:[]});
+ await initialList;await Promise.resolve();
+ expect(vi.mocked(api).mock.calls.some(([,options])=>options?.method==='POST')).toBe(false);
 });

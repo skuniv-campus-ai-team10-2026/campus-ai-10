@@ -1,9 +1,11 @@
+import {accountMock,accountMockEnabled,isAccountMockPath} from './account-mock';
 export class ApiError extends Error {
   constructor(public status:number,public code:string,message:string,public fieldErrors:Record<string,string>={}) { super(message); }
 }
 let csrf:{token:string;headerName:string}|null=null;
 export function clearCsrf(){csrf=null;}
 export async function api<T>(path:string,options:RequestInit={}):Promise<T> {
+  if(accountMockEnabled&&isAccountMockPath(path))return accountMock<T>(path,options);
   const method=options.method??'GET';
   if(!['GET','HEAD','OPTIONS'].includes(method)&&!csrf) csrf=await api('/auth/csrf');
   const headers=new Headers(options.headers);
@@ -18,7 +20,7 @@ export async function api<T>(path:string,options:RequestInit={}):Promise<T> {
     if(response.status===401&&path!='/auth/me'&&path!='/auth/login')window.dispatchEvent(new Event('session-expired'));
     throw new ApiError(response.status,data?.code??'REQUEST_FAILED',path==='/auth/login'&&response.status===401?'아이디 또는 비밀번호가 올바르지 않습니다.':data?.message??'요청을 처리하지 못했습니다.',data?.fieldErrors);
   }
-  if(path==='/auth/login'||path==='/auth/logout')clearCsrf();
+  if(path==='/auth/login'||path==='/auth/logout'||path==='/auth/password')clearCsrf();
   return data as T;
 }
 export const post=<T,>(path:string,body:unknown)=>api<T>(path,{method:'POST',body:JSON.stringify(body)});
