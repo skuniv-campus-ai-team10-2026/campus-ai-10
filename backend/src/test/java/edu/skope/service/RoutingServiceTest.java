@@ -24,7 +24,8 @@ class RoutingServiceTest {
         new ResourceDatabasePopulator(new ClassPathResource("db/migration/V1__core.sql"),
                 new ClassPathResource("db/migration/V2__incidents.sql"),
                 new ClassPathResource("db/migration/V3__intake_context.sql"),
-                new ClassPathResource("db/migration/V4__department_workflow.sql")).execute(source);
+                new ClassPathResource("db/migration/V4__department_workflow.sql"),
+                new ClassPathResource("db/migration/V11__work_group_routing.sql")).execute(source);
         return new Db(new JdbcTemplate(source));
     }
     private void seed(Db db,boolean enabled,String password){

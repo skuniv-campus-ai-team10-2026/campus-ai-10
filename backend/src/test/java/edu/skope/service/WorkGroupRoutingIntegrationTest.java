@@ -58,6 +58,16 @@ class WorkGroupRoutingIntegrationTest {
         Map<String, Object> admin() { return reports.detail(Db.id(report(), "id"), supervisor, true); }
     }
 
+    @SuppressWarnings("unchecked")
+    static void groupDefault(Talk talk, String department) {
+        var assigned = (Map<String, Object>) talk.report().get("assignedDepartment");
+        assertNotNull(assigned, "assigned by the work group's default rule");
+        assertEquals(department, assigned.get("name"));
+        assertEquals("DEMO", assigned.get("assignmentBasis"), "a group default is demo-only, never shown as verified");
+        assertNull(assigned.get("contactPhone"));
+        assertNull(talk.admin().get("unassignedReason"));
+    }
+
     static void scope(Map<String, Object> report, String group, String target, String relevance) {
         assertEquals(group, report.get("workGroup"), "workGroup");
         assertEquals(target, report.get("targetText"), "targetText");
@@ -72,8 +82,8 @@ class WorkGroupRoutingIntegrationTest {
         scope(report, "FACILITY_MAINTENANCE", "거울", "CAMPUS_FACILITY");
         assertTrue(report.get("symptom").toString().contains("깨졌"));
         assertEquals("REPORT", report.get("requestKind"));
-        assertNull(report.get("assignedDepartment"), "a work group is never an automatic assignment rule");
-        assertEquals("NO_RULE", talk.admin().get("unassignedReason"));
+        // V11 (10/31 lead request): an in-scope work group without a type rule uses its registered group default.
+        groupDefault(talk, "총무처 건설관리과");
         assertFalse(talk.last.containsKey("scopeNotice"));
     }
 
@@ -83,7 +93,7 @@ class WorkGroupRoutingIntegrationTest {
         scope(talk.report(), "SHARED_EQUIPMENT", "실습복", "SCHOOL_SERVICE");
         assertNull(talk.report().get("building"));
         assertEquals("REPORT", talk.report().get("requestKind"));
-        assertEquals("NO_RULE", talk.admin().get("unassignedReason"));
+        groupDefault(talk, "총무처 건설관리과");
     }
 
     @Test void e3LeftPersonalItemIsAGeneralInquiry() {
@@ -106,7 +116,7 @@ class WorkGroupRoutingIntegrationTest {
         scope(talk.report(), "SHARED_EQUIPMENT", "연필", "CAMPUS_FACILITY");
         assertEquals("북악관", talk.report().get("building"));
         assertEquals("연필이 부러졌어요", talk.report().get("symptom"), "an ownership answer is not a new symptom");
-        assertEquals("NO_RULE", talk.admin().get("unassignedReason"));
+        groupDefault(talk, "총무처 건설관리과");
     }
 
     @Test void e4PersonalAnswerBecomesAGeneralInquiry() {

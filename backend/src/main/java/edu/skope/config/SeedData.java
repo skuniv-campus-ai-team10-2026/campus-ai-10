@@ -1,5 +1,8 @@
 package edu.skope.config;
+import edu.skope.domain.Codes;
 import edu.skope.repository.Db;
+import edu.skope.service.RoutingService;
+import java.util.*;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -23,6 +26,7 @@ public class SeedData implements CommandLineRunner {
         }
         if(db.one("SELECT id FROM departments LIMIT 1")==null)seedDirectory();
         addMissingDemoRoutes();
+        addMissingWorkGroupDefaults();
         // Upgrade only the original unverified sample. Never relabel a verified/custom route
         // or re-enable a demo rule that an administrator has subsequently disabled.
         db.update("UPDATE routing_rules SET demo_only=TRUE,active=TRUE WHERE category='FACILITY' AND subcategory='LEAK' AND work_name='누수 담당 업무 미검증' AND source_url IS NULL AND verified_at IS NULL AND demo_only=FALSE AND department_id IN (SELECT id FROM departments WHERE name='총무처 건설관리과')");
@@ -57,8 +61,29 @@ public class SeedData implements CommandLineRunner {
         demoRule("FACILITY","HVAC","냉난방 담당 업무 미검증",departmentId);
         demoRule("FACILITY","WATER_DISPENSER","정수기 담당 업무 미검증",departmentId);
     }
+    private static final Map<String,String> GROUP_NAMES=Map.of("IT_SUPPORT","IT 지원","ELECTRICAL_MAINTENANCE","전기","FACILITY_MAINTENANCE","시설 보수","SHARED_EQUIPMENT","공용 비품","ACADEMIC_ADMIN","학사 행정");
+    /**
+     * Work-group default rules, derived from the existing type rules instead of per-object code: when every routed
+     * type of a group points to one department, that department becomes the group's default. It is demo-only
+     * (no official source says the office handles the whole group) and carries no contact. Inserted once per group;
+     * administrator changes, disabled rules and explicit exceptions are never overwritten. GENERAL_REVIEW has none.
+     */
+    private void addMissingWorkGroupDefaults(){
+        for(var group:GROUP_NAMES.entrySet()){
+            if(db.one("SELECT id FROM routing_rules WHERE category=? AND subcategory=? AND target_key=''",RoutingService.WORK_GROUP,group.getKey())!=null)continue;
+            var departments=new LinkedHashSet<Long>();
+            for(var type:Codes.TYPE_GROUPS.entrySet()){
+                if(!type.getValue().equals(group.getKey()))continue;
+                var rule=db.one("SELECT department_id FROM routing_rules WHERE category=? AND subcategory=? AND target_key='' AND active=TRUE",Codes.TYPES.get(type.getKey()),type.getKey());
+                if(rule!=null)departments.add(Db.id(rule,"departmentId"));
+            }
+            if(departments.size()!=1)continue;
+            db.insert("INSERT INTO routing_rules(category,subcategory,work_name,department_id,contact_phone,source_url,verified_at,active,demo_only) VALUES(?,?,?,?,?,?,?,?,?)",
+                    RoutingService.WORK_GROUP,group.getKey(),group.getValue()+" 기본 배정 (담당 업무 미검증)",departments.iterator().next(),null,null,null,true,true);
+        }
+    }
     private void demoRule(String c,String s,String work,long dep){
-        if(db.one("SELECT id FROM routing_rules WHERE category=? AND subcategory=?",c,s)!=null)return;
+        if(db.one("SELECT id FROM routing_rules WHERE category=? AND subcategory=? AND target_key=''",c,s)!=null)return;
         db.insert("INSERT INTO routing_rules(category,subcategory,work_name,department_id,contact_phone,source_url,verified_at,active,demo_only) VALUES(?,?,?,?,?,?,?,?,?)",c,s,work,dep,null,null,null,true,true);
     }
     private long dept(String name,String source,boolean verified){return db.insert("INSERT INTO departments(name,source_url,verified_at) VALUES(?,?,?)",name,source,verified?"2026-10-10 17:00:00":null);}
