@@ -286,6 +286,31 @@ class SimilarityServiceTest {
         return result;
     }
 
+    // Target gate (similarity-review-v2 review, 10/30): no object list, only the stated names and each report's words.
+    private static Map<String, Object> stated(String subcategory, String target, String words) {
+        var r = new HashMap<String, Object>();
+        r.put("subcategory", subcategory); r.put("workGroup", "FACILITY_MAINTENANCE");
+        r.put("targetText", target); r.put("symptom", words); r.put("originalText", words);
+        return r;
+    }
+
+    @Test void aShorterNameMatchesOnlyWhenTheReportItselfStatesTheLongerOne() {
+        var door = stated("UNKNOWN", "문손잡이", "출입문 문손잡이가 헛돌아요");
+        assertTrue(SimilarityService.sameTarget(door, stated("UNKNOWN", "손잡이", "출입문 손잡이를 돌려도 안 열려요")));
+        assertFalse(SimilarityService.sameTarget(door, stated("UNKNOWN", "손잡이", "서랍 손잡이가 빠졌어요")), "a drawer handle is another object");
+        assertFalse(SimilarityService.sameTarget(stated("WIFI", "무선망", "와이파이가 끊겨요"),
+                stated("WIFI", "무선망 안내문", "무선망 안내문 글씨가 지워졌어요")), "the name must end the longer one");
+        assertTrue(SimilarityService.sameTarget(stated("UNKNOWN", "거울", "거울 균열"), stated("UNKNOWN", "미러", "미러 균열")));
+    }
+
+    @Test void differentStatedObjectsNeverPairInNarrowTypesEither() {
+        var pipe = stated("LEAK", "천장 배관", "천장 배관에서 물이 샙니다");
+        assertFalse(SimilarityService.broadScope(pipe, stated("LEAK", "창틀", "창틀에 비가 들이칩니다"), .86), "a high score cannot join them");
+        assertFalse(SimilarityService.broadScope(pipe, stated("LEAK", "창틀", "창틀에 비가 들이칩니다"), null));
+        assertTrue(SimilarityService.broadScope(pipe, stated("LEAK", "천장 배관", "배관 연결 부위에서 물이 떨어져요"), .93));
+        assertTrue(SimilarityService.broadScope(pipe, stated("LEAK", null, "물이 떨어져요"), null), "a missing target keeps the existing rule");
+    }
+
     @SuppressWarnings("unchecked")
     private static List<Map<String, Object>> items(Map<String, Object> response) {
         return (List<Map<String, Object>>) response.get("items");

@@ -204,18 +204,34 @@ public class SimilarityService {
     }
 
     /**
-     * OTHER/UNKNOWN spans many objects, so a shared type and place prove little. Both reports must have the
-     * same work group; without an embedding they also need the same stated object and a stated symptom each,
-     * and an embedding score cannot join two different stated objects. Narrow types are unaffected.
+     * A candidate is the same observed problem, so two different stated objects never pair, in any type:
+     * a shared type and room do not make a ceiling pipe and a window frame one problem, and an embedding
+     * score cannot join them. OTHER/UNKNOWN spans many objects, so both reports must also have the same work
+     * group; without an embedding they also need the same stated object and a stated symptom each.
      */
     static boolean broadScope(Map<String, Object> a, Map<String, Object> b, Double score) {
-        if (!Codes.broad(a.get("subcategory")) || !Codes.broad(b.get("subcategory"))) return true;
-        if (!Codes.workGroup("UNKNOWN", a.get("workGroup")).equals(Codes.workGroup("UNKNOWN", b.get("workGroup")))) return false;
+        boolean broad = Codes.broad(a.get("subcategory")) && Codes.broad(b.get("subcategory"));
+        if (broad && !Codes.workGroup("UNKNOWN", a.get("workGroup")).equals(Codes.workGroup("UNKNOWN", b.get("workGroup")))) return false;
         String targetA = targetKey(a.get("targetText")), targetB = targetKey(b.get("targetText"));
         boolean bothTargets = !targetA.isBlank() && !targetB.isBlank();
-        if (score != null) return !bothTargets || targetA.equals(targetB);
-        return bothTargets && targetA.equals(targetB)
-                && !normalized(a.get("symptom")).isBlank() && !normalized(b.get("symptom")).isBlank();
+        if (bothTargets && !sameTarget(a, b)) return false;
+        if (!broad || score != null) return true;
+        return bothTargets && !normalized(a.get("symptom")).isBlank() && !normalized(b.get("symptom")).isBlank();
+    }
+
+    /**
+     * Same object name, or a shorter name for it backed by the report's own words: "손잡이" matches "문손잡이"
+     * when that report says "출입문 손잡이", while a "서랍 손잡이" report stays a different object.
+     * The name must end the longer one, so "무선망" never matches "무선망 안내문".
+     */
+    static boolean sameTarget(Map<String, Object> a, Map<String, Object> b) {
+        String targetA = targetKey(a.get("targetText")), targetB = targetKey(b.get("targetText"));
+        if (targetA.equals(targetB)) return true;
+        boolean aLonger = targetA.length() > targetB.length();
+        String longName = aLonger ? targetA : targetB, shortName = aLonger ? targetB : targetA;
+        Map<String, Object> shortReport = aLonger ? b : a;
+        return shortName.length() >= 2 && longName.endsWith(shortName)
+                && normalized(Db.str(shortReport, "symptom") + Db.str(shortReport, "originalText")).contains(longName);
     }
 
     /** Limited compatibility for older literal labels. New extraction uses common Korean object names.
