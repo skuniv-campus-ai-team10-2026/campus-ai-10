@@ -88,5 +88,5 @@ export function AutoUploadPhotos({reportId}:{reportId:number}){
  useEffect(()=>{const version=sessionVersion;
  if(state.files.length&&!state.attempted)void loadPhotos(base,state,version).then(()=>{if(version===sessionVersion&&!state.attempted)void uploadPhotos(base,state);}).catch(error=>{if(version===sessionVersion){state.error=error;notify(state);}});
  },[state,base]);
- return state.error?<ErrorBox error={state.error}/>:null;
+ return <>{state.busy&&state.operation==='upload'&&<p role="status">사진을 저장하고 있어요…</p>}{state.error&&<ErrorBox error={state.error}/>}</>;
 }

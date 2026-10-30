@@ -84,7 +84,7 @@ describe('department assignment and staff controls',()=>{
 
  it('never presents demo routing as official even if conflicting source metadata is returned',async()=>{
   mockReport({...report,assignedDepartment:{...report.assignedDepartment!,verified:true,sourceUrl:'https://example.org/unverified',contactPhone:'02-000-0000'}});mountDetail();
-  expect(await screen.findByText('담당자 확인 필요 · 담당 업무 확인 중')).toBeInTheDocument();
+  expect(await screen.findByText('시연용 배정 · 실제 담당 업무 미검증')).toBeInTheDocument();
   expect(screen.queryByText('검증 규칙 배정')).not.toBeInTheDocument();
   expect(screen.queryByText('공식 출처 확인 자료')).not.toBeInTheDocument();
   expect(screen.queryByText('02-000-0000')).not.toBeInTheDocument();
@@ -106,7 +106,7 @@ describe('department assignment and staff controls',()=>{
  it('retains verified routing evidence for verified assignments',async()=>{
   mockReport({...report,assignedDepartment:{id:1,name:'정보전산원',assignmentBasis:'VERIFIED',verified:true,sourceUrl:'https://example.org/official',contactPhone:'02-111-1111'}});mountDetail();
   expect(await screen.findByText('공식 출처 확인 자료')).toBeInTheDocument();
-  expect(screen.getByText('검증 규칙 배정')).toBeInTheDocument();
+  expect(screen.getByText('담당 부서 배정')).toBeInTheDocument();
   expect(screen.getByRole('link',{name:/출처 보기/})).toHaveAttribute('href','https://example.org/official');
   expect(screen.getByText('02-111-1111')).toBeInTheDocument();
  });
@@ -114,11 +114,11 @@ describe('department assignment and staff controls',()=>{
  it('labels the student manual preview and receipt as assumed demo assignments',async()=>{
   sessionStorage.setItem('skope-draft',JSON.stringify({originalText:report.originalText,preferredIntent:'REPORT',clientRequestId:'demo-assignment-test',manual:true,analysis:{intent:'REPORT',aiMode:'LIVE',report,questionAnswer:null,routingPreview:null}}));
   render(<MemoryRouter><AnalyzePage/></MemoryRouter>);
-  expect(await screen.findByText('담당자 확인 필요 · 담당 업무 확인 중')).toBeInTheDocument();
+  expect(await screen.findByText('시연용 배정 · 실제 담당 업무 미검증')).toBeInTheDocument();
   expect(screen.getByRole('heading',{name:'총무처 건설관리과'})).toBeInTheDocument();
-  expect(screen.getByRole('option',{name:'누수 · 담당자 확인 필요'})).toBeInTheDocument();
+  expect(screen.getByRole('option',{name:'누수 · 담당 업무 미검증'})).toBeInTheDocument();
   cleanup();
   render(<MemoryRouter initialEntries={[{pathname:'/reports/success',state:{report}}]}><SuccessPage/></MemoryRouter>);
-  expect(screen.getByText('담당자 확인 필요 · 담당 업무 확인 중')).toBeInTheDocument();
+  expect(screen.getByText('시연용 배정 · 실제 담당 업무 미검증')).toBeInTheDocument();
  });
 });
