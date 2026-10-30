@@ -4,7 +4,13 @@ $runtime=Join-Path $projectRoot '.runtime'
 New-Item -ItemType Directory -Force $runtime | Out-Null
 $secretPath=Join-Path $runtime 'local-secrets.json'
 if(!(Test-Path $secretPath)){
-    [PSCustomObject]@{dbPassword=[Convert]::ToHexString([Security.Cryptography.RandomNumberGenerator]::GetBytes(24));rootPassword=[Convert]::ToHexString([Security.Cryptography.RandomNumberGenerator]::GetBytes(24));demoPassword=[Convert]::ToHexString([Security.Cryptography.RandomNumberGenerator]::GetBytes(12))} | ConvertTo-Json | Set-Content -Encoding UTF8 $secretPath
+    function New-DemoSecret([int]$Length){
+        $bytes=New-Object byte[] $Length
+        $generator=[Security.Cryptography.RandomNumberGenerator]::Create()
+        try{$generator.GetBytes($bytes)}finally{$generator.Dispose()}
+        return [BitConverter]::ToString($bytes).Replace('-','')
+    }
+    [PSCustomObject]@{dbPassword=(New-DemoSecret 24);rootPassword=(New-DemoSecret 24);demoPassword=(New-DemoSecret 12)} | ConvertTo-Json | Set-Content -Encoding UTF8 $secretPath
 }
 $secrets=Get-Content $secretPath -Raw | ConvertFrom-Json
 @"

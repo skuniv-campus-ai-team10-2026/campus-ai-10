@@ -1,5 +1,5 @@
 export type Role = 'STUDENT' | 'ADMIN' | 'DEPT_ADMIN';
-export interface User { id:number; role:Role; displayName:string; departmentId?:number|null; departmentName?:string|null; }
+export interface User { id:number; username?:string; role:Role; displayName:string; departmentId?:number|null; departmentName?:string|null; }
 export interface AssignmentInfo { assignmentBasis?:'VERIFIED'|'DEMO'|'UNVERIFIED'; demoOnly?:boolean; warning?:string|null; }
 export interface Meta { aiMode:string; embeddingMode:string; databaseMode:string; demoRoutingEnabled?:boolean; }
 export interface Rule extends AssignmentInfo { id:number; category:string; subcategory:string; workName:string; departmentName:string; contactPhone?:string|null; sourceUrl?:string|null; verified:boolean; }
