@@ -116,8 +116,10 @@ public class IntakeService {
         boolean general=Codes.broad(payload.get("subcategory"))&&Codes.generalInquiry(payload.get("campusRelevance"));
         payload.put("requestKind","QUESTION".equals(intent)||general?"QUESTION":"REPORT");
         if(review) {
+            var unresolved=new ArrayList<Object>(state(draft).get("reviewFields") instanceof List<?> l?l:List.of());
+            if("REPORT".equals(payload.get("requestKind"))&&"UNCERTAIN".equals(payload.get("campusRelevance")))unresolved.add("CAMPUS_RELEVANCE");
             payload.put("reviewNote",draft.failure!=null?"AI 분석 실패: 원문과 기존 추출 내용을 확인해 주세요."+(draft.failedAnswer==null?"":" / 미분석 추가 답변: "+draft.failedAnswer):
-                    (Boolean.TRUE.equals(state(draft).get("urgentReview"))?"추가 질문 없이 접수한 내용의 관리자 확인이 필요합니다. ":"학생이 관리자 검토를 요청했습니다. ")+"부족한 정보: "+fieldNames(payload.get("missingFields"))+". 처리 전 확인 사항: "+fieldNames(state(draft).get("neededReasons"))+". 충돌하거나 미확정인 정보: "+fieldNames(state(draft).get("reviewFields"))+"."+(draft.latestAnswer==null?"":" / 마지막 추가 답변: "+draft.latestAnswer)+(draft.failedAnswer==null?"":" / 미분석 추가 답변: "+draft.failedAnswer));
+                    (Boolean.TRUE.equals(state(draft).get("urgentReview"))?"추가 질문 없이 접수한 내용의 관리자 확인이 필요합니다. ":"학생이 관리자 검토를 요청했습니다. ")+"부족한 정보: "+fieldNames(payload.get("missingFields"))+". 처리 전 확인 사항: "+fieldNames(state(draft).get("neededReasons"))+". 충돌하거나 미확정인 정보: "+fieldNames(unresolved)+"."+(draft.latestAnswer==null?"":" / 마지막 추가 답변: "+draft.latestAnswer)+(draft.failedAnswer==null?"":" / 미분석 추가 답변: "+draft.failedAnswer));
         }
         Map<String,Object> saved;
         try {saved=reports.createFromAnalysis(user,payload,Boolean.TRUE.equals(payload.get("emergencyHint")));}

@@ -25,6 +25,10 @@ final class ClarificationPolicy {
         if(placeChanged)for(String k:List.of("locationEvidence","scopeEvidence"))known.remove(k);
         if(symptomChanged)for(String k:List.of("symptomEvidence","targetEvidence","workflowEvidence"))known.remove(k);
         if(targetChanged)known.remove("targetEvidence");
+        // Doubt the student already volunteered counts as an answer: ownership is not asked again,
+        // and an object they cannot name goes to review instead of a repeated question.
+        if(field!=null&&"UNCERTAIN".equals(report.get("campusRelevance"))&&FollowUpPolicy.ownershipDoubt(answer,"")&&!asked.contains("CAMPUS_RELEVANCE"))asked.add("CAMPUS_RELEVANCE");
+        if(field!=null&&targetChanged&&report.get("targetText")==null&&FollowUpPolicy.targetDoubt(answer,Objects.toString(previous.get("targetText"),""),""))unavailable.add("TARGET_UNCLEAR");
         Map<?,?> proposed=suggestion.get("known") instanceof Map<?,?> m?m:Map.of();
         for(String key:FACTS){
             if(targetChanged&&report.get("targetText")==null&&key.equals("targetEvidence"))continue;
@@ -100,7 +104,9 @@ final class ClarificationPolicy {
         }
         state.put("status",status);state.put("nextReason",reason);state.put("askedReasons",asked);
         state.put("unavailableReasons",List.copyOf(unavailable));state.put("knownEvidence",known);
-        state.put("neededReasons",List.copyOf(needed));state.put("urgentReview",status.equals("COMPLETE")&&(!needed.isEmpty()||!reviews.isEmpty()));
+        // Ownership left open after it was asked (or volunteered) is filed without another question, so it needs a supervisor note.
+        boolean ownershipOpen=field!=null&&physical&&"UNCERTAIN".equals(report.get("campusRelevance"))&&asked.contains("CAMPUS_RELEVANCE");
+        state.put("neededReasons",List.copyOf(needed));state.put("urgentReview",status.equals("COMPLETE")&&(!needed.isEmpty()||!reviews.isEmpty()||ownershipOpen));
         String next=reason==null?null:reason.startsWith("LOCATION")?"LOCATION":reason.equals("CONFLICT")&&reviews.contains("LOCATION")?"LOCATION":reason.equals("CAMPUS_RELEVANCE")?"CATEGORY":"SYMPTOM";
         state.put("nextField",next);
         report.put("followUpQuestion",reason==null?null:question(reason,type,academic,intent));
