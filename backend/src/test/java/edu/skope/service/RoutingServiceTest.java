@@ -9,6 +9,7 @@ import org.springframework.jdbc.datasource.DriverManagerDataSource;
 import org.springframework.jdbc.datasource.init.ResourceDatabasePopulator;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
+import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
@@ -24,7 +25,8 @@ class RoutingServiceTest {
         new ResourceDatabasePopulator(new ClassPathResource("db/migration/V1__core.sql"),
                 new ClassPathResource("db/migration/V2__incidents.sql"),
                 new ClassPathResource("db/migration/V3__intake_context.sql"),
-                new ClassPathResource("db/migration/V4__department_workflow.sql")).execute(source);
+                new ClassPathResource("db/migration/V4__department_workflow.sql"),
+                new ClassPathResource("db/migration/V11__work_group_routing.sql")).execute(source);
         return new Db(new JdbcTemplate(source));
     }
     private void seed(Db db,boolean enabled,String password){
@@ -44,8 +46,12 @@ class RoutingServiceTest {
 
     @Test void demoModeAssignsKnownLeakWithoutPretendingItsContactIsVerified(){
         var db=fixture();seed(db,true,PASSWORD);var routes=new RoutingService(db,true);var rule=routes.find("FACILITY","LEAK");
-        // 4 original routes + demo-only HVAC and WATER_DISPENSER added by SeedData.addMissingDemoRoutes (FURNITURE has no rule).
-        assertNotNull(rule);assertEquals(6,routes.types().size());
+        // 4 original routes + demo-only HVAC and WATER_DISPENSER added by SeedData.addMissingDemoRoutes (FURNITURE has no rule)
+        // Students: those 6 report types only. Supervisor: + 8 manual-only department rules (department-routes.tsv).
+        // Work-group rules are never listed.
+        assertNotNull(rule);assertEquals(6,routes.types().size());assertEquals(14,routes.types(true).size());
+        assertTrue(routes.types().stream().noneMatch(r->Boolean.TRUE.equals(r.get("manualOnly"))));
+        assertEquals(8,routes.types(true).stream().filter(r->Boolean.TRUE.equals(r.get("manualOnly"))).count());
         for(var value:new Map[]{routes.preview(rule),routes.department(rule),routes.types().stream().filter(r->"LEAK".equals(r.get("subcategory"))).findFirst().orElseThrow()}){
             assertEquals(false,value.get("verified"));assertEquals("DEMO",value.get("assignmentBasis"));
             assertEquals(true,value.get("demoOnly"));assertNotNull(value.get("warning"));
@@ -54,7 +60,8 @@ class RoutingServiceTest {
         assertEquals("MATCHED",routes.preview(rule).get("routeStatus"));
         var answer=routes.answer(rule,"누수는 어디로 연락하면 되나요?");assertEquals(false,answer.get("verified"));
         assertFalse(answer.containsKey("departmentName"));assertFalse(answer.get("text").toString().contains("02-940"));
-        assertEquals(4,db.all("SELECT * FROM users WHERE role='DEPT_ADMIN'").size());
+        // 4 original departments + 8 official departments reachable by a seeded rule (department-routes.tsv).
+        assertEquals(12,db.all("SELECT * FROM users WHERE role='DEPT_ADMIN'").size());
         assertNull(routes.find("FACILITY","UNKNOWN"));
     }
 
@@ -64,7 +71,8 @@ class RoutingServiceTest {
         db.update("UPDATE routing_rules SET demo_only=FALSE,active=FALSE WHERE subcategory='LEAK'");
         seed(db,true,PASSWORD);
         assertEquals(originalVerified,db.all("SELECT * FROM routing_rules WHERE subcategory<>'LEAK' ORDER BY id"));
-        assertEquals(4,db.all("SELECT * FROM departments").size());
+        // 4 original rows (names kept) + 10 core departments from the official chart (3 chart names already existed).
+        assertEquals(14,db.all("SELECT * FROM departments").size());
         var deptAccount=db.one("SELECT * FROM users WHERE username='dept1'");assertEquals(1L,Db.id(deptAccount,"departmentId"));
         db.update("UPDATE users SET password_hash='changed-hash',department_id=2,active=FALSE,display_name='보존 이름' WHERE username='dept1'");
         db.update("UPDATE routing_rules SET active=FALSE WHERE subcategory='LEAK'");
@@ -74,9 +82,51 @@ class RoutingServiceTest {
         var preserved=db.one("SELECT * FROM users WHERE username='dept1'");
         assertEquals("changed-hash",preserved.get("passwordHash"));assertEquals(2L,Db.id(preserved,"departmentId"));
         assertEquals(false,preserved.get("active"));assertEquals("보존 이름",preserved.get("displayName"));
+        // Since the official department list (10/30), a department gets an account only once a rule routes to it.
+        assertNull(db.one("SELECT id FROM users WHERE username=?","dept"+extra));
+        db.insert("INSERT INTO routing_rules(category,subcategory,work_name,department_id,target_key,active,demo_only) VALUES(?,?,?,?,?,?,?)","WORK_GROUP","SHARED_EQUIPMENT","추가 부서 예외",extra,"시험대상",true,true);
+        seed(db,true,"different-test-password");
         assertNotNull(db.one("SELECT id FROM users WHERE username=?","dept"+extra));
         assertNull(db.one("SELECT id FROM users WHERE username=?","dept"+inactive));
         assertNull(new RoutingService(db,true).find("FACILITY","LEAK"));
+    }
+
+    @Test void anUntouchedDerivedDefaultIsUpgradedButChangedOrUsedRulesAreNot(){
+        var db=fixture();seed(db,true,PASSWORD);
+        String select="SELECT rr.id,d.name,rr.work_name FROM routing_rules rr JOIN departments d ON d.id=rr.department_id WHERE rr.category='WORK_GROUP' AND rr.subcategory='SHARED_EQUIPMENT' AND rr.target_key=''";
+        long rule=Db.id(db.one(select),"id");
+        long office=Db.id(db.one("SELECT id FROM departments WHERE name='총무처 건설관리과'"),"id");
+        // A database seeded by the first version of this branch: the derived default points at 총무처 건설관리과.
+        db.update("UPDATE routing_rules SET department_id=? WHERE id=?",office,rule);
+        seed(db,true,PASSWORD);
+        assertEquals("총무처 총무과",db.one(select).get("name"),"untouched derived default is upgraded");
+        // An administrator's change is kept.
+        db.update("UPDATE routing_rules SET department_id=?,work_name='관리자 지정 비품 배정' WHERE id=?",office,rule);
+        seed(db,true,PASSWORD);
+        assertEquals("총무처 건설관리과",db.one(select).get("name"));
+        // A derived default that already carries reports is kept, so their shown department does not change.
+        db.update("UPDATE routing_rules SET work_name='공용 비품 기본 배정 (담당 업무 미검증)' WHERE id=?",rule);
+        long student=db.insert("INSERT INTO users(username,password_hash,display_name,role) VALUES('used_rule_student','x','학생','STUDENT')");
+        db.insert("INSERT INTO reports(student_id,client_request_id,original_text,category,subcategory,symptom,routing_rule_id,assigned_department_id,route_status) VALUES(?,?,?,?,?,?,?,?,?)",
+                student,UUID.randomUUID().toString(),"보드마카가 없어요","OTHER","UNKNOWN","보드마카 없음",rule,office,"MATCHED");
+        seed(db,true,PASSWORD);
+        assertEquals("총무처 건설관리과",db.one(select).get("name"));
+    }
+
+    @Test void officialCoreDepartmentsAreAddedOnceWithoutAccountsOrChangesToExistingRows(){
+        var db=fixture();seed(db,true,PASSWORD);
+        var original=db.all("SELECT * FROM departments WHERE id<=4 ORDER BY id");
+        var official=db.all("SELECT * FROM departments WHERE source_url=?","https://www.skuniv.ac.kr/organization-phone");
+        assertEquals(10,official.size(),"10 new core departments; 총무처 건설관리과·정보전산원·교무처 교무과 already existed");
+        assertTrue(official.stream().allMatch(d->d.get("verifiedAt")!=null&&d.get("description")!=null));
+        assertNotNull(db.one("SELECT id FROM departments WHERE name='학생처 장학과' AND description='대학본부 > 학생처'"));
+        assertEquals(12,db.all("SELECT * FROM users WHERE role='DEPT_ADMIN'").size(),"accounts only where a rule routes");
+        for(String sensitive:List.of("학생처 학생상담센터","서경인권센터"))
+            assertNull(db.one("SELECT u.id FROM users u JOIN departments d ON d.id=u.department_id WHERE d.name=?",sensitive),sensitive+" has no rule and no account");
+        assertEquals("총무처 총무과",db.one("SELECT d.name FROM routing_rules rr JOIN departments d ON d.id=rr.department_id WHERE rr.category='WORK_GROUP' AND rr.subcategory='SHARED_EQUIPMENT' AND rr.target_key=''").get("name"),"the explicit default wins over the derived one");
+        seed(db,true,PASSWORD);
+        assertEquals(14,db.all("SELECT * FROM departments").size(),"idempotent on every start");
+        assertEquals(original,db.all("SELECT * FROM departments WHERE id<=4 ORDER BY id"),"original rows untouched");
     }
 
     @Test void demoFlagCannotBypassInactiveRuleOrDepartmentOrOrdinaryMissingEvidence(){

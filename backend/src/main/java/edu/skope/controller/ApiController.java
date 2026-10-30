@@ -15,14 +15,25 @@ public class ApiController {
     private long uid(Authentication a){return Db.id(auth.user(a),"id");}
     @PostMapping("/assistant/intake") public Map<String,Object> intake(Authentication a,jakarta.servlet.http.HttpSession session,@RequestBody Map<String,Object> b){return intake.intake(uid(a),session,b);}
     @GetMapping("/meta") public Map<String,Object> meta(){return Map.of("aiMode",ai.mode(),"embeddingMode",ai.embeddingMode(),"databaseMode",dbUrl.startsWith("jdbc:mysql:")?"MYSQL":"H2_DEMO","officialSubmission",false,"demoRoutingEnabled",routes.demoEnabled());}
-    @GetMapping("/report-types") public Map<String,Object> types(){return Map.of("items",routes.types());}
+    /** Students get report types only; the supervisor (ADMIN) also gets manual-only department rules (manualOnly=true) to reassign. */
+    @GetMapping("/report-types") public Map<String,Object> types(Authentication a){return Map.of("items",routes.types("ADMIN".equals(auth.user(a).get("role"))));}
     @PostMapping("/assistant/analyze") public Map<String,Object> analyze(@RequestBody Map<String,Object> b){
-        var result=new LinkedHashMap<>(ai.analyze(b));Object report=result.get("report");Map<?,?> r=report instanceof Map<?,?> m?m:Map.of();var rule=routes.find(Objects.toString(r.get("category"),"OTHER"),Objects.toString(r.get("subcategory"),"UNKNOWN"));
+        var result=new LinkedHashMap<>(ai.analyze(b));Object report=result.get("report");Map<?,?> r=report instanceof Map<?,?> m?m:Map.of();
+        String category=Objects.toString(r.get("category"),"OTHER"),subcategory=Objects.toString(r.get("subcategory"),"UNKNOWN");
+        var rule=routes.find(category,subcategory);
         result.put("questionAnswer",null);result.put("routingPreview",null);
         if("QUESTION".equals(result.get("intent"))){result.put("questionAnswer",routes.answer(rule,Objects.toString(b.get("text"),"")));result.put("report",null);}
-        else if("REPORT".equals(result.get("intent"))){if(r.get("locationText")==null||r.get("building")==null)rule=null;result.put("routingPreview",routes.preview(rule));}
+        else if("REPORT".equals(result.get("intent"))){
+            // Same decision as saving (RoutingService.assign): a personal OTHER/UNKNOWN request is saved as an inquiry,
+            // and an urgent review is saved with a review note, so both are held here too.
+            Map<?,?> state=result.get("followUpState") instanceof Map<?,?> s?s:Map.of();
+            rule=routes.assign(category,subcategory,text(r,"workGroup"),text(r,"targetText"),text(r,"campusRelevance"),text(r,"locationText"),text(r,"building"),
+                    edu.skope.domain.Codes.broad(subcategory)&&edu.skope.domain.Codes.generalInquiry(r.get("campusRelevance")),Boolean.TRUE.equals(state.get("urgentReview")));
+            result.put("routingPreview",routes.preview(rule));
+        }
         return result;
     }
+    private static String text(Map<?,?> r,String key){return r.get(key) instanceof String s&&!s.isBlank()?s.strip():null;}
     @PostMapping("/reports") public ResponseEntity<?> create(Authentication a,@RequestBody Map<String,Object> b){var report=reports.create(uid(a),b);try{similarity.index(Db.id(report,"id"));}catch(RuntimeException ignored){/* committed report survives indexing failure */}return ResponseEntity.status(201).body(report);}
     @GetMapping("/reports") public Map<String,Object> list(Authentication a,@RequestParam(defaultValue="0")int page,@RequestParam(defaultValue="20")int size,@RequestParam(required=false)String status){return reports.list(uid(a),false,page,size,status,null);}
     @GetMapping("/reports/{id}") public Map<String,Object> detail(Authentication a,@PathVariable long id){return reports.detail(id,uid(a),false);}

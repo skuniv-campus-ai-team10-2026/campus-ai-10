@@ -38,7 +38,9 @@ public class ReportService {
         if(!Set.of("REPORT","QUESTION").contains(kind))throw new ApiException(400,"VALIDATION_ERROR","접수 종류를 확인하세요.");
         if(on!=null){try{if(LocalDate.parse(on).isAfter(LocalDate.now(ZoneId.of("Asia/Seoul"))))throw new IllegalArgumentException();}catch(Exception e){throw new ApiException(400,"VALIDATION_ERROR","발생일은 유효한 오늘 이전 날짜여야 합니다.");}}
         if(db.one("SELECT id FROM reports WHERE student_id=? AND client_request_id=?",studentId,request)!=null)throw new ApiException(409,"DUPLICATE_REQUEST","이미 접수된 요청입니다.");
-        var rule=review!=null || (!(kind.equals("QUESTION")||c.equals("ACADEMIC"))&&(location==null||building==null))?null:routes.find(c,s);
+        // Accepting a report and assigning a department are separate: without a usable rule it is saved as NEEDS_REVIEW.
+        // The same decision feeds the analysis preview (RoutingService.assign).
+        var rule=routes.assign(c,s,group,target,relevance,location,building,kind.equals("QUESTION"),review!=null);
         long id=db.insert("INSERT INTO reports(student_id,client_request_id,original_text,category,subcategory,location_text,building,floor,symptom,occurred_at_text,occurred_on,routing_rule_id,assigned_department_id,route_status,emergency_hint,request_kind,review_note,work_group,target_text,campus_relevance) VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)",studentId,request,original,c,s,location,building,floor,symptom,at,on,rule==null?null:rule.get("id"),rule==null?null:rule.get("departmentId"),rule==null?"NEEDS_REVIEW":"MATCHED",(emergency || AiService.emergency(original+" "+symptom)),kind,review,group,target,relevance);
         event(id,studentId,"CREATED",null,"RECEIVED","시연용 자체 접수");return detail(id,studentId,false);
     }

@@ -15,6 +15,7 @@ public class ScriptedAi extends AiService {
     static final ObjectMapper JSON = new ObjectMapper();
     final JsonNode saved;
     final Map<String, JsonNode> answers = new HashMap<>();
+    final Map<String, JsonNode> firsts = new HashMap<>();
     public int calls;
 
     public ScriptedAi() {
@@ -49,10 +50,29 @@ public class ScriptedAi extends AiService {
         return this;
     }
 
+    /**
+     * Scripts the model output for a first turn, built on the saved W1-1 shape: report fields the model claims, and
+     * its proposed clarification reason with evidence ("NONE" for none). Every scripted text is fixed before the run.
+     */
+    public ScriptedAi first(String text, Map<String, Object> report, String reason, String evidence) {
+        var raw = (ObjectNode) row("W1-1").path("rawModelOutput").deepCopy();
+        var r = (ObjectNode) raw.path("report");
+        r.put("followUpQuestion", (String) null); r.set("missingFields", JSON.createArrayNode());
+        for (String key : List.of("locationText", "building", "floor", "occurredAtText", "targetText")) r.putNull(key);
+        r.setAll((ObjectNode) JSON.valueToTree(report));
+        var a = (ObjectNode) raw.path("assessment");
+        a.put("reason", reason); a.put("evidence", evidence); a.putNull("question"); a.put("rationale", "scripted");
+        var known = (ObjectNode) a.path("known");
+        for (String k : List.of("locationEvidence", "scopeEvidence", "symptomEvidence", "targetEvidence", "workflowEvidence")) known.putNull(k);
+        firsts.put(text, raw);
+        return this;
+    }
+
     @Override protected JsonNode complete(Map<String, Object> body) {
         try {
             var request = JSON.readTree(JSON.valueToTree(body).at("/messages/1/content").asText());
             JsonNode raw = request.has("followUp") ? answers.get(request.at("/followUp/answer").asText())
+                    : firsts.containsKey(request.path("text").asText()) ? firsts.get(request.path("text").asText())
                     : request.path("text").asText().equals(firstText()) ? row("W1-1").path("rawModelOutput") : null;
             if (raw == null) throw new IllegalStateException("No scripted output; provider calls forbidden");
             calls++;
