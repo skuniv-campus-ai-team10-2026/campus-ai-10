@@ -16,6 +16,12 @@ class SimilarityPlaceTest {
         assertFalse(SimilarityPlace.compare(a,b,false).allowed(),"RULE_ONLY must not expand search by itself");
         assertEquals("북악관 608호",a.get("locationText"),"search scope does not rewrite observation");
     }
+    @Test void sharedNetworkSearchNeedsTheSameKnownFloor(){
+        var a=network("508");a.put("floor","");var b=network("301");b.put("floor","3");
+        assertFalse(SimilarityPlace.compare(a,b,true).allowed(),"an unknown floor is not evidence of the same floor");
+        a.put("floor","3");a.put("locationText","북악관 308호");var m=SimilarityPlace.compare(a,b,true);
+        assertTrue(m.allowed());assertEquals("SHARED_NETWORK_SEARCH",m.scope());
+    }
     @Test void floorDifferencesNeedExplicitBuildingRangeInBothReports(){
         var a=network("608");var b=network("708");b.put("floor","7");assertFalse(SimilarityPlace.compare(a,b,true).allowed());
         a.put("symptom","건물 전체 무선망 접속 불가");b.put("symptom","건물 전체 무선망 연결 불가");

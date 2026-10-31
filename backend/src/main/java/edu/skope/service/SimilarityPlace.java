@@ -35,7 +35,8 @@ final class SimilarityPlace {
                 scope="STATED_BUILDING_RANGE";expanded=!floor||!room||!detail;floor=true;room=true;detail=true;
             }else if(!fa.isBlank()&&fa.equals(fb)&&wide(a,FLOOR_WIDE)&&wide(b,FLOOR_WIDE)){
                 scope="STATED_AREA_RANGE";expanded=!room||!detail;room=true;detail=true;
-            }else if(floor&&network(a)&&network(b)){
+            }else if(!fa.isBlank()&&fa.equals(fb)&&network(a)&&network(b)){
+                // A shared network is searched only on the same known floor, as for stated area outages.
                 scope="SHARED_NETWORK_SEARCH";expanded=!room;room=true;detail=true;
             }
         }

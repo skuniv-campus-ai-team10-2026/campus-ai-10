@@ -99,12 +99,12 @@ public class SimilarityService {
                 report.get("category"), report.get("subcategory"),
                 Timestamp.valueOf(created.minusDays(windowDays)), Timestamp.valueOf(created.plusDays(windowDays)));
         for (var other : candidates) {
-            if (!compatiblePlace(report, other)) continue;
+            long otherId = Db.id(other, "id");
             Double score = score(report, other);
             String basis = semanticBasis(report, other, score, threshold);
-            if (basis.equals("EXCLUDED")) {
-                // Re-indexing can replace an earlier rule-only fallback; reviewed decisions remain intact.
-                long otherId = Db.id(other, "id");
+            if (!compatiblePlace(report, other) || basis.equals("EXCLUDED")) {
+                // Re-indexing can replace an earlier rule-only fallback or a candidate from an older place
+                // policy; reviewed decisions remain intact.
                 db.update("DELETE FROM similar_pairs WHERE left_report_id=? AND right_report_id=? AND decision='CANDIDATE'",
                         Math.min(reportId, otherId), Math.max(reportId, otherId));
                 continue;
@@ -120,7 +120,6 @@ public class SimilarityService {
                     + (report.get("occurredOn") == null || other.get("occurredOn") == null
                     ? "발생일 미확인; 접수일은 발생일이 아님. " : "발생일은 별도 관리자 검토 필요. ")
                     + "동일 사건 확정 전 관리자 검토 필요.";
-            long otherId = Db.id(other, "id");
             long left = Math.min(reportId, otherId), right = Math.max(reportId, otherId);
             try {
                 db.insert("INSERT INTO similar_pairs(left_report_id,right_report_id,similarity_score,reason_text) VALUES(?,?,?,?)",
