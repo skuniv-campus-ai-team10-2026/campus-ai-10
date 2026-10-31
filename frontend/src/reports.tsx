@@ -21,7 +21,36 @@ export function ReportDetailPage({admin=false}:{admin?:boolean}){
  if(result.loading)return <Loading/>;
  if(result.error||!result.value)return <><Link className="back-link" to={admin?'/admin/reports':'/reports'}><ChevronLeft size={16}/>{admin?'신고 목록으로':'접수내역으로'}</Link><ErrorBox error={result.error??'신고를 찾지 못했습니다.'}/></>;
  const report=result.value,adminQuestion=admin&&report.requestKind==='QUESTION';
+ if(!admin)return <StudentReportDetail report={report}/>;
  return <><Link to={admin?'/admin/reports':'/reports'} className="back-link"><ChevronLeft size={16}/>{admin?'신고 목록으로':'접수내역으로'}</Link><PageHeading eyebrow="" title={report.symptom||'캠퍼스 문제 신고'} description={`${admin?(typeLabels[report.subcategory]??report.subcategory):reportTypeLabel(report.subcategory)} · ${report.locationText||'위치 미확인'}`} action={<Badge value={report.status}/>}/>{report.emergencyHint&&<Emergency/>}{report.transferRequested&&<div className="notice neutral"><div><strong>총괄 관리자에게 이관 검토를 요청했습니다.</strong><p>배정이 변경되기 전까지 현재 담당 부서에서 확인합니다.</p>{admin&&report.transferReason&&<p>요청 사유: {report.transferReason}</p>}</div></div>}<div className="detail-grid"><div><section className="card detail-card"><div className="section-title"><h2><FileText size={19}/>신고 내용</h2><span className="muted"><DateText value={report.createdAt}/></span></div><div className="notice neutral">{report.requestKind==='QUESTION'?'문의 · 관리자 답변 요청':'불편 신고 · 조치 요청'}</div><blockquote>{report.originalText}</blockquote><ReportPhotos reportId={report.id} admin={admin} canUpload={report.status!=='RESOLVED'}/>{report.reviewNote&&<div className="notice neutral">관리자 확인 사항: {report.reviewNote}</div>}<dl className="detail-data">{(!adminQuestion||report.locationText)&&<div><dt>발생 장소</dt><dd>{report.locationText||'미확인'}</dd></div>}{(!adminQuestion||report.building||report.floor)&&<div><dt>건물 / 층</dt><dd>{report.building||'미확인'} / {report.floor?`${report.floor}층`:'미확인'}</dd></div>}{(!adminQuestion||report.occurredAtText)&&<div><dt>발생 시점 설명</dt><dd>{report.occurredAtText||'미확인'}</dd></div>}{(!adminQuestion||report.occurredOn)&&<div><dt>확인된 발생일</dt><dd>{report.occurredOn||'미확인 · 접수일은 발생일이 아닙니다'}</dd></div>}<div><dt>분류</dt><dd>{admin?`${report.category} / ${report.subcategory}`:reportTypeLabel(report.subcategory)}</dd></div>{report.incidentId&&<div><dt>연결 사건</dt><dd>{admin?<Link className="inline-link" to={`/admin/incidents/${report.incidentId}`}>사건 #{report.incidentId}<ArrowRight size={14}/></Link>:`사건 #${report.incidentId}`}</dd></div>}</dl></section><section className="card detail-card"><div className="section-title"><h2><Clock3 size={19}/>{adminQuestion?'답변':'처리 결과'}</h2><Badge value={report.status}/></div><div className={`resolution ${report.status==='RESOLVED'?'complete':''}`}>{report.resolutionText?<p className={admin?'resolution-answer':undefined}>{report.resolutionText}</p>:<p className={admin?'resolution-waiting':undefined}>{report.status==='IN_PROGRESS'?(adminQuestion?'담당자가 확인하고 있습니다. 답변이 등록되면 여기에 표시됩니다.':'담당자가 확인하고 있습니다. 처리가 완료되면 결과가 여기에 표시됩니다.'):adminQuestion?'문의가 접수되었습니다. 담당자의 확인을 기다리고 있습니다.':'신고가 접수되었습니다. 담당자의 확인을 기다리고 있습니다.'}</p>}</div>{report.events&&report.events.length>0&&<div className="timeline">{report.events.filter(event=>admin||!!studentEventLabels[event.eventType]).map((event,index)=><div className="timeline-item" key={`${event.changedAt}-${index}`}><span className="timeline-dot"/><div><strong>{event.eventType==='STATUS_CHANGED'?'상태 변경':event.eventType==='ROUTING_CHANGED'?'담당 부서 변경':event.eventType==='CREATED'?(adminQuestion?'문의 접수':'신고 접수'):event.eventType==='TRANSFER_REQUESTED'?'이관 요청':admin&&event.eventType==='INCIDENT_LINK'?'사건 연결':admin&&event.eventType==='SIMILARITY_REVIEW'?'유사 후보 검토':admin&&event.eventType==='RECURRENCE_REVIEW'?'재발 검토':event.eventType}</strong>{event.newValue&&<Badge value={event.newValue}/>}<p>{event.note}</p><small>{event.actorName} · <DateText value={event.changedAt}/></small></div></div>)}</div>}</section>{admin&&report.requestKind!=='QUESTION'&&<SimilarSection reportId={report.id} onChange={result.reload}/>}</div><aside><section className="card routing-card"><h3>담당 부서</h3><RoutingBadge status={report.routeStatus} assignment={report.assignedDepartment}/><h2>{report.assignedDepartment?.name??'관리자 확인 필요'}</h2>{!isDemoAssignment(report.assignedDepartment)&&report.assignedDepartment?.contactPhone&&<p className="phone">{report.assignedDepartment.contactPhone}</p>}<AssignmentSource assignment={report.assignedDepartment}/></section>{admin&&<AdminActions report={report} onChange={result.reload}/>}</aside></div></>;
+}
+function StudentReportDetail({report}:{report:Report}){
+ const question=report.requestKind==='QUESTION',answer=report.resolutionText?.trim();
+ const waiting=report.status==='RESOLVED'
+  ?(question?'문의 처리가 완료되었습니다. 등록된 담당자 답변이 없습니다.':'신고 처리가 완료되었습니다. 등록된 처리 결과가 없습니다.')
+  :report.status==='IN_PROGRESS'
+   ?(question?'담당자가 문의를 확인하고 있습니다. 답변이 등록되면 여기에서 확인할 수 있습니다.':'담당자가 불편 사항을 처리하고 있습니다. 처리가 완료되면 결과를 안내합니다.')
+   :(question?'문의가 접수되었습니다. 담당자의 확인과 답변을 기다리고 있습니다.':'신고가 접수되었습니다. 담당자의 확인을 기다리고 있습니다.');
+ const entered=(value?:string|null)=>!!value?.trim();
+ return <div className="student-report-detail">
+  <Link to="/reports" className="back-link"><ChevronLeft size={16}/>접수내역으로</Link>
+  <PageHeading eyebrow="" title={question?'문의 상세':'불편 신고 상세'}/>
+  <section className="card detail-card" aria-labelledby="student-report-status"><div className="section-title"><h2 id="student-report-status">접수 상태</h2><Badge value={report.status}/></div></section>
+  {report.emergencyHint&&<Emergency/>}
+  <section className="card detail-card" aria-labelledby="student-report-answer"><div className="section-title"><h2 id="student-report-answer">{question?'담당자 답변':'처리 결과'}</h2></div><div className={`resolution ${report.status==='RESOLVED'?'complete':''}`}><p>{answer||waiting}</p></div></section>
+  <section className="card detail-card" aria-labelledby="student-report-department"><div className="section-title"><h2 id="student-report-department">담당 부서</h2></div><p>{report.assignedDepartment?.name||'배정 대기'}</p>{report.assignedDepartment?.contactPhone&&<p className="phone">{report.assignedDepartment.contactPhone}</p>}</section>
+  <details className="card detail-card student-sent-content"><summary>내가 보낸 내용</summary><blockquote>{report.originalText}</blockquote>
+   <dl className="detail-data">
+    {entered(report.locationText)&&<div><dt>발생 장소</dt><dd>{report.locationText}</dd></div>}
+    {entered(report.building)&&<div><dt>건물</dt><dd>{report.building}</dd></div>}
+    {entered(report.floor)&&<div><dt>층</dt><dd>{report.floor}층</dd></div>}
+    {entered(report.occurredAtText)&&<div><dt>발생 시점</dt><dd>{report.occurredAtText}</dd></div>}
+    {entered(report.occurredOn)&&<div><dt>발생일</dt><dd>{report.occurredOn}</dd></div>}
+   </dl>
+   <ReportPhotos reportId={report.id} canUpload={report.status!=='RESOLVED'}/>
+  </details>
+  <section className="student-report-meta" aria-label="접수 정보"><dl className="detail-data"><div><dt>접수번호</dt><dd>SK-{String(report.id).padStart(6,'0')}</dd></div><div><dt>접수일</dt><dd><DateText value={report.createdAt}/></dd></div></dl></section>
+ </div>;
 }
 function AdminActions({report,onChange}:{report:Report;onChange:()=>void}){
  const {user}=useSession(),supervisor=user.role==='ADMIN';

@@ -12,9 +12,9 @@ vi.mock('./api',async original=>({...await original<typeof import('./api')>(),po
 const pending:IntakeResult={status:'NEEDS_INPUT',revision:1,aiMode:'LIVE',analysis:{intent:'UNKNOWN',aiMode:'LIVE',report:{category:'OTHER',subcategory:'UNKNOWN',symptom:null,followUpQuestion:'어떤 점이 불편한가요?'},questionAnswer:null,routingPreview:null}};
 const draft:Draft={originalText:'강의실이 너무 불편해요',preferredIntent:'AUTO',clientRequestId:'test-request',intake:true,intakeResult:pending};
 beforeEach(()=>{cleanup();clearPendingPhotos();URL.createObjectURL=vi.fn(()=>'blob:preview');URL.revokeObjectURL=vi.fn();sessionStorage.clear();vi.clearAllMocks();});
-it('hides the redundant issue clarification hint',async()=>{
+it('shows the server clarification message as supporting text',async()=>{
  vi.mocked(post).mockResolvedValueOnce({...pending,analysis:{...pending.analysis!,clarification:{reason:'ISSUE_UNCLEAR',message:'담당자가 어떤 문제를 처리해야 하는지 알아야 해요.',neededReasons:['ISSUE_UNCLEAR'],source:'SERVER_RULES'}}});
- mount();await screen.findByRole('button',{name:'답변 보내기'});await waitFor(()=>expect(screen.getByRole('button',{name:'답변 보내기'})).toBeEnabled());expect(screen.queryByText('담당자가 어떤 문제를 처리해야 하는지 알아야 해요.')).not.toBeInTheDocument();
+ mount();await screen.findByRole('button',{name:'답변 보내기'});await waitFor(()=>expect(screen.getByRole('button',{name:'답변 보내기'})).toBeEnabled());expect(screen.getByText('담당자가 어떤 문제를 처리해야 하는지 알아야 해요.')).toBeInTheDocument();
 });
 it('retains the safety warning after urgent automatic intake',()=>{
  render(<MemoryRouter initialEntries={[{pathname:'/reports/success',state:{report:{id:90,status:'RECEIVED',emergencyHint:true}}}]}><SuccessPage/></MemoryRouter>);
@@ -99,6 +99,65 @@ it('includes a typed reply when submitting directly for review without another a
  expect(await screen.findByText('접수 완료 화면')).toBeInTheDocument();
  expect(post).toHaveBeenNthCalledWith(2,'/assistant/intake',{clientRequestId:draft.clientRequestId,revision:1,submitForReview:true,answer:'지하 1층인데 자세한 위치는 모르겠어요'});
  expect(post).toHaveBeenCalledTimes(2);
+});
+
+it('puts the exact server question once above the input, summary and photos',async()=>{
+ const question='어느 층이나 어느 쪽에서 발생했나요?';
+ vi.mocked(post).mockResolvedValue({...pending,analysis:{...pending.analysis!,report:{...pending.analysis!.report,symptom:'정수기 문제',followUpQuestion:question},clarification:{reason:'LOCATION_DETAIL',message:question,neededReasons:['LOCATION_DETAIL'],source:'SERVER_RULES'}}});
+ mount();await waitFor(()=>expect(screen.getByRole('button',{name:'답변 보내기'})).toBeEnabled());
+ const heading=screen.getByRole('heading',{level:1,name:question});expect(screen.getAllByText(question)).toHaveLength(1);
+ const input=screen.getByLabelText('추가 답변');expect(input).toHaveAttribute('placeholder','예: 북악관 3층, 엘리베이터 옆');
+ expect(heading.compareDocumentPosition(input)&Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+ expect(input.compareDocumentPosition(screen.getByRole('heading',{name:'현재까지 파악한 내용'}))&Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+ expect(screen.queryByText('조금만 더 알려주세요')).not.toBeInTheDocument();
+});
+
+it.each([
+ ['LOCATION_REQUIRED','LOCATION','북악관 3층'],
+ ['SYMPTOM_DETAIL','SYMPTOM','직접 겪은 현상'],
+ ['WORKFLOW_UNCLEAR','SYMPTOM','신청서를 제출하는 단계'],
+ [null,'OCCURRED_AT','오늘 오전부터'],
+ [null,null,'위 질문에 대한 답변'],
+] as const)('uses server metadata for input guidance: %s / %s',async(reason,nextField,hint)=>{
+ vi.mocked(post).mockResolvedValue({...pending,analysis:{...pending.analysis!,clarification:{reason,message:null,neededReasons:[],source:'SERVER_RULES'},followUpState:{turns:2,noProgress:1,askedFields:[],status:'CONTINUE',nextField}}});
+ mount();await waitFor(()=>expect(screen.getByRole('button',{name:'답변 보내기'})).toBeEnabled());
+ expect(screen.getByLabelText('추가 답변').getAttribute('placeholder')).toContain(hint);
+ expect(screen.getByRole('heading',{level:1})).toHaveTextContent(pending.analysis!.report!.followUpQuestion!);
+});
+
+it('updates the question, cumulative facts and revision after an answer without resetting server state',async()=>{
+ const next={...pending,revision:7,latestAnswer:'북악관 3층',analysis:{...pending.analysis!,report:{...pending.analysis!.report,locationText:'북악관 3층',followUpQuestion:'언제부터 발생했나요?'},followUpState:{turns:3,noProgress:1,askedFields:['LOCATION'],status:'CONTINUE' as const,nextField:'OCCURRED_AT'}}};
+ vi.mocked(post).mockResolvedValueOnce(pending).mockResolvedValueOnce(next).mockResolvedValueOnce({status:'ACCEPTED',aiMode:'DEMO',report:{id:123}});
+ mount();const user=userEvent.setup();await waitFor(()=>expect(screen.getByRole('button',{name:'답변 보내기'})).toBeEnabled());
+ await user.type(screen.getByLabelText('추가 답변'),'북악관 3층');await user.click(screen.getByRole('button',{name:'답변 보내기'}));
+ expect(await screen.findByRole('heading',{level:1,name:'언제부터 발생했나요?'})).toBeVisible();
+ expect(screen.queryByText(pending.analysis!.report!.followUpQuestion!)).not.toBeInTheDocument();expect(screen.getByText('북악관 3층')).toBeVisible();
+ expect(JSON.parse(sessionStorage.getItem('skope-draft')!).intakeResult.analysis.followUpState).toEqual(next.analysis.followUpState);
+ await user.type(screen.getByLabelText('추가 답변'),'오늘 오전부터');await user.click(screen.getByRole('button',{name:'답변 보내기'}));
+ expect(await screen.findByText('접수 완료 화면')).toBeInTheDocument();expect(vi.mocked(post).mock.calls[2][1]).toEqual({clientRequestId:draft.clientRequestId,revision:7,answer:'오늘 오전부터'});
+});
+
+it.each(['', '   '])('offers error and manual review instead of inventing an empty question: %j',async question=>{
+ const invalid={...pending,analysis:{...pending.analysis!,report:{...pending.analysis!.report!,followUpQuestion:question}}};
+ vi.mocked(post).mockResolvedValue(invalid);
+ render(<MemoryRouter><IntakeFlow draft={{...draft,intakeResult:invalid}} onEdit={vi.fn()}/></MemoryRouter>);
+ expect(await screen.findByText(/접수 응답을 확인하지 못했습니다/)).toBeInTheDocument();
+ expect(screen.queryByLabelText('추가 답변')).not.toBeInTheDocument();expect(screen.getByRole('button',{name:'내용 직접 수정'})).toBeEnabled();expect(screen.getByRole('button',{name:'이 내용으로 접수하기'})).toBeEnabled();expect(post).toHaveBeenCalledTimes(1);
+});
+
+it('keeps the typed answer and previous question when a malformed response is returned',async()=>{
+ vi.mocked(post).mockResolvedValueOnce(pending).mockResolvedValueOnce({status:'ACCEPTED',aiMode:'DEMO'});
+ mount();const user=userEvent.setup();await waitFor(()=>expect(screen.getByRole('button',{name:'답변 보내기'})).toBeEnabled());
+ await user.type(screen.getByLabelText('추가 답변'),'지하 1층');await user.click(screen.getByRole('button',{name:'답변 보내기'}));
+ expect(await screen.findByText(/접수 응답을 확인하지 못했습니다/)).toBeInTheDocument();expect(screen.getByLabelText('추가 답변')).toHaveValue('지하 1층');expect(post).toHaveBeenCalledTimes(2);
+});
+
+it('resumes a saved question without starting a new analysis or changing its revision',async()=>{
+ const saved={...pending,revision:9};vi.mocked(post).mockResolvedValue(saved);
+ const view=mount();await waitFor(()=>expect(screen.getByRole('button',{name:'답변 보내기'})).toBeEnabled());view.unmount();mount();
+ await waitFor(()=>expect(post).toHaveBeenCalledTimes(2));
+ for(const [,body] of vi.mocked(post).mock.calls)expect(body).toEqual({clientRequestId:draft.clientRequestId,resume:true});
+ expect(JSON.parse(sessionStorage.getItem('skope-draft')!).intakeResult.revision).toBe(9);
 });
 
 it.each([false,true])('shows recovery only when selected photos were lost: %s',async(hadPhotos)=>{

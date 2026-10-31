@@ -8,12 +8,12 @@ import {AnalyzePage} from './student';
 vi.mock('./api',async original=>({...await original<typeof import('./api')>(),api:vi.fn()}));
 afterEach(()=>{cleanup();vi.clearAllMocks();sessionStorage.clear();});
 
-it('shows student-friendly classification and processing events without internal review events',async()=>{
+it('shows a neutral detail title and excludes internal classification and event notes',async()=>{
  vi.mocked(api).mockImplementation(async path=>path.endsWith('/attachments')?{items:[]}:{id:10,category:'INTERNAL_CATEGORY',subcategory:'NEW_TYPE',originalText:'확인 요청 내용',symptom:'시설 확인',status:'RECEIVED',routeStatus:'NEEDS_REVIEW',assignedDepartment:null,createdAt:'2026-10-30',updatedAt:'2026-10-30',events:[{eventType:'SIMILARITY_REVIEW',note:'internal review note',changedAt:'2026-10-30',actorName:'관리자'},{eventType:'STATUS_CHANGED',newValue:'IN_PROGRESS',note:'담당자가 확인 중입니다.',changedAt:'2026-10-30',actorName:'관리자'}]});
  render(<MemoryRouter initialEntries={['/reports/10']}><Routes><Route path="/reports/:id" element={<ReportDetailPage/>}/></Routes></MemoryRouter>);
- expect(await screen.findByRole('heading',{name:'시설 확인'})).toBeInTheDocument();
+ expect(await screen.findByRole('heading',{name:'불편 신고 상세'})).toBeInTheDocument();
  expect(screen.queryByText(/INTERNAL_CATEGORY|NEW_TYPE|SIMILARITY_REVIEW|internal review note/)).not.toBeInTheDocument();
- expect(screen.getByText('담당자가 확인 중입니다.')).toBeInTheDocument();
+ expect(screen.queryByText('담당자가 확인 중입니다.')).not.toBeInTheDocument();
  expect(screen.getByRole('link',{name:'접수내역으로'})).toHaveAttribute('href','/reports');
 });
 
