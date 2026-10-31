@@ -23,7 +23,7 @@ import java.util.regex.Pattern;
 /** Extracts suggestions only. The caller obtains all routing and answer grounds from the database. */
 @Service
 public class AiService {
-    public static final String PROMPT_VERSION = "hybrid-intake-v6";
+    public static final String PROMPT_VERSION = "hybrid-intake-v7";
     public static final String POLICY_VERSION = "hybrid-check-v7";
     private static final Set<String> INTENTS = Set.of("REPORT", "QUESTION", "UNKNOWN");
     private static final Map<String, String> TYPES = edu.skope.domain.Codes.TYPES;
@@ -81,10 +81,15 @@ public class AiService {
             - workGroup is the handling area: IT_SUPPORT (network, IT systems), ELECTRICAL_MAINTENANCE (power,
               lighting, outlets), FACILITY_MAINTENANCE (building fixtures such as mirrors, doors, walls, toilets,
               elevators, leaks, heating/cooling), SHARED_EQUIPMENT (school-owned movable or loaned items: furniture,
-              dispensers, printers, projectors, lab coats, other supplies), ACADEMIC_ADMIN (records, certificates,
-              registration), GENERAL_REVIEW (personal items, out-of-scope requests or no clear area).
+              dispensers, printers, projectors, lab coats, other supplies), ACADEMIC_ADMIN (student administration
+              the school processes: records, certificates, registration and tuition, scholarships and other school
+              payments or benefits, including the status of an application, a missing or late payment, or a delayed
+              decision), GENERAL_REVIEW (personal items, out-of-scope requests, or when no area is clear).
+              Judge the area from the whole request: a pending application, payment or processing step belongs to
+              the area of the service it concerns, not GENERAL_REVIEW merely because nothing is physically broken.
               It is a handling area only, never a department name.
-            - targetText is a short, common Korean name of the explicitly affected object (e.g. '거울', '실습복').
+            - targetText is a short, common Korean name of the explicitly affected object, or of the school service
+              or document a request concerns (e.g. '거울', '실습복', '장학금', '재학증명서').
               Normalize clear synonyms such as '미러' or 'mirror' to '거울', but do not merge different objects.
               Original student wording remains in the input and assessment evidence. Use null for an unknown
               replacement ('거울이 아니라 다른 물건') rather than retaining the explicitly denied old object.
@@ -432,6 +437,10 @@ public class AiService {
             Set<String> allowed = new HashSet<>(FIELDS); allowed.addAll(OPTIONAL_FIELDS);
             if (!node.isObject() || !allowed.containsAll(keys(node)) || (exact && !keys(node).containsAll(FIELDS))) throw new IllegalArgumentException();
             String category = requiredText(node, "category"), subcategory = requiredText(node, "subcategory");
+            // A model may pair an allowed subcategory with another parent (ACADEMIC/UNKNOWN for a scholarship delay).
+            // The subcategory is the specific choice and has exactly one parent, so that parent is used. An unknown
+            // subcategory is still rejected, and client input (a returned previousReport) stays strict.
+            if (!clientInput && TYPES.containsKey(subcategory)) category = TYPES.get(subcategory);
             if (!category.equals(TYPES.get(subcategory))) throw new IllegalArgumentException();
             Map<String, Object> result = new LinkedHashMap<>();
             result.put("category", category);

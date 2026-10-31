@@ -141,6 +141,25 @@ class WorkGroupAssignmentIntegrationTest {
         var moved=admin.ok("PATCH","/admin/reports/"+id+"/routing",Map.of("routingRuleId",wifiRule,"reason","정보전산원 확인 필요"),200);
         assertEquals("MANUAL",moved.path("routeStatus").asText());assertEquals(IT,moved.at("/assignedDepartment/name").asText());
     }
+    @Test void d12AModelParentThatContradictsItsSubcategoryIsNormalizedNotRejected()throws Exception{
+        // PR #17 LIVE: the model returned ACADEMIC/UNKNOWN with the right group and target; the server rejected it.
+        String text="장학금 신청을 완료했는데 지급 예정일이 지나도 아직 입금되지 않았어요";
+        var model=facility(null,null,"장학금 지급 예정일이 지났는데도 입금되지 않음","ACADEMIC_ADMIN","장학금","SCHOOL_SERVICE");
+        model.put("category","ACADEMIC");
+        ai.first(text,model,"NONE",null);
+        var report=accepted(text);
+        assertEquals("OTHER",report.path("category").asText(),"UNKNOWN has one parent: OTHER");
+        assertEquals("UNKNOWN",report.path("subcategory").asText());
+        assigned(report,SCHOLARSHIP);
+        // The same pair from a client is still a validation error, on the manual report API too.
+        var student=http.new Session().login("student1");
+        assertEquals(400,student.call("POST","/reports",Map.of("clientRequestId",UUID.randomUUID().toString(),"originalText","장학금이 입금되지 않았어요",
+                "category","ACADEMIC","subcategory","UNKNOWN","symptom","장학금 미입금"),true).statusCode());
+        var follow=new LinkedHashMap<String,Object>(Map.of("field","LOCATION","answer","장학금이요","previousReport",Map.of("category","ACADEMIC","subcategory","UNKNOWN",
+                "symptom","장학금 미입금","missingFields",List.of(),"emergencyHint",false),"state",Map.of("turns",0,"noProgress",0,"askedFields",List.of(),"reviewFields",List.of(),"status","CONTINUE")));
+        assertEquals(400,student.call("POST","/assistant/analyze",Map.of("text",text,"preferredIntent","AUTO","hybrid",true,"followUp",follow),true).statusCode(),
+                "a client-supplied previousReport is not normalized");
+    }
     // Lead review of e349274 (10/31).
 
     @Test void d9ANarrowTypeWithAnExplicitPersonalOrUncertainOwnerNeverUsesItsGroupFallback()throws Exception{

@@ -72,6 +72,7 @@ class WorkGroupReleaseIntegrationTest {
         assertEquals("NO_RULE",http.new Session().login("admin").ok("GET","/admin/reports/"+id,null,200).path("unassignedReason").asText());
         assertEquals(1,ai.calls);
     }
+    static final String RECORDED_PROMPT_VERSION="hybrid-intake-v6";
     static class ReplayAi extends AiService {
         static final ObjectMapper JSON=new ObjectMapper();final JsonNode saved;int calls;
         ReplayAi(){super("LIVE","http://127.0.0.1:1","offline-replay-only","gpt-6-luna","RULE_ONLY","",1,1536,"none");
@@ -81,7 +82,9 @@ class WorkGroupReleaseIntegrationTest {
         JsonNode row(String id){for(var row:saved.path("rows"))if(id.equals(row.path("id").asText()))return row;throw new IllegalStateException("No saved case "+id);}
         @Override protected JsonNode complete(Map<String,Object> body){
             try{
-                assertEquals(PROMPT_VERSION,saved.path("promptVersion").asText());assertEquals(POLICY_VERSION,saved.path("policyVersion").asText());
+                // These are outputs recorded under hybrid-intake-v6; the replay checks today's server policy against them.
+                // Prompt v7 (ACADEMIC_ADMIN guidance) is measured separately (docs/evaluation/academic-admin-v1.json).
+                assertEquals(RECORDED_PROMPT_VERSION,saved.path("promptVersion").asText());assertEquals(POLICY_VERSION,saved.path("policyVersion").asText());
                 var request=JSON.readTree(JSON.valueToTree(body).at("/messages/1/content").asText());
                 for(var row:saved.path("rows")){
                     var input=row.path("input");

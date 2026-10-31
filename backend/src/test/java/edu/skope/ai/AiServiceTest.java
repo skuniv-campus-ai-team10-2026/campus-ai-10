@@ -112,11 +112,18 @@ class AiServiceTest {
         assertTrue(userContent.path("text").textValue().contains("관리자"));
     }
 
-    @Test void liveRejectsWrongCategoryPairAndAdditionalProperties() throws Exception {
+    @Test void liveNormalizesAWrongParentButRejectsUnknownSubcategoriesAndAdditionalProperties() throws Exception {
+        // PR #17: an allowed subcategory decides its parent (the model sometimes pairs it with another one).
         Map<String, Object> output = validOutput();
         report(output).put("category", "FACILITY");
         AiService live = stub(200, completion(output), "LIVE", 20);
-        assertThrows(ApiException.class, () -> live.analyze(Map.of("text", "와이파이 문제")));
+        @SuppressWarnings("unchecked") var normalized = (Map<String, Object>) live.analyze(Map.of("text", "와이파이 문제")).get("report");
+        assertEquals("IT", normalized.get("category")); assertEquals("WIFI", normalized.get("subcategory"));
+        server.stop(0);
+        output = validOutput();
+        report(output).put("subcategory", "INVENTED_TYPE");
+        AiService unknown = stub(200, completion(output), "LIVE", 20);
+        assertThrows(ApiException.class, () -> unknown.analyze(Map.of("text", "와이파이 문제")), "an unknown subcategory is still rejected");
         server.stop(0);
         output = validOutput();
         report(output).put("departmentName", "invented");
