@@ -55,6 +55,19 @@ public class SimilarityService {
     public void index(long reportId) {
         Map<String, Object> report = db.one("SELECT * FROM reports WHERE id=?", reportId);
         if (report == null || "QUESTION".equals(report.get("requestKind")) || report.get("reviewNote")!=null) return;
+        refreshEmbedding(report, reportId);
+        indexCandidates(report,reportId);
+    }
+
+    /** Maintenance only: fill vectors first, without changing candidates until the whole bounded batch succeeds. */
+    boolean refreshEmbeddingOnly(long reportId) {
+        Map<String,Object> report=db.one("SELECT * FROM reports WHERE id=?",reportId);
+        if(report==null||"QUESTION".equals(report.get("requestKind"))||report.get("reviewNote")!=null)return false;
+        refreshEmbedding(report,reportId);
+        return Db.str(report,"embeddingModel").equals(ai.embeddingModel())&&validVector(vector(report.get("embeddingJson")));
+    }
+
+    private void refreshEmbedding(Map<String,Object> report,long reportId) {
         if ("RULE_ONLY".equals(ai.embeddingMode())) clearActiveEmbedding(report);
         else try {
             // Report text and extraction fields are immutable after submission. Keep a valid vector
@@ -77,32 +90,36 @@ public class SimilarityService {
         } catch (Exception unavailable) {
             // Provider failure is deliberately isolated from accepted reports. No input/key logging.
         }
+    }
+
+    private void indexCandidates(Map<String,Object> report,long reportId) {
         LocalDateTime created = timestamp(report.get("createdAt"));
         var candidates = db.all("SELECT * FROM reports WHERE request_kind='REPORT' AND review_note IS NULL AND id<>? AND category=? AND subcategory=? "
                         + "AND created_at BETWEEN ? AND ? ORDER BY id", reportId,
                 report.get("category"), report.get("subcategory"),
                 Timestamp.valueOf(created.minusDays(windowDays)), Timestamp.valueOf(created.plusDays(windowDays)));
         for (var other : candidates) {
-            if (!compatiblePlace(report, other)) continue;
+            long otherId = Db.id(other, "id");
             Double score = score(report, other);
             String basis = semanticBasis(report, other, score, threshold);
-            if (basis.equals("EXCLUDED")) {
-                // Re-indexing can replace an earlier rule-only fallback; reviewed decisions remain intact.
-                long otherId = Db.id(other, "id");
+            if (!compatiblePlace(report, other) || basis.equals("EXCLUDED")) {
+                // Re-indexing can replace an earlier rule-only fallback or a candidate from an older place
+                // policy; reviewed decisions remain intact.
                 db.update("DELETE FROM similar_pairs WHERE left_report_id=? AND right_report_id=? AND decision='CANDIDATE'",
                         Math.min(reportId, otherId), Math.max(reportId, otherId));
                 continue;
             }
+            var place=SimilarityPlace.compare(report,other,score!=null);
             String reason = "유형·건물 일치, 접수 시각 " + windowDays + "일 이내. "
                     + (score == null ? "규칙 기반 후보(RULE_ONLY); 실제 Embedding 점수 없음. "
                     : basis.equals("CONNECTIVITY_SYMPTOM_SUPPORT")
                     ? String.format(Locale.ROOT, "실제 Embedding 코사인 %.4f; 연결 장애 증상 일치 보조 기준 %.2f 적용(기본 %.2f). ",
                     score, CONNECTIVITY_SUPPORT_THRESHOLD, threshold) : "실제 Embedding 코사인 비교. ")
-                    + (room(report).isBlank() || room(other).isBlank() ? "호실 일부 미확인. " : "호실 일치. ")
+                    + (place.expanded()?"공통망·명시 범위에 따른 장소 확장 후보; 동일 장애 범위는 미확정. ":
+                        room(report).isBlank() || room(other).isBlank() ? "호실 일부 미확인. " : "호실 일치. ")
                     + (report.get("occurredOn") == null || other.get("occurredOn") == null
                     ? "발생일 미확인; 접수일은 발생일이 아님. " : "발생일은 별도 관리자 검토 필요. ")
                     + "동일 사건 확정 전 관리자 검토 필요.";
-            long otherId = Db.id(other, "id");
             long left = Math.min(reportId, otherId), right = Math.max(reportId, otherId);
             try {
                 db.insert("INSERT INTO similar_pairs(left_report_id,right_report_id,similarity_score,reason_text) VALUES(?,?,?,?)",
@@ -166,12 +183,12 @@ public class SimilarityService {
         String floorB = normalized(right.get("floor")).replace("층", "");
         String roomA = room(left), roomB = room(right);
         boolean building = !buildingA.isBlank() && !buildingB.isBlank() && buildingA.equals(buildingB);
-        boolean floor = floorA.isBlank() || floorB.isBlank() || floorA.equals(floorB);
-        boolean room = roomA.isBlank() || roomB.isBlank() || roomA.equals(roomB);
+        Double rawScore = score(left, right);
+        var place=SimilarityPlace.compare(left,right,rawScore!=null);
+        boolean floor = place.floor(), room = place.room();
         LocalDateTime createdA = timestamp(left.get("createdAt")), createdB = timestamp(right.get("createdAt"));
         boolean time = !createdB.isBefore(createdA.minusDays(windowDays))
                 && !createdB.isAfter(createdA.plusDays(windowDays));
-        Double rawScore = score(left, right);
         boolean baselineSemantic = rawScore == null || rawScore >= threshold;
         String basis = semanticBasis(left, right, rawScore, threshold);
         boolean scope = broadScope(left, right, rawScore);
@@ -181,6 +198,7 @@ public class SimilarityService {
         if (!building) excluded.add("BUILDING");
         if (!floor) excluded.add("FLOOR");
         if (!room) excluded.add("ROOM");
+        if (!place.detail()) excluded.add("SPECIFIC_LOCATION");
         if (!time) excluded.add("TIME_WINDOW");
         if (!scope) excluded.add("WORK_GROUP_TARGET");
         List<String> baselineExcluded = new ArrayList<>(excluded);
@@ -188,6 +206,7 @@ public class SimilarityService {
         if (!semantic) excluded.add("EMBEDDING_THRESHOLD");
         Map<String, Object> result = new LinkedHashMap<>();
         result.put("typeMatch", type); result.put("workGroupTargetMatch", scope); result.put("buildingMatch", building);
+        result.put("specificLocationMatch",place.detail());result.put("comparisonScope",place.scope());result.put("scopeExpanded",place.expanded());
         result.put("floorMatch", floor); result.put("roomMatch", room); result.put("timeMatch", time);
         result.put("normalizedPlace", Map.of("leftBuilding", buildingA, "rightBuilding", buildingB,
                 "leftFloor", floorA, "rightFloor", floorB, "leftRoom", roomA, "rightRoom", roomB));
@@ -363,12 +382,7 @@ public class SimilarityService {
     static boolean compatiblePlace(Map<String, Object> a, Map<String, Object> b) {
         if (!Objects.equals(a.get("category"), b.get("category"))
                 || !Objects.equals(a.get("subcategory"), b.get("subcategory"))) return false;
-        String buildingA = normalized(a.get("building")), buildingB = normalized(b.get("building"));
-        if (buildingA.isBlank() || buildingB.isBlank() || !buildingA.equals(buildingB)) return false;
-        String floorA = normalized(a.get("floor")).replace("층", ""), floorB = normalized(b.get("floor")).replace("층", "");
-        if (!floorA.isBlank() && !floorB.isBlank() && !floorA.equals(floorB)) return false;
-        String roomA = room(a), roomB = room(b);
-        return roomA.isBlank() || roomB.isBlank() || roomA.equals(roomB);
+        return SimilarityPlace.compare(a,b,score(a,b)!=null).allowed();
     }
 
     static String room(Map<String, Object> report) {

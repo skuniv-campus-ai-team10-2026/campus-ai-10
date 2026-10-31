@@ -82,7 +82,7 @@ $env:EMBEDDING_MODEL='<접근 가능한 embedding 모델>'
 .\scripts\Start-Backend.ps1
 ```
 
-환경 변수 목록은 `.env.example`에 있습니다. 앱은 `.env` 파일을 자동 로드하지 않으며 환경 변수로 전달해야 합니다. 이번 실제 측정 모델은 `gpt-6-luna` + `text-embedding-3-small`이며 앱 기본값은 DEMO입니다. LIVE에서 설정 누락·스키마 오류·시간 초과는 `503 AI_UNAVAILABLE`이며 조용히 DEMO로 바꾸지 않습니다. 화면에서 재시도 또는 수동 신고가 가능합니다. LIVE 모드는 학생이 입력한 내용을 설정한 AI 공급자로 전송합니다.
+환경 변수 목록은 `.env.example`에 있습니다. 앱은 `.env` 파일을 자동 로드하지 않으며 환경 변수로 전달해야 합니다. 초기 실제 측정 모델은 `gpt-6-luna` + `text-embedding-3-small`입니다. 2026-10-31 유사 신고 비교에서는 `text-embedding-3-large`와 범위별 장소 정책을 함께 검증했습니다. 권장 설정·재색인·한계는 [유사 신고 검증 및 전환 절차](docs/similarity-scope-verification.md)를 따릅니다. 앱 기본값은 DEMO이며 기존 서버 설정을 자동 변경하지 않습니다. LIVE에서 설정 누락·스키마 오류·시간 초과는 `503 AI_UNAVAILABLE`이며 조용히 DEMO로 바꾸지 않습니다. 화면에서 재시도 또는 수동 신고가 가능합니다. LIVE 모드는 학생이 입력한 내용을 설정한 AI 공급자로 전송합니다.
 
 키 발급·로컬 저장·별도 API 결제·호출 한도는 [AI 설정 안내](docs/ai-model-selection.md)에 있습니다. 원래 검증 PC의 `.runtime/ai-verification.env`를 아래 평가 실행기가 읽습니다. 이 파일은 저장소에 포함되지 않으므로 새 작업자는 먼저 팀원 실행 안내를 따르세요. 키를 채팅에 붙이지 마세요. 생성 출력 상한은 `AI_MAX_COMPLETION_TOKENS=1536`, 첫 평가의 `AI_REASONING_EFFORT=none`입니다.
 
