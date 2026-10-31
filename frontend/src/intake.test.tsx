@@ -58,7 +58,7 @@ it('allows administrator review during a question without an answer and preserve
  expect(screen.getByRole('button',{name:'내용 직접 수정'})).toBeEnabled();
  await user.click(review);
  expect(await screen.findByText('연결 실패')).toBeInTheDocument();
- expect(screen.getByText(draft.originalText)).toBeInTheDocument();
+ expect(screen.queryByText('처음 남긴 내용')).not.toBeInTheDocument();
  expect(JSON.parse(sessionStorage.getItem('skope-draft')!).originalText).toBe(draft.originalText);
  expect(post).toHaveBeenNthCalledWith(2,'/assistant/intake',{clientRequestId:draft.clientRequestId,revision:1,submitForReview:true});
  await user.click(review);expect(await screen.findByText('접수 완료 화면')).toBeInTheDocument();
@@ -83,7 +83,7 @@ it('keeps the actual question visible while typing and shows cumulative facts wi
  const user=userEvent.setup();await user.type(screen.getByLabelText('추가 답변'),'지하 1층');
  expect(screen.getByRole('heading',{name:question})).toBeVisible();
  expect(screen.getByLabelText('추가 답변')).toHaveAccessibleDescription(question);
- expect(screen.getByText(draft.originalText)).toBeInTheDocument();
+ expect(screen.getByRole('heading',{name:'내가 처음 남긴 내용'})).toBeInTheDocument();
  expect(screen.getByText('정수기 고장')).toBeVisible();expect(screen.getByText('은주2관')).toBeVisible();
  expect(screen.getByText('마지막 답변: 정수기')).toBeInTheDocument();
  expect(screen.queryByPlaceholderText(/냉난방/)).not.toBeInTheDocument();
@@ -104,7 +104,7 @@ it.each([false,true])('shows recovery only when selected photos were lost: %s',a
  render(<MemoryRouter><IntakeFlow draft={{...draft,hadPhotos}} onEdit={vi.fn()}/></MemoryRouter>);
  await waitFor(()=>expect(screen.getByRole('button',{name:'답변 보내기'})).toBeEnabled());
  expect(!!screen.queryByText(/새로고침으로/)).toBe(hadPhotos);
- expect(!!screen.queryByLabelText('첨부 사진 선택')).toBe(hadPhotos);
+ expect(screen.getByLabelText('첨부 사진 선택')).toBeInTheDocument();
 });
 it('does not warn when staged photos are still available',async()=>{
  stagePhotos(draft.clientRequestId,[new File(['x'],'original.png',{type:'image/png'})]);
@@ -112,15 +112,19 @@ it('does not warn when staged photos are still available',async()=>{
  render(<MemoryRouter><IntakeFlow draft={{...draft,hadPhotos:true}} onEdit={vi.fn()}/></MemoryRouter>);
  await waitFor(()=>expect(screen.getByRole('button',{name:'답변 보내기'})).toBeEnabled());
  expect(screen.queryByText(/새로고침으로/)).not.toBeInTheDocument();
+ expect(screen.getByAltText('original.png')).toBeInTheDocument();
 });
-it('uploads a reselected photo once after answering a restored draft',async()=>{
- const restored=JSON.parse(JSON.stringify({...draft,hadPhotos:true}));
+it.each([false,true])('uploads an added or reselected photo once after answering: hadPhotos=%s',async(hadPhotos)=>{
+ const restored=JSON.parse(JSON.stringify({...draft,hadPhotos}));
  vi.mocked(post).mockResolvedValueOnce(pending).mockResolvedValueOnce({status:'ACCEPTED',aiMode:'MOCK',report:{id:91}});
  vi.mocked(api).mockResolvedValue({items:[]});
  const view=render(<MemoryRouter><Routes><Route path="/" element={<IntakeFlow draft={restored} onEdit={vi.fn()}/>}/><Route path="/reports/success" element={<AutoUploadPhotos reportId={91}/>}/></Routes></MemoryRouter>);
  const user=userEvent.setup();await waitFor(()=>expect(screen.getByRole('button',{name:'답변 보내기'})).toBeEnabled());
  const photo=new File(['replacement'],'again.png',{type:'image/png'});
  await user.upload(screen.getByLabelText('첨부 사진 선택'),photo);
+ expect(screen.getByAltText('again.png')).toBeInTheDocument();
+ expect(JSON.parse(sessionStorage.getItem('skope-draft')!).hadPhotos).toBe(true);
+ expect(screen.queryByText(/새로고침으로/)).not.toBeInTheDocument();
  await user.type(screen.getByLabelText('추가 답변'),'물이 떨어져요');await user.click(screen.getByRole('button',{name:'답변 보내기'}));
  await waitFor(()=>expect(vi.mocked(api).mock.calls.filter(([,options])=>options?.method==='POST')).toHaveLength(1));
  expect((vi.mocked(api).mock.calls.find(([,options])=>options?.method==='POST')![1]!.body as FormData).get('file')).toBe(photo);
