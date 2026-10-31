@@ -315,7 +315,9 @@ public class IncidentService {
         if (!Objects.equals(a.get("category"), b.get("category")) || !Objects.equals(a.get("subcategory"), b.get("subcategory")))
             conflict("유형이 다른 신고는 같은 사건에 연결할 수 없습니다.");
         for (String field : List.of("building", "floor")) {
-            String left = SimilarityService.normalized(a.get(field)), right = SimilarityService.normalized(b.get(field));
+            // Buildings compare by the same facility-aware key as similar-report search (도서관 is in 유담관).
+            String left = field.equals("building") ? edu.skope.domain.CampusPlaces.key(a.get(field)) : SimilarityService.normalized(a.get(field));
+            String right = field.equals("building") ? edu.skope.domain.CampusPlaces.key(b.get(field)) : SimilarityService.normalized(b.get(field));
             if (field.equals("floor")) { left = left.replace("층", ""); right = right.replace("층", ""); }
             if (!left.isBlank() && !right.isBlank() && !left.equals(right)) conflict("장소가 다른 신고입니다. 위치를 확인해 주세요.");
         }

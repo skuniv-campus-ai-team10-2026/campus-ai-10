@@ -1,5 +1,6 @@
 package edu.skope.ai;
 
+import edu.skope.domain.CampusPlaces;
 import edu.skope.domain.Codes;
 import edu.skope.service.ApiException;
 import java.util.*;
@@ -79,9 +80,9 @@ final class FollowUpPolicy {
                     // A vague answer never destroys known facts. An explicit unresolved alternative is different.
                     if (group.equals("LOCATION") && (BUILDING.matcher(answer).find() || ROOM.matcher(answer).find())) {
                         var mentioned = new LinkedHashSet<String>();
-                        var matcher = BUILDING.matcher(answer); while (matcher.find()) mentioned.add(normalize(matcher.group(1)));
+                        var matcher = BUILDING.matcher(answer); while (matcher.find()) mentioned.add(CampusPlaces.key(matcher.group(1)));
                         String knownBuilding = text(report,"building");
-                        if (knownBuilding != null && (mentioned.isEmpty() || mentioned.equals(Set.of(normalize(knownBuilding))))) {
+                        if (knownBuilding != null && (mentioned.isEmpty() || mentioned.equals(Set.of(CampusPlaces.key(knownBuilding))))) {
                             // Uncertain room/floor does not contradict an unchanged, known building.
                             report.put("floor",null); report.put("locationText",knownBuilding);
                         } else clear(report, group);
@@ -104,6 +105,7 @@ final class FollowUpPolicy {
             report.put("emergencyHint", Boolean.TRUE.equals(previous.get("emergencyHint")) || Boolean.TRUE.equals(extracted.get("emergencyHint")));
             mergeScope(report, previous, extracted, updates, answer);
         }
+        house(report);
         // Narrow types always keep their fixed group, also after a category correction or an old client draft.
         report.put("workGroup", Codes.workGroup(text(report,"subcategory"), report.get("workGroup")));
         String normalizedFloor=AiService.normalizeFloor(text(report,"floor"));
@@ -116,7 +118,7 @@ final class FollowUpPolicy {
         Map<?,?> symptomUpdate=updates.get("SYMPTOM") instanceof Map<?,?> m?m:Map.of();
         String symptomEvidence=Objects.toString(symptomUpdate.get("evidence"),"");
         boolean groundedUpdate=!follow||!symptomEvidence.isBlank()&&answer.contains(symptomEvidence);
-        String observation = newSymptom && groundedUpdate && !"QUESTION".equals(intent) ? observedFault(source) : null;
+        String observation = newSymptom && groundedUpdate && !"QUESTION".equals(intent) ? observation(source) : null;
         if (observation != null) {
             if (!specificSymptom(text(report,"symptom"))) report.put("symptom",observation);
             review.remove("SYMPTOM");
@@ -295,7 +297,9 @@ final class FollowUpPolicy {
         var buildings=new LinkedHashSet<String>();var bm=BUILDING.matcher(answer);while(bm.find())buildings.add(bm.group(1));
         boolean uncertainBuilding=explicitBuilding&&normalize(answer).matches(".*"+Pattern.quote(normalize(building))+"(?:인지|일수|인지는).*" );
         if (uncertainBuilding || buildings.size()>1&&UNCERTAIN.matcher(evidence).find()) { clear(result,"LOCATION"); review.add("LOCATION"); return; }
-        boolean buildingChanged = explicitBuilding && !Objects.equals(normalize(building),normalize(text(result,"building")));
+        // The same building under its facility name (도서관 / 유담관) is not a change and keeps the known details.
+        boolean buildingChanged = explicitBuilding && !CampusPlaces.key(building).equals(CampusPlaces.key(text(result,"building")));
+        String context = buildingChanged ? null : placeContext(text(result,"locationText"), text(result,"building"));
         if (buildingChanged) { result.put("building",building); result.put("floor",null); result.put("locationText",building); }
         var floors=new LinkedHashSet<String>();var fm=FLOOR.matcher(answer);while(fm.find())floors.add((fm.group(1)==null?"":"B")+fm.group(2));
         boolean correction=answer.matches("(?s).*(아니고|아니라|아니에요|말고|정정|수정).*" );
@@ -322,7 +326,7 @@ final class FollowUpPolicy {
             String oldRoom=roomOf(text(result,"locationText"));
             // Floor-only corrections invalidate an old room; a changed building invalidates all old details.
             if(room==null && !buildingChanged && floor==null) room=oldRoom;
-            result.put("locationText",place(text(result,"building"),text(result,"floor"),room));
+            result.put("locationText",place(text(result,"building"),text(result,"floor"),room,context));
             review.remove("LOCATION");
         } else if (validText(text(extracted,"locationText")) && normalize(answer).contains(normalize(text(extracted,"locationText")))) {
             result.put("locationText",extracted.get("locationText")); result.put("building",null); result.put("floor",null); review.remove("LOCATION");
@@ -343,6 +347,19 @@ final class FollowUpPolicy {
         }
         return null;
     }
+    private static final Pattern CONDITION = Pattern.compile("더러|더럽|지저분|악취|냄새|시끄럽|소음|미끄럽|어두워|어둡|곰팡이|벌레|쓰레기|막혔|막혀|넘쳐|넘치");
+    /** An observed condition of a place or object (dirty, smelly, noisy, clogged ...), not only a breakage. */
+    static String observedCondition(String source) {
+        if (source == null) return null;
+        for (String clause : source.split("[.!?;。\\n]")) {
+            if (clause.length()>500 || clause.matches(".*(?:아니|아닌|않|없|모르|인지|여부|가정|예시|예를|일\\s*수도).*")) continue;
+            var m = CONDITION.matcher(clause);
+            if (m.find() && !clause.substring(0,m.start()).matches(".*(?:안|못)\\s*$")) return clause.strip();
+        }
+        return null;
+    }
+    /** The student's own words state an actionable problem: a breakage or an observed condition. */
+    static String observation(String source) { String fault=observedFault(source); return fault!=null?fault:observedCondition(source); }
     static boolean specificSymptom(String value) {
         if (!validText(value)) return false;
         // Supplement the model's semantic extraction for common vague complaints; not an exhaustive classifier.
@@ -354,8 +371,30 @@ final class FollowUpPolicy {
         String place=text(r,"locationText"), building=text(r,"building");
         return validText(place) && (validText(building) || place.matches(".*(?:정문|후문|운동장|주차장|기숙사|도서관|체육관|정류장|농구장|축구장|테니스장|광장).*"));
     }
-    private static String place(String building,String floor,String room) {
-        var parts=new ArrayList<String>(); if(building!=null)parts.add(building); if(floor!=null&&room==null)parts.add(floor+"층"); if(room!=null)parts.add(room+"호"); return parts.isEmpty()?null:String.join(" ",parts);
+    private static String place(String building,String floor,String room,String context) {
+        var parts=new ArrayList<String>(); if(building!=null)parts.add(building); if(floor!=null&&room==null)parts.add(floor+"층"); if(room!=null)parts.add(room+"호");
+        if(context!=null&&(building==null||!normalize(building).contains(normalize(context))&&!normalize(context).contains(normalize(building))))parts.add(context);
+        return parts.isEmpty()?null:String.join(" ",parts);
+    }
+    /** The named space of a known place without its building, floor and room, e.g. '도서관' or '화장실', kept across a floor/room answer. */
+    private static String placeContext(String place,String building) {
+        if(place==null)return null;
+        String rest=place;
+        for(String name:new String[]{building,CampusPlaces.building(building)})if(name!=null)rest=rest.replace(name,"");
+        rest=ROOM.matcher(FLOOR.matcher(rest).replaceAll(" ")).replaceAll(" ").replaceAll("\\s+"," ").strip();
+        return validText(rest)?rest:null;
+    }
+    /**
+     * A facility used as the building is stored under its housing building, with the facility name kept as place
+     * context. An explicitly named other building is never replaced, and a building alone never implies a facility.
+     */
+    static void house(Map<String,Object> report) {
+        String building=text(report,"building"), place=text(report,"locationText");
+        String first=place==null?null:place.split("\\s+")[0];
+        String facility=CampusPlaces.housedFacility(building)?building:building==null&&CampusPlaces.housedFacility(first)?first:null;
+        if(facility==null)return;
+        report.put("building",CampusPlaces.building(facility));
+        if(place==null)report.put("locationText",facility);
     }
     private static String roomOf(String text) { if(text==null)return null;var m=ROOM.matcher(text);return m.find()?m.group(1):null; }
     static boolean explicitClear(String group,String answer) {

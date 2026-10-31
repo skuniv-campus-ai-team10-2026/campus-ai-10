@@ -22,6 +22,18 @@ class SimilarityPlaceTest {
         a.put("floor","3");a.put("locationText","북악관 308호");var m=SimilarityPlace.compare(a,b,true);
         assertTrue(m.allowed());assertEquals("SHARED_NETWORK_SEARCH",m.scope());
     }
+    @Test void libraryAndYudamgwanAreTheSameBuildingForPlaceComparisonOnly(){
+        var a=report("수도","8","도서관 8층 화장실","세면대 배수 막힘");a.put("building","도서관");
+        var b=report("수도","8","유담관 8층 화장실","세면대 배수 막힘");b.put("building","유담관");
+        assertTrue(SimilarityPlace.compare(a,b,false).building(),"stored rows keep their words; only the comparison key is shared");
+        assertEquals("도서관",a.get("building"));
+        b.put("building","북악관");assertFalse(SimilarityPlace.compare(a,b,false).building());
+        // The shared building key does not weaken floor or specific-spot distinctions.
+        b.put("building","유담관");b.put("floor","7");b.put("locationText","유담관 7층 화장실");
+        assertFalse(SimilarityPlace.compare(a,b,true).allowed(),"different floors stay apart");
+        b.put("floor","8");b.put("locationText","유담관 8층 화장실");a.put("symptom","창가 세면대 배수 막힘");b.put("symptom","출입문 세면대 배수 막힘");
+        assertFalse(SimilarityPlace.compare(a,b,true).allowed(),"different spots stay apart");
+    }
     @Test void floorDifferencesNeedExplicitBuildingRangeInBothReports(){
         var a=network("608");var b=network("708");b.put("floor","7");assertFalse(SimilarityPlace.compare(a,b,true).allowed());
         a.put("symptom","건물 전체 무선망 접속 불가");b.put("symptom","건물 전체 무선망 연결 불가");

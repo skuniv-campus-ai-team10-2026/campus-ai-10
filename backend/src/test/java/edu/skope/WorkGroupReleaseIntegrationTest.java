@@ -72,7 +72,7 @@ class WorkGroupReleaseIntegrationTest {
         assertEquals("NO_RULE",http.new Session().login("admin").ok("GET","/admin/reports/"+id,null,200).path("unassignedReason").asText());
         assertEquals(1,ai.calls);
     }
-    static final String RECORDED_PROMPT_VERSION="hybrid-intake-v6";
+    static final String RECORDED_PROMPT_VERSION="hybrid-intake-v6", RECORDED_POLICY_VERSION="hybrid-check-v7";
     static class ReplayAi extends AiService {
         static final ObjectMapper JSON=new ObjectMapper();final JsonNode saved;int calls;
         ReplayAi(){super("LIVE","http://127.0.0.1:1","offline-replay-only","gpt-6-luna","RULE_ONLY","",1,1536,"none");
@@ -84,13 +84,16 @@ class WorkGroupReleaseIntegrationTest {
             try{
                 // These are outputs recorded under hybrid-intake-v6; the replay checks today's server policy against them.
                 // Prompt v7 (ACADEMIC_ADMIN guidance) is measured separately (docs/evaluation/academic-admin-v1.json).
-                assertEquals(RECORDED_PROMPT_VERSION,saved.path("promptVersion").asText());assertEquals(POLICY_VERSION,saved.path("policyVersion").asText());
+                assertEquals(RECORDED_PROMPT_VERSION,saved.path("promptVersion").asText());assertEquals(RECORDED_POLICY_VERSION,saved.path("policyVersion").asText());
                 var request=JSON.readTree(JSON.valueToTree(body).at("/messages/1/content").asText());
                 for(var row:saved.path("rows")){
                     var input=row.path("input");
                     if(!request.path("text").equals(input.path("text"))||!request.at("/followUp/answer").equals(input.at("/followUp/answer")))continue;
                     if(request.has("followUp")){
-                        assertEquals(input.at("/followUp/previousReport"),request.at("/followUp/previousReport"),"Replay must retain the original saved context");
+                        // Facts must match the recording; the server-worded question text may change with the question policy.
+                        var recorded=((com.fasterxml.jackson.databind.node.ObjectNode)input.at("/followUp/previousReport").deepCopy());recorded.remove("followUpQuestion");
+                        var sent=((com.fasterxml.jackson.databind.node.ObjectNode)request.at("/followUp/previousReport").deepCopy());sent.remove("followUpQuestion");
+                        assertEquals(recorded,sent,"Replay must retain the original saved context");
                         assertEquals(input.at("/followUp/state/knownEvidence"),request.at("/followUp/knownEvidence"));
                     }
                     assertEquals("PASS",row.path("status").asText());calls++;

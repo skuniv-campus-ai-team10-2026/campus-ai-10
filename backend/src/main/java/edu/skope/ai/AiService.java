@@ -24,7 +24,7 @@ import java.util.regex.Pattern;
 @Service
 public class AiService {
     public static final String PROMPT_VERSION = "hybrid-intake-v7";
-    public static final String POLICY_VERSION = "hybrid-check-v7";
+    public static final String POLICY_VERSION = "hybrid-check-v8";
     private static final Set<String> INTENTS = Set.of("REPORT", "QUESTION", "UNKNOWN");
     private static final Map<String, String> TYPES = edu.skope.domain.Codes.TYPES;
     private static final Set<String> FIELDS = Set.of("category", "subcategory", "locationText", "building", "floor",
