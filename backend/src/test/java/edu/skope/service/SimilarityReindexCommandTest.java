@@ -21,6 +21,17 @@ class SimilarityReindexCommandTest {
         assertEquals("REJECTED",f.db.one("SELECT decision FROM similar_pairs WHERE id=?",pair).get("decision"));assertNull(f.report(a).get("incidentId"));assertEquals("RECEIVED",f.report(a).get("status"));
         command.finish();verify(context).close();
     }
+    @Test void reindexRetiresCandidatesThatTheCurrentPlacePolicyExcludesButKeepsDecisions(){
+        live();long a=f.wifi(),b=f.wifi(),c=f.wifi();
+        f.db.update("UPDATE reports SET symptom='창가 자리 연결 끊김' WHERE id IN (?,?)",a,c);
+        f.db.update("UPDATE reports SET symptom='출입문 자리 연결 끊김' WHERE id=?",b);
+        long stale=f.pair(a,b),reviewed=f.pair(b,c);f.db.update("UPDATE similar_pairs SET decision='SAME_INCIDENT',reviewed_by=? WHERE id=?",f.admin,reviewed);
+        when(ai.embed(anyString())).thenReturn(new AiService.Embedding(new double[]{1,0},"new-model"));
+        command(a+","+b+","+c,3,"127.0.0.1",0).run(new DefaultApplicationArguments());
+        assertNull(f.db.one("SELECT id FROM similar_pairs WHERE id=?",stale),"old candidate outside the current place policy is removed");
+        assertEquals("SAME_INCIDENT",f.db.one("SELECT decision FROM similar_pairs WHERE id=?",reviewed).get("decision"));
+        assertNotNull(f.db.one("SELECT id FROM similar_pairs WHERE left_report_id=? AND right_report_id=?",Math.min(a,c),Math.max(a,c)));
+    }
     @Test void invalidOrOversizedSelectionStopsBeforeAnyPaidCall(){
         live();long a=f.wifi(),b=f.wifi();
         assertThrows(IllegalArgumentException.class,()->command(a+","+b,1,"127.0.0.1",0).run(new DefaultApplicationArguments()));
