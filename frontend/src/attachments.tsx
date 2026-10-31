@@ -1,3 +1,4 @@
+import type {Draft} from './types';
 import {useEffect,useRef,useState,useSyncExternalStore} from 'react';
 import {Camera,Trash2} from 'lucide-react';
 import {api,ApiError} from './api';
@@ -89,4 +90,12 @@ export function AutoUploadPhotos({reportId}:{reportId:number}){
  if(state.files.length&&!state.attempted)void loadPhotos(base,state,version).then(()=>{if(version===sessionVersion&&!state.attempted)void uploadPhotos(base,state);}).catch(error=>{if(version===sessionVersion){state.error=error;notify(state);}});
  },[state,base]);
  return <>{state.busy&&state.operation==='upload'&&<p role="status">사진을 저장하고 있어요…</p>}{state.error&&<ErrorBox error={state.error}/>}</>;
+}
+
+// Files live only in memory; persist only the selection marker in the draft.
+export function DraftPhotoRecovery({draft,disabled=false}:{draft:Draft;disabled?:boolean}){
+ const [missing]=useState(()=>!!draft.hadPhotos&&!drafts.get(draft.clientRequestId)?.length);
+ const [files,setFiles]=useState<File[]>(()=>drafts.get(draft.clientRequestId)??[]);
+ if(!missing)return null;
+ return <section className="card"><p role="alert">새로고침으로 이전에 선택한 사진이 사라졌습니다. 사진을 첨부하려면 다시 선택해 주세요. 다시 선택하지 않으면 사진 없이 접수됩니다.</p><PhotoPicker files={files} disabled={disabled} onChange={next=>{stagePhotos(draft.clientRequestId,next);setFiles(next);}}/></section>;
 }

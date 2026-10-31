@@ -1,4 +1,4 @@
-import {bindPhotos} from './attachments';
+import {bindPhotos,DraftPhotoRecovery} from './attachments';
 import {ChevronLeft,ClipboardCheck,FilePenLine,Send} from 'lucide-react';
 import {useEffect,useRef,useState} from 'react';
 import {Link,useNavigate} from 'react-router-dom';
@@ -27,7 +27,7 @@ export function IntakeFlow({draft,onEdit}:{draft:Draft;onEdit:()=>void}) {
  const report=analysis?.report,reason=analysis?.clarification?.reason;
  const placeholder=reason?.startsWith('LOCATION')?'예: 지하 1층 엘리베이터 옆':reason==='TARGET_UNCLEAR'?'예: 창가 쪽 책상, 복도 정수기':reason==='WORKFLOW_UNCLEAR'?'예: 신청서를 제출할 때 오류가 나요':'직접 겪은 내용을 편하게 적어주세요.';
  return <><Link to="/" className="back-link"><ChevronLeft size={16} aria-hidden="true"/>처음으로</Link><PageHeading eyebrow="" title={<>조금만 더 알려주세요 <span className="orange-dot">!</span></>}/>
-  <Steps current={1}/>
+  <Steps current={1}/><DraftPhotoRecovery draft={draft} disabled={busy}/>
 
   <section className="card answer-card intake-card">{result?.status==='NEEDS_INPUT'&&<div className="card-top intake-assistant-heading"><span className="icon-tile"><img className="assistant-logo" src="/skope-assistant-outline.svg" alt=""/></span><div><h2>SKOPE 도우미</h2><p>접수에 필요한 내용만 확인할게요.</p></div></div>}
    <div className="intake-context">
