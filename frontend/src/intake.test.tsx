@@ -83,7 +83,9 @@ it('keeps the actual question visible while typing and shows cumulative facts wi
  const user=userEvent.setup();await user.type(screen.getByLabelText('추가 답변'),'지하 1층');
  expect(screen.getByRole('heading',{name:question})).toBeVisible();
  expect(screen.getByLabelText('추가 답변')).toHaveAccessibleDescription(question);
- expect(screen.getByRole('heading',{name:'내가 처음 남긴 내용'})).toBeInTheDocument();
+ expect(screen.getByRole('heading',{name:'현재까지 파악한 내용'})).toBeInTheDocument();
+ const original=screen.getByText(draft.originalText);expect(original.closest('details')).not.toHaveAttribute('open');
+ await user.click(screen.getByText('최초 원문 보기'));expect(original).toBeVisible();
  expect(screen.getByText('정수기 고장')).toBeVisible();expect(screen.getByText('은주2관')).toBeVisible();
  expect(screen.getByText('마지막 답변: 정수기')).toBeInTheDocument();
  expect(screen.queryByPlaceholderText(/냉난방/)).not.toBeInTheDocument();

@@ -32,7 +32,8 @@ export function IntakeFlow({draft,onEdit}:{draft:Draft;onEdit:()=>void}) {
 
   <section className="card answer-card intake-card">{result?.status==='NEEDS_INPUT'&&<div className="card-top intake-assistant-heading"><span className="icon-tile"><img className="assistant-logo" src="/skope-assistant-outline.svg" alt=""/></span><div><h2>SKOPE 도우미</h2><p>접수에 필요한 내용만 확인할게요.</p></div></div>}
    <div className="intake-context">
-    {(report?.locationText||report?.symptom||report?.occurredAtText)&&<div className="intake-summary" aria-label="내가 처음 남긴 내용"><h3>내가 처음 남긴 내용</h3><dl>{report.locationText&&<div><dt>장소</dt><dd>{report.locationText}</dd></div>}{report.symptom&&<div><dt>문제·문의</dt><dd>{report.symptom}</dd></div>}{report.occurredAtText&&<div><dt>발생 시점</dt><dd>{report.occurredAtText}</dd></div>}</dl></div>}
+    {(report?.locationText||report?.symptom||report?.occurredAtText)&&<div className="intake-summary" aria-label="현재까지 파악한 내용"><h3>현재까지 파악한 내용</h3><dl>{report.locationText&&<div><dt>장소</dt><dd>{report.locationText}</dd></div>}{report.symptom&&<div><dt>문제·문의</dt><dd>{report.symptom}</dd></div>}{report.occurredAtText&&<div><dt>발생 시점</dt><dd>{report.occurredAtText}</dd></div>}</dl></div>}
+    <details><summary>최초 원문 보기</summary><blockquote>{draft.originalText}</blockquote></details>
     {result?.latestAnswer&&<p className="intake-latest-answer">마지막 답변: {result.latestAnswer}</p>}
    </div>
 
