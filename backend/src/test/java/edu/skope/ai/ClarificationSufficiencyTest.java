@@ -173,6 +173,43 @@ class ClarificationSufficiencyTest {
         assertFalse(question.contains("언제"),"a forbidden model question is not used");
     }
 
+    // Controls for the PR #24 review reproductions (Pr24ReviewProbeTest): the fixes must not over-accept.
+    private static Map<String,Object> wifi(String place){
+        var r=new LinkedHashMap<String,Object>();r.put("category","IT");r.put("subcategory","WIFI");r.put("workGroup","IT_SUPPORT");r.put("targetText","와이파이");
+        r.put("campusRelevance","SCHOOL_SERVICE");r.put("building","북악관");r.put("locationText",place);r.put("floor","5");r.put("symptom","와이파이 문제");
+        r.put("emergencyHint",false);r.put("missingFields",List.of());return r;
+    }
+    private static ClarificationPolicy.Decision decide(String text,Map<String,Object> report,Map<String,Object> suggestion){
+        return ClarificationPolicy.decide("REPORT",text,"",null,Map.of(),report,FollowUpPolicy.state(null),Map.of(),Map.of(),suggestion);
+    }
+    @Test void r3VagueOrUncertainWifiWordingStillAsksForTheFailureMode(){
+        for(String text:List.of("북악관 503호 와이파이가 안돼요","북악관 503호에서 와이파이 연결은 되는지 모르겠는데 페이지가 안 열려요")){
+            var d=decide(text,wifi("북악관 503호"),Map.of("reason","NONE","known",Map.of()));
+            assertEquals("CONTINUE",d.state().get("status"),text);assertEquals("SYMPTOM_DETAIL",d.state().get("nextReason"),text);
+        }
+        var stated=decide("북악관 503호에서 와이파이에 연결했는데 사이트가 안 열려요",wifi("북악관 503호"),Map.of("reason","NONE","known",Map.of()));
+        assertEquals("COMPLETE",stated.state().get("status"));
+    }
+    @Test void r2AFittingModelLocationQuestionIsKeptAndADriftingOneIsReplaced(){
+        var dispenser=new LinkedHashMap<String,Object>(wifi("도서관"));dispenser.put("category","FACILITY");dispenser.put("subcategory","WATER_DISPENSER");
+        dispenser.put("workGroup","SHARED_EQUIPMENT");dispenser.put("targetText","정수기");dispenser.put("campusRelevance","CAMPUS_FACILITY");
+        dispenser.put("building","유담관");dispenser.put("floor",null);dispenser.put("symptom","정수기 고장");
+        var fitting=new LinkedHashMap<String,Object>(Map.of("reason","LOCATION_DETAIL","evidence","도서관","question","몇 층에 있는 정수기인가요?","known",Map.of()));
+        assertEquals("몇 층에 있는 정수기인가요?",decide("도서관 정수기가 고장났어요",new LinkedHashMap<>(dispenser),fitting).report().get("followUpQuestion"));
+        fitting.put("question","정수기 증상이 어떤가요?");
+        String replaced=decide("도서관 정수기가 고장났어요",new LinkedHashMap<>(dispenser),fitting).report().get("followUpQuestion").toString();
+        assertTrue(replaced.contains("층")&&!replaced.contains("증상"),replaced);
+    }
+    @Test void r1ANamedOrDeniedSpaceReplacesTheOldOneWhileAFloorOnlyReplyKeepsIt(){
+        var previous=new LinkedHashMap<String,Object>(wifi("유담관 8층 도서관"));previous.put("building","유담관");previous.put("floor","8");
+        for(var c:List.of(new String[]{"도서관 말고 8층 복도예요","유담관 8층 복도","복도"},new String[]{"도서관이 아니에요 8층이에요","유담관 8층",null})){
+            var extracted=new LinkedHashMap<String,Object>(previous);extracted.put("locationText",c[1]);
+            var updates=Map.<String,Object>of("LOCATION",Map.of("action","SET","evidence",c[0]));
+            String place=Objects.toString(FollowUpPolicy.apply("REPORT",extracted,previous,updates,c[0],"LOCATION",FollowUpPolicy.state(null)).report().get("locationText"));
+            assertFalse(place.contains("도서관"),c[0]+" -> "+place);if(c[2]!=null)assertTrue(place.contains(c[2]),c[0]+" -> "+place);
+        }
+    }
+
     private class Stub extends AiService {
         final Map<String,Object> proposed, updates, assessment;
         Stub(Map<String,Object> proposed,Map<String,Object> updates,Map<String,Object> assessment) {

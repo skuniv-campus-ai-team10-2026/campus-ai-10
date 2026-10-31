@@ -142,8 +142,11 @@ final class ClarificationPolicy {
     // Require BOTH observations in the student's words; '먹통' alone is still ambiguous.
     private static boolean connectedWithoutInternet(String value){
         if(uncertainInternetPair(value))return false;
-        boolean connected=value.matches(".*(?:connected|연결(?:은|는|이)?(?:됨|됐|되어|돼)|접속(?:은|는|이)?(?:됨|됐|되어|돼)).*");
-        boolean noInternet=value.matches(".*(?:(?:인터넷|internet)(?:은|는|이|가)?(?:먹통|안됨|안돼|안되|불가|notworking|unavailable)|nointernet).*");
+        // "연결해도/연결했는데" states a completed connection as much as "연결은 돼요".
+        boolean connected=value.matches(".*(?:connected|(?:연결|접속)(?:은|는|이)?(?:됨|됐|되어|돼)|(?:연결|접속)(?:해도|했는데|했지만|하면|하고나서|은했는데)).*");
+        // A page or site that will not open is the same observation as "인터넷이 안 돼요".
+        boolean noInternet=value.matches(".*(?:(?:인터넷|internet)(?:은|는|이|가)?(?:먹통|안됨|안돼|안되|불가|notworking|unavailable)|nointernet"
+                +"|(?:인터넷|웹)?(?:페이지|사이트|웹사이트)(?:가|이|는|은)?(?:열리지않|안열|안떠|안뜨|로딩이안|로딩되지않)).*");
         return connected&&noInternet;
     }
     private static boolean uncertainInternetPair(String value){
@@ -190,13 +193,24 @@ final class ClarificationPolicy {
     }
     // The model's own question is used only for the server's chosen reason, as one short question without forbidden asks.
     private static final java.util.regex.Pattern FORBIDDEN_ASK=java.util.regex.Pattern.compile("언제|날짜|며칠|몇\\s*시|시간대|학번|이름|성함|연락처|비밀번호|계정|아이디|전화|이메일|유형|분류|카테고리|부서|담당자|질문인지|신고인지");
-    static boolean usableQuestion(String q){
-        if(q==null)return false;String s=q.strip();
-        return s.length()>=5&&s.length()<=90&&s.endsWith("?")&&s.indexOf('?')==s.length()-1&&!s.contains("\n")&&!FORBIDDEN_ASK.matcher(s).find();
+    // The wording must actually ask for the chosen reason; a tag match alone is not enough. Anything unsure uses the
+    // server question. Location questions must not drift into a diagnosis.
+    private static final Map<String,java.util.regex.Pattern> ASKS=Map.of(
+            "LOCATION_REQUIRED",java.util.regex.Pattern.compile("어디|어느|건물|장소|위치"),
+            "LOCATION_DETAIL",java.util.regex.Pattern.compile("층|어디|어느\\s*(?:곳|쪽|공간|구역|방|호실|위치)|위치|공간|구역|호실"),
+            "ISSUE_UNCLEAR",java.util.regex.Pattern.compile("어떤|무엇|무슨|불편|문제"),
+            "SYMPTOM_DETAIL",java.util.regex.Pattern.compile("어떻게|어떤|현상|증상|되나요|안\\s*되|나타나"),
+            "TARGET_UNCLEAR",java.util.regex.Pattern.compile("어떤|어느|무엇|무슨|설비|물건|기기|장비"));
+    private static final java.util.regex.Pattern DIAGNOSIS=java.util.regex.Pattern.compile("어떻게|증상|원인|왜|고장\\s*났|현상");
+    static boolean usableQuestion(String q,String reason){
+        if(q==null||!ASKS.containsKey(reason))return false;String s=q.strip();
+        if(reason.startsWith("LOCATION")&&DIAGNOSIS.matcher(s).find())return false;
+        return s.length()>=5&&s.length()<=90&&s.endsWith("?")&&s.indexOf('?')==s.length()-1&&!s.contains("\n")
+                &&!FORBIDDEN_ASK.matcher(s).find()&&ASKS.get(reason).matcher(s).find();
     }
     /** The question names what is already known and asks only for the missing part. */
     static String question(String reason,String type,boolean academic,String intent,Map<String,Object> report,String proposed){
-        if(usableQuestion(proposed))return proposed.strip();
+        if(usableQuestion(proposed,reason))return proposed.strip();
         String place=text(report,"locationText").isBlank()?text(report,"building"):text(report,"locationText"), target=text(report,"targetText");
         boolean general=academic||intent.equals("QUESTION");
         return switch(reason){

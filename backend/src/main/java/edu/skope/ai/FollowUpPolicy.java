@@ -300,6 +300,12 @@ final class FollowUpPolicy {
         // The same building under its facility name (도서관 / 유담관) is not a change and keeps the known details.
         boolean buildingChanged = explicitBuilding && !CampusPlaces.key(building).equals(CampusPlaces.key(text(result,"building")));
         String context = buildingChanged ? null : placeContext(text(result,"locationText"), text(result,"building"));
+        // A floor/room-only answer keeps the known space; a space the student names in this answer replaces it,
+        // and a space the answer denies ('도서관이 아니라') is dropped.
+        String stated = placeContext(text(extracted,"locationText"), text(extracted,"building"));
+        if (stated != null && normalize(answer).contains(normalize(stated)) && !denied(answer, stated)
+                && !BUILDING.matcher(stated).matches()) context = stated;
+        else if (context != null && denied(answer, context)) context = null;
         if (buildingChanged) { result.put("building",building); result.put("floor",null); result.put("locationText",building); }
         var floors=new LinkedHashSet<String>();var fm=FLOOR.matcher(answer);while(fm.find())floors.add((fm.group(1)==null?"":"B")+fm.group(2));
         boolean correction=answer.matches("(?s).*(아니고|아니라|아니에요|말고|정정|수정).*" );
@@ -382,7 +388,11 @@ final class FollowUpPolicy {
         String rest=place;
         for(String name:new String[]{building,CampusPlaces.building(building)})if(name!=null)rest=rest.replace(name,"");
         rest=ROOM.matcher(FLOOR.matcher(rest).replaceAll(" ")).replaceAll(" ").replaceAll("\\s+"," ").strip();
-        return validText(rest)?rest:null;
+        // A space name such as '강의실' is valid context here, unlike as a whole vague answer.
+        return rest.replaceAll("[\\p{Punct}\\s]","").length()>=2?rest:null;
+    }
+    private static boolean denied(String answer,String word) {
+        return normalize(answer).matches(".*" + Pattern.quote(normalize(word)) + "(?:이|가|은|는)?(?:아니|말고).*");
     }
     /**
      * A facility used as the building is stored under its housing building, with the facility name kept as place

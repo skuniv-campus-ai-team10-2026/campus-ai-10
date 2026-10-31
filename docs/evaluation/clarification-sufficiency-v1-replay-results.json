@@ -1,0 +1,1095 @@
+{
+  "version" : "clarification-sufficiency-v1",
+  "mode" : "REPLAY (no provider call)",
+  "promptVersion" : "hybrid-intake-v7",
+  "policyVersion" : "hybrid-check-v8",
+  "model" : "gpt-6-luna",
+  "llmCalls" : 10,
+  "embeddingCalls" : 0,
+  "estimatedUsd" : 0.0039323,
+  "automaticRetries" : 0,
+  "pass" : 10,
+  "total" : 10,
+  "scope" : "Synthetic sentences with expectations fixed before the run. modelContent is the provider's raw output; serverFinal is the server's decision. Not independent accuracy.",
+  "rows" : [ {
+    "flow" : "L1",
+    "text" : "도서관이 더러워요",
+    "answer" : null,
+    "expect" : {
+      "status" : [ "COMPLETE" ],
+      "building" : "유담관",
+      "locationContains" : [ "도서관" ],
+      "symptomPresent" : true
+    },
+    "serverFinal" : {
+      "intent" : "REPORT",
+      "status" : "COMPLETE",
+      "nextReason" : null,
+      "category" : "OTHER",
+      "subcategory" : "UNKNOWN",
+      "workGroup" : "FACILITY_MAINTENANCE",
+      "targetText" : null,
+      "building" : "유담관",
+      "floor" : null,
+      "locationText" : "도서관",
+      "symptom" : "도서관이 더러워요",
+      "followUpQuestion" : null,
+      "clarification" : {
+        "reason" : null,
+        "neededReasons" : [ ],
+        "message" : null,
+        "source" : "SERVER_RULES"
+      }
+    },
+    "problems" : [ ],
+    "status" : "PASS",
+    "modelContent" : {
+      "intent" : "REPORT",
+      "report" : {
+        "category" : "OTHER",
+        "subcategory" : "UNKNOWN",
+        "locationText" : "도서관",
+        "building" : null,
+        "floor" : null,
+        "symptom" : null,
+        "occurredAtText" : null,
+        "followUpQuestion" : "도서관의 어떤 부분이 어떻게 더러운가요?",
+        "missingFields" : [ "SYMPTOM" ],
+        "emergencyHint" : false,
+        "workGroup" : "FACILITY_MAINTENANCE",
+        "targetText" : null,
+        "campusRelevance" : "CAMPUS_FACILITY"
+      },
+      "assessment" : {
+        "reason" : "ISSUE_UNCLEAR",
+        "evidence" : "도서관이 더러워요",
+        "rationale" : "더럽다는 표현만으로는 청소가 필요한 대상이나 구체적인 상태를 알 수 없습니다.",
+        "question" : "도서관의 어떤 부분이 어떻게 더러운가요?",
+        "known" : {
+          "locationEvidence" : null,
+          "scopeEvidence" : null,
+          "symptomEvidence" : null,
+          "targetEvidence" : null,
+          "workflowEvidence" : null
+        }
+      }
+    },
+    "providerResponse" : {
+      "id" : "chatcmpl-Ef3QImeQCBTQrGTtTJyHCGM6FVz0e",
+      "object" : "chat.completion",
+      "created" : 1793453314,
+      "model" : "gpt-6-luna",
+      "choices" : [ {
+        "index" : 0,
+        "message" : {
+          "role" : "assistant",
+          "content" : "{\"intent\":\"REPORT\",\"report\":{\"category\":\"OTHER\",\"subcategory\":\"UNKNOWN\",\"locationText\":\"도서관\",\"building\":null,\"floor\":null,\"symptom\":null,\"occurredAtText\":null,\"followUpQuestion\":\"도서관의 어떤 부분이 어떻게 더러운가요?\",\"missingFields\":[\"SYMPTOM\"],\"emergencyHint\":false,\"workGroup\":\"FACILITY_MAINTENANCE\",\"targetText\":null,\"campusRelevance\":\"CAMPUS_FACILITY\"},\"assessment\":{\"reason\":\"ISSUE_UNCLEAR\",\"evidence\":\"도서관이 더러워요\",\"rationale\":\"더럽다는 표현만으로는 청소가 필요한 대상이나 구체적인 상태를 알 수 없습니다.\",\"question\":\"도서관의 어떤 부분이 어떻게 더러운가요?\",\"known\":{\"locationEvidence\":null,\"scopeEvidence\":null,\"symptomEvidence\":null,\"targetEvidence\":null,\"workflowEvidence\":null}}}",
+          "refusal" : null,
+          "annotations" : [ ]
+        },
+        "finish_reason" : "stop"
+      } ],
+      "usage" : {
+        "prompt_tokens" : 2594,
+        "completion_tokens" : 202,
+        "total_tokens" : 2796,
+        "prompt_tokens_details" : {
+          "cached_tokens" : 0,
+          "cache_write_tokens" : 2591,
+          "audio_tokens" : 0
+        },
+        "completion_tokens_details" : {
+          "reasoning_tokens" : 0,
+          "audio_tokens" : 0,
+          "accepted_prediction_tokens" : 0,
+          "rejected_prediction_tokens" : 0
+        }
+      },
+      "service_tier" : "default",
+      "system_fingerprint" : null
+    },
+    "usage" : {
+      "outputTokens" : 202,
+      "inputTokens" : 2594
+    }
+  }, {
+    "flow" : "L2",
+    "text" : "도서관 8층이 더러워요",
+    "answer" : null,
+    "expect" : {
+      "status" : [ "COMPLETE" ],
+      "building" : "유담관",
+      "floor" : "8"
+    },
+    "serverFinal" : {
+      "intent" : "REPORT",
+      "status" : "COMPLETE",
+      "nextReason" : null,
+      "category" : "OTHER",
+      "subcategory" : "UNKNOWN",
+      "workGroup" : "FACILITY_MAINTENANCE",
+      "targetText" : null,
+      "building" : "유담관",
+      "floor" : "8",
+      "locationText" : "도서관 8층",
+      "symptom" : "도서관 8층이 더러움",
+      "followUpQuestion" : null,
+      "clarification" : {
+        "reason" : null,
+        "neededReasons" : [ ],
+        "message" : null,
+        "source" : "SERVER_RULES"
+      }
+    },
+    "problems" : [ ],
+    "status" : "PASS",
+    "modelContent" : {
+      "intent" : "REPORT",
+      "report" : {
+        "category" : "OTHER",
+        "subcategory" : "UNKNOWN",
+        "locationText" : "도서관 8층",
+        "building" : "도서관",
+        "floor" : "8",
+        "symptom" : "도서관 8층이 더러움",
+        "occurredAtText" : null,
+        "followUpQuestion" : "도서관 8층에서 어떤 곳이나 물건이 더러운가요?",
+        "missingFields" : [ "SYMPTOM" ],
+        "emergencyHint" : false,
+        "workGroup" : "FACILITY_MAINTENANCE",
+        "targetText" : null,
+        "campusRelevance" : "CAMPUS_FACILITY"
+      },
+      "assessment" : {
+        "reason" : "ISSUE_UNCLEAR",
+        "evidence" : "더러워요",
+        "rationale" : "청소가 필요한 구체적인 공간이나 물건이 무엇인지 알 수 없습니다.",
+        "question" : "도서관 8층에서 어떤 곳이나 물건이 더러운가요?",
+        "known" : {
+          "locationEvidence" : null,
+          "scopeEvidence" : null,
+          "symptomEvidence" : null,
+          "targetEvidence" : null,
+          "workflowEvidence" : null
+        }
+      }
+    },
+    "providerResponse" : {
+      "id" : "chatcmpl-Ef3QLGclCzvm31JEiVIuEIBIs4NUB",
+      "object" : "chat.completion",
+      "created" : 1793453317,
+      "model" : "gpt-6-luna",
+      "choices" : [ {
+        "index" : 0,
+        "message" : {
+          "role" : "assistant",
+          "content" : "{\"intent\":\"REPORT\",\"report\":{\"category\":\"OTHER\",\"subcategory\":\"UNKNOWN\",\"locationText\":\"도서관 8층\",\"building\":\"도서관\",\"floor\":\"8\",\"symptom\":\"도서관 8층이 더러움\",\"occurredAtText\":null,\"followUpQuestion\":\"도서관 8층에서 어떤 곳이나 물건이 더러운가요?\",\"missingFields\":[\"SYMPTOM\"],\"emergencyHint\":false,\"workGroup\":\"FACILITY_MAINTENANCE\",\"targetText\":null,\"campusRelevance\":\"CAMPUS_FACILITY\"},\"assessment\":{\"reason\":\"ISSUE_UNCLEAR\",\"evidence\":\"더러워요\",\"rationale\":\"청소가 필요한 구체적인 공간이나 물건이 무엇인지 알 수 없습니다.\",\"question\":\"도서관 8층에서 어떤 곳이나 물건이 더러운가요?\",\"known\":{\"locationEvidence\":null,\"scopeEvidence\":null,\"symptomEvidence\":null,\"targetEvidence\":null,\"workflowEvidence\":null}}}",
+          "refusal" : null,
+          "annotations" : [ ]
+        },
+        "finish_reason" : "stop"
+      } ],
+      "usage" : {
+        "prompt_tokens" : 2597,
+        "completion_tokens" : 218,
+        "total_tokens" : 2815,
+        "prompt_tokens_details" : {
+          "cached_tokens" : 2570,
+          "cache_write_tokens" : 24,
+          "audio_tokens" : 0
+        },
+        "completion_tokens_details" : {
+          "reasoning_tokens" : 0,
+          "audio_tokens" : 0,
+          "accepted_prediction_tokens" : 0,
+          "rejected_prediction_tokens" : 0
+        }
+      },
+      "service_tier" : "default",
+      "system_fingerprint" : null
+    },
+    "usage" : {
+      "outputTokens" : 218,
+      "inputTokens" : 2597
+    }
+  }, {
+    "flow" : "L3",
+    "text" : "강의실이 불편해요",
+    "answer" : null,
+    "expect" : {
+      "status" : [ "CONTINUE" ],
+      "nextReason" : [ "ISSUE_UNCLEAR" ],
+      "questionPresent" : true
+    },
+    "serverFinal" : {
+      "intent" : "UNKNOWN",
+      "status" : "CONTINUE",
+      "nextReason" : "ISSUE_UNCLEAR",
+      "category" : "OTHER",
+      "subcategory" : "UNKNOWN",
+      "workGroup" : "FACILITY_MAINTENANCE",
+      "targetText" : null,
+      "building" : null,
+      "floor" : null,
+      "locationText" : null,
+      "symptom" : null,
+      "followUpQuestion" : "강의실에서 어떤 점이 불편하신가요?",
+      "clarification" : {
+        "reason" : "ISSUE_UNCLEAR",
+        "neededReasons" : [ "ISSUE_UNCLEAR", "CONFLICT", "LOCATION_REQUIRED" ],
+        "message" : "담당자가 어떤 문제를 처리해야 하는지 알아야 해요.",
+        "source" : "AI_AND_RULES"
+      }
+    },
+    "problems" : [ ],
+    "status" : "PASS",
+    "modelContent" : {
+      "intent" : "UNKNOWN",
+      "report" : {
+        "category" : "OTHER",
+        "subcategory" : "UNKNOWN",
+        "locationText" : null,
+        "building" : null,
+        "floor" : null,
+        "symptom" : null,
+        "occurredAtText" : null,
+        "followUpQuestion" : "강의실에서 어떤 점이 불편하신가요?",
+        "missingFields" : [ "SYMPTOM" ],
+        "emergencyHint" : false,
+        "workGroup" : "FACILITY_MAINTENANCE",
+        "targetText" : null,
+        "campusRelevance" : "CAMPUS_FACILITY"
+      },
+      "assessment" : {
+        "reason" : "ISSUE_UNCLEAR",
+        "evidence" : "강의실이 불편해요",
+        "rationale" : "불편하다는 표현만으로는 확인하거나 처리할 구체적인 문제를 알 수 없습니다.",
+        "question" : "강의실에서 어떤 점이 불편하신가요?",
+        "known" : {
+          "locationEvidence" : null,
+          "scopeEvidence" : null,
+          "symptomEvidence" : null,
+          "targetEvidence" : null,
+          "workflowEvidence" : null
+        }
+      }
+    },
+    "providerResponse" : {
+      "id" : "chatcmpl-Ef3QPTb7s5Er60bALYkmfdyBOGt6S",
+      "object" : "chat.completion",
+      "created" : 1793453321,
+      "model" : "gpt-6-luna",
+      "choices" : [ {
+        "index" : 0,
+        "message" : {
+          "role" : "assistant",
+          "content" : "{\"intent\":\"UNKNOWN\",\"report\":{\"category\":\"OTHER\",\"subcategory\":\"UNKNOWN\",\"locationText\":null,\"building\":null,\"floor\":null,\"symptom\":null,\"occurredAtText\":null,\"followUpQuestion\":\"강의실에서 어떤 점이 불편하신가요?\",\"missingFields\":[\"SYMPTOM\"],\"emergencyHint\":false,\"workGroup\":\"FACILITY_MAINTENANCE\",\"targetText\":null,\"campusRelevance\":\"CAMPUS_FACILITY\"},\"assessment\":{\"reason\":\"ISSUE_UNCLEAR\",\"evidence\":\"강의실이 불편해요\",\"rationale\":\"불편하다는 표현만으로는 확인하거나 처리할 구체적인 문제를 알 수 없습니다.\",\"question\":\"강의실에서 어떤 점이 불편하신가요?\",\"known\":{\"locationEvidence\":null,\"scopeEvidence\":null,\"symptomEvidence\":null,\"targetEvidence\":null,\"workflowEvidence\":null}}}",
+          "refusal" : null,
+          "annotations" : [ ]
+        },
+        "finish_reason" : "stop"
+      } ],
+      "usage" : {
+        "prompt_tokens" : 2594,
+        "completion_tokens" : 201,
+        "total_tokens" : 2795,
+        "prompt_tokens_details" : {
+          "cached_tokens" : 2570,
+          "cache_write_tokens" : 21,
+          "audio_tokens" : 0
+        },
+        "completion_tokens_details" : {
+          "reasoning_tokens" : 0,
+          "audio_tokens" : 0,
+          "accepted_prediction_tokens" : 0,
+          "rejected_prediction_tokens" : 0
+        }
+      },
+      "service_tier" : "default",
+      "system_fingerprint" : null
+    },
+    "usage" : {
+      "outputTokens" : 201,
+      "inputTokens" : 2594
+    }
+  }, {
+    "flow" : "L3",
+    "text" : "강의실이 불편해요",
+    "answer" : "잘 모르겠어요",
+    "expect" : {
+      "status" : [ "MANUAL_REVIEW" ],
+      "questionPresent" : false
+    },
+    "serverFinal" : {
+      "intent" : "UNKNOWN",
+      "status" : "MANUAL_REVIEW",
+      "nextReason" : null,
+      "category" : "OTHER",
+      "subcategory" : "UNKNOWN",
+      "workGroup" : "FACILITY_MAINTENANCE",
+      "targetText" : null,
+      "building" : null,
+      "floor" : null,
+      "locationText" : null,
+      "symptom" : null,
+      "followUpQuestion" : null,
+      "clarification" : {
+        "reason" : null,
+        "neededReasons" : [ "ISSUE_UNCLEAR", "CONFLICT", "LOCATION_REQUIRED" ],
+        "message" : null,
+        "source" : "SERVER_RULES"
+      }
+    },
+    "problems" : [ ],
+    "status" : "PASS",
+    "modelContent" : {
+      "intent" : "UNKNOWN",
+      "report" : {
+        "category" : "OTHER",
+        "subcategory" : "UNKNOWN",
+        "locationText" : null,
+        "building" : null,
+        "floor" : null,
+        "symptom" : null,
+        "occurredAtText" : null,
+        "followUpQuestion" : null,
+        "missingFields" : [ "SYMPTOM" ],
+        "emergencyHint" : false,
+        "workGroup" : "FACILITY_MAINTENANCE",
+        "targetText" : null,
+        "campusRelevance" : "CAMPUS_FACILITY"
+      },
+      "assessment" : {
+        "reason" : "NONE",
+        "evidence" : null,
+        "rationale" : null,
+        "question" : null,
+        "known" : {
+          "locationEvidence" : null,
+          "scopeEvidence" : null,
+          "symptomEvidence" : null,
+          "targetEvidence" : null,
+          "workflowEvidence" : null
+        }
+      },
+      "updates" : {
+        "LOCATION" : {
+          "evidence" : null,
+          "action" : "KEEP"
+        },
+        "SYMPTOM" : {
+          "evidence" : null,
+          "action" : "KEEP"
+        },
+        "OCCURRED_AT" : {
+          "evidence" : null,
+          "action" : "KEEP"
+        },
+        "CATEGORY" : {
+          "evidence" : null,
+          "action" : "KEEP"
+        },
+        "TARGET" : {
+          "evidence" : null,
+          "action" : "KEEP"
+        },
+        "CAMPUS_RELEVANCE" : {
+          "evidence" : null,
+          "action" : "KEEP"
+        }
+      }
+    },
+    "providerResponse" : {
+      "id" : "chatcmpl-Ef3QUz51jtgPSxhhYNXl1jRDVUv8V",
+      "object" : "chat.completion",
+      "created" : 1793453326,
+      "model" : "gpt-6-luna",
+      "choices" : [ {
+        "index" : 0,
+        "message" : {
+          "role" : "assistant",
+          "content" : "{\"intent\":\"UNKNOWN\",\"report\":{\"category\":\"OTHER\",\"subcategory\":\"UNKNOWN\",\"locationText\":null,\"building\":null,\"floor\":null,\"symptom\":null,\"occurredAtText\":null,\"followUpQuestion\":null,\"missingFields\":[\"SYMPTOM\"],\"emergencyHint\":false,\"workGroup\":\"FACILITY_MAINTENANCE\",\"targetText\":null,\"campusRelevance\":\"CAMPUS_FACILITY\"},\"assessment\":{\"reason\":\"NONE\",\"evidence\":null,\"rationale\":null,\"question\":null,\"known\":{\"locationEvidence\":null,\"scopeEvidence\":null,\"symptomEvidence\":null,\"targetEvidence\":null,\"workflowEvidence\":null}},\"updates\":{\"LOCATION\":{\"evidence\":null,\"action\":\"KEEP\"},\"SYMPTOM\":{\"evidence\":null,\"action\":\"KEEP\"},\"OCCURRED_AT\":{\"evidence\":null,\"action\":\"KEEP\"},\"CATEGORY\":{\"evidence\":null,\"action\":\"KEEP\"},\"TARGET\":{\"evidence\":null,\"action\":\"KEEP\"},\"CAMPUS_RELEVANCE\":{\"evidence\":null,\"action\":\"KEEP\"}}}",
+          "refusal" : null,
+          "annotations" : [ ]
+        },
+        "finish_reason" : "stop"
+      } ],
+      "usage" : {
+        "prompt_tokens" : 3323,
+        "completion_tokens" : 230,
+        "total_tokens" : 3553,
+        "prompt_tokens_details" : {
+          "cached_tokens" : 0,
+          "cache_write_tokens" : 3320,
+          "audio_tokens" : 0
+        },
+        "completion_tokens_details" : {
+          "reasoning_tokens" : 0,
+          "audio_tokens" : 0,
+          "accepted_prediction_tokens" : 0,
+          "rejected_prediction_tokens" : 0
+        }
+      },
+      "service_tier" : "default",
+      "system_fingerprint" : null
+    },
+    "usage" : {
+      "outputTokens" : 230,
+      "inputTokens" : 3323
+    }
+  }, {
+    "flow" : "L4",
+    "text" : "북악관 608호 에어컨이 안 켜져요",
+    "answer" : null,
+    "expect" : {
+      "status" : [ "COMPLETE" ]
+    },
+    "serverFinal" : {
+      "intent" : "REPORT",
+      "status" : "COMPLETE",
+      "nextReason" : null,
+      "category" : "FACILITY",
+      "subcategory" : "HVAC",
+      "workGroup" : "FACILITY_MAINTENANCE",
+      "targetText" : "에어컨",
+      "building" : "북악관",
+      "floor" : "6",
+      "locationText" : "북악관 608호",
+      "symptom" : "에어컨이 켜지지 않아요",
+      "followUpQuestion" : null,
+      "clarification" : {
+        "reason" : null,
+        "neededReasons" : [ ],
+        "message" : null,
+        "source" : "SERVER_RULES"
+      }
+    },
+    "problems" : [ ],
+    "status" : "PASS",
+    "modelContent" : {
+      "intent" : "REPORT",
+      "report" : {
+        "category" : "FACILITY",
+        "subcategory" : "HVAC",
+        "locationText" : "북악관 608호",
+        "building" : "북악관",
+        "floor" : "6",
+        "symptom" : "에어컨이 켜지지 않아요",
+        "occurredAtText" : null,
+        "followUpQuestion" : null,
+        "missingFields" : [ ],
+        "emergencyHint" : false,
+        "workGroup" : "FACILITY_MAINTENANCE",
+        "targetText" : "에어컨",
+        "campusRelevance" : "CAMPUS_FACILITY"
+      },
+      "assessment" : {
+        "reason" : "NONE",
+        "evidence" : null,
+        "rationale" : null,
+        "question" : null,
+        "known" : {
+          "locationEvidence" : "북악관 608호",
+          "scopeEvidence" : null,
+          "symptomEvidence" : "에어컨이 안 켜져요",
+          "targetEvidence" : "에어컨",
+          "workflowEvidence" : null
+        }
+      }
+    },
+    "providerResponse" : {
+      "id" : "chatcmpl-Ef3QXkKq64CmeyM5CpJHVhAv26cdZ",
+      "object" : "chat.completion",
+      "created" : 1793453329,
+      "model" : "gpt-6-luna",
+      "choices" : [ {
+        "index" : 0,
+        "message" : {
+          "role" : "assistant",
+          "content" : "{\"intent\":\"REPORT\",\"report\":{\"category\":\"FACILITY\",\"subcategory\":\"HVAC\",\"locationText\":\"북악관 608호\",\"building\":\"북악관\",\"floor\":\"6\",\"symptom\":\"에어컨이 켜지지 않아요\",\"occurredAtText\":null,\"followUpQuestion\":null,\"missingFields\":[],\"emergencyHint\":false,\"workGroup\":\"FACILITY_MAINTENANCE\",\"targetText\":\"에어컨\",\"campusRelevance\":\"CAMPUS_FACILITY\"},\"assessment\":{\"reason\":\"NONE\",\"evidence\":null,\"rationale\":null,\"question\":null,\"known\":{\"locationEvidence\":\"북악관 608호\",\"scopeEvidence\":null,\"symptomEvidence\":\"에어컨이 안 켜져요\",\"targetEvidence\":\"에어컨\",\"workflowEvidence\":null}}}",
+          "refusal" : null,
+          "annotations" : [ ]
+        },
+        "finish_reason" : "stop"
+      } ],
+      "usage" : {
+        "prompt_tokens" : 2601,
+        "completion_tokens" : 177,
+        "total_tokens" : 2778,
+        "prompt_tokens_details" : {
+          "cached_tokens" : 2570,
+          "cache_write_tokens" : 28,
+          "audio_tokens" : 0
+        },
+        "completion_tokens_details" : {
+          "reasoning_tokens" : 0,
+          "audio_tokens" : 0,
+          "accepted_prediction_tokens" : 0,
+          "rejected_prediction_tokens" : 0
+        }
+      },
+      "service_tier" : "default",
+      "system_fingerprint" : null
+    },
+    "usage" : {
+      "outputTokens" : 177,
+      "inputTokens" : 2601
+    }
+  }, {
+    "flow" : "L5",
+    "text" : "유담관 10층 화장실이 더러워요",
+    "answer" : null,
+    "expect" : {
+      "status" : [ "COMPLETE" ],
+      "building" : "유담관",
+      "locationExcludes" : [ "도서관" ]
+    },
+    "serverFinal" : {
+      "intent" : "REPORT",
+      "status" : "COMPLETE",
+      "nextReason" : null,
+      "category" : "OTHER",
+      "subcategory" : "UNKNOWN",
+      "workGroup" : "FACILITY_MAINTENANCE",
+      "targetText" : "화장실",
+      "building" : "유담관",
+      "floor" : "10",
+      "locationText" : "유담관 10층 화장실",
+      "symptom" : "화장실이 더러움",
+      "followUpQuestion" : null,
+      "clarification" : {
+        "reason" : null,
+        "neededReasons" : [ ],
+        "message" : null,
+        "source" : "SERVER_RULES"
+      }
+    },
+    "problems" : [ ],
+    "status" : "PASS",
+    "modelContent" : {
+      "intent" : "REPORT",
+      "report" : {
+        "category" : "OTHER",
+        "subcategory" : "UNKNOWN",
+        "locationText" : "유담관 10층 화장실",
+        "building" : "유담관",
+        "floor" : "10",
+        "symptom" : "화장실이 더러움",
+        "occurredAtText" : null,
+        "followUpQuestion" : null,
+        "missingFields" : [ ],
+        "emergencyHint" : false,
+        "workGroup" : "FACILITY_MAINTENANCE",
+        "targetText" : "화장실",
+        "campusRelevance" : "CAMPUS_FACILITY"
+      },
+      "assessment" : {
+        "reason" : "NONE",
+        "evidence" : null,
+        "rationale" : null,
+        "question" : null,
+        "known" : {
+          "locationEvidence" : "유담관 10층 화장실",
+          "scopeEvidence" : null,
+          "symptomEvidence" : "더러워요",
+          "targetEvidence" : "화장실",
+          "workflowEvidence" : null
+        }
+      }
+    },
+    "providerResponse" : {
+      "id" : "chatcmpl-Ef3Qa8R2j5QJtIB0zGW8O3MaUNi02",
+      "object" : "chat.completion",
+      "created" : 1793453332,
+      "model" : "gpt-6-luna",
+      "choices" : [ {
+        "index" : 0,
+        "message" : {
+          "role" : "assistant",
+          "content" : "{\"intent\":\"REPORT\",\"report\":{\"category\":\"OTHER\",\"subcategory\":\"UNKNOWN\",\"locationText\":\"유담관 10층 화장실\",\"building\":\"유담관\",\"floor\":\"10\",\"symptom\":\"화장실이 더러움\",\"occurredAtText\":null,\"followUpQuestion\":null,\"missingFields\":[],\"emergencyHint\":false,\"workGroup\":\"FACILITY_MAINTENANCE\",\"targetText\":\"화장실\",\"campusRelevance\":\"CAMPUS_FACILITY\"},\"assessment\":{\"reason\":\"NONE\",\"evidence\":null,\"rationale\":null,\"question\":null,\"known\":{\"locationEvidence\":\"유담관 10층 화장실\",\"scopeEvidence\":null,\"symptomEvidence\":\"더러워요\",\"targetEvidence\":\"화장실\",\"workflowEvidence\":null}}}",
+          "refusal" : null,
+          "annotations" : [ ]
+        },
+        "finish_reason" : "stop"
+      } ],
+      "usage" : {
+        "prompt_tokens" : 2600,
+        "completion_tokens" : 173,
+        "total_tokens" : 2773,
+        "prompt_tokens_details" : {
+          "cached_tokens" : 2570,
+          "cache_write_tokens" : 27,
+          "audio_tokens" : 0
+        },
+        "completion_tokens_details" : {
+          "reasoning_tokens" : 0,
+          "audio_tokens" : 0,
+          "accepted_prediction_tokens" : 0,
+          "rejected_prediction_tokens" : 0
+        }
+      },
+      "service_tier" : "default",
+      "system_fingerprint" : null
+    },
+    "usage" : {
+      "outputTokens" : 173,
+      "inputTokens" : 2600
+    }
+  }, {
+    "flow" : "L6",
+    "text" : "도서관 에어컨이 안 나와요",
+    "answer" : null,
+    "expect" : {
+      "status" : [ "CONTINUE" ],
+      "nextReason" : [ "LOCATION_DETAIL" ],
+      "questionPresent" : true
+    },
+    "serverFinal" : {
+      "intent" : "REPORT",
+      "status" : "CONTINUE",
+      "nextReason" : "LOCATION_DETAIL",
+      "category" : "FACILITY",
+      "subcategory" : "HVAC",
+      "workGroup" : "FACILITY_MAINTENANCE",
+      "targetText" : "에어컨",
+      "building" : "유담관",
+      "floor" : null,
+      "locationText" : "도서관",
+      "symptom" : "도서관 에어컨에서 바람이 나오지 않음",
+      "followUpQuestion" : "도서관의 몇 층, 어느 공간인가요? 에어컨이 있는 곳을 알려주세요.",
+      "clarification" : {
+        "reason" : "LOCATION_DETAIL",
+        "neededReasons" : [ "LOCATION_DETAIL" ],
+        "message" : "담당자가 확인할 장소를 정하기 위해 필요해요.",
+        "source" : "SERVER_RULES"
+      }
+    },
+    "problems" : [ ],
+    "status" : "PASS",
+    "modelContent" : {
+      "intent" : "REPORT",
+      "report" : {
+        "category" : "FACILITY",
+        "subcategory" : "HVAC",
+        "locationText" : "도서관",
+        "building" : null,
+        "floor" : null,
+        "symptom" : "도서관 에어컨에서 바람이 나오지 않음",
+        "occurredAtText" : null,
+        "followUpQuestion" : null,
+        "missingFields" : [ ],
+        "emergencyHint" : false,
+        "workGroup" : "FACILITY_MAINTENANCE",
+        "targetText" : "에어컨",
+        "campusRelevance" : "CAMPUS_FACILITY"
+      },
+      "assessment" : {
+        "reason" : "NONE",
+        "evidence" : null,
+        "rationale" : null,
+        "question" : null,
+        "known" : {
+          "locationEvidence" : null,
+          "scopeEvidence" : null,
+          "symptomEvidence" : "에어컨이 안 나와요",
+          "targetEvidence" : "에어컨",
+          "workflowEvidence" : null
+        }
+      }
+    },
+    "providerResponse" : {
+      "id" : "chatcmpl-Ef3QdW6iuzWoal0bTYNVNfXIxJago",
+      "object" : "chat.completion",
+      "created" : 1793453335,
+      "model" : "gpt-6-luna",
+      "choices" : [ {
+        "index" : 0,
+        "message" : {
+          "role" : "assistant",
+          "content" : "{\"intent\":\"REPORT\",\"report\":{\"category\":\"FACILITY\",\"subcategory\":\"HVAC\",\"locationText\":\"도서관\",\"building\":null,\"floor\":null,\"symptom\":\"도서관 에어컨에서 바람이 나오지 않음\",\"occurredAtText\":null,\"followUpQuestion\":null,\"missingFields\":[],\"emergencyHint\":false,\"workGroup\":\"FACILITY_MAINTENANCE\",\"targetText\":\"에어컨\",\"campusRelevance\":\"CAMPUS_FACILITY\"},\"assessment\":{\"reason\":\"NONE\",\"evidence\":null,\"rationale\":null,\"question\":null,\"known\":{\"locationEvidence\":null,\"scopeEvidence\":null,\"symptomEvidence\":\"에어컨이 안 나와요\",\"targetEvidence\":\"에어컨\",\"workflowEvidence\":null}}}",
+          "refusal" : null,
+          "annotations" : [ ]
+        },
+        "finish_reason" : "stop"
+      } ],
+      "usage" : {
+        "prompt_tokens" : 2597,
+        "completion_tokens" : 170,
+        "total_tokens" : 2767,
+        "prompt_tokens_details" : {
+          "cached_tokens" : 2570,
+          "cache_write_tokens" : 24,
+          "audio_tokens" : 0
+        },
+        "completion_tokens_details" : {
+          "reasoning_tokens" : 0,
+          "audio_tokens" : 0,
+          "accepted_prediction_tokens" : 0,
+          "rejected_prediction_tokens" : 0
+        }
+      },
+      "service_tier" : "default",
+      "system_fingerprint" : null
+    },
+    "usage" : {
+      "outputTokens" : 170,
+      "inputTokens" : 2597
+    }
+  }, {
+    "flow" : "L6",
+    "text" : "도서관 에어컨이 안 나와요",
+    "answer" : "유담관 8층이에요",
+    "expect" : {
+      "status" : [ "COMPLETE" ],
+      "building" : "유담관",
+      "floor" : "8",
+      "locationContains" : [ "도서관" ],
+      "symptomPresent" : true
+    },
+    "serverFinal" : {
+      "intent" : "REPORT",
+      "status" : "COMPLETE",
+      "nextReason" : null,
+      "category" : "FACILITY",
+      "subcategory" : "HVAC",
+      "workGroup" : "FACILITY_MAINTENANCE",
+      "targetText" : "에어컨",
+      "building" : "유담관",
+      "floor" : "8",
+      "locationText" : "유담관 8층 도서관",
+      "symptom" : "도서관 에어컨에서 바람이 나오지 않음",
+      "followUpQuestion" : null,
+      "clarification" : {
+        "reason" : null,
+        "neededReasons" : [ ],
+        "message" : null,
+        "source" : "SERVER_RULES"
+      }
+    },
+    "problems" : [ ],
+    "status" : "PASS",
+    "modelContent" : {
+      "intent" : "REPORT",
+      "report" : {
+        "category" : "FACILITY",
+        "subcategory" : "HVAC",
+        "locationText" : "유담관 8층",
+        "building" : "유담관",
+        "floor" : "8",
+        "symptom" : "에어컨에서 바람이 나오지 않음",
+        "occurredAtText" : null,
+        "followUpQuestion" : null,
+        "missingFields" : [ ],
+        "emergencyHint" : false,
+        "workGroup" : "FACILITY_MAINTENANCE",
+        "targetText" : "에어컨",
+        "campusRelevance" : "CAMPUS_FACILITY"
+      },
+      "assessment" : {
+        "reason" : "NONE",
+        "evidence" : null,
+        "rationale" : null,
+        "question" : null,
+        "known" : {
+          "locationEvidence" : "유담관 8층",
+          "scopeEvidence" : null,
+          "symptomEvidence" : null,
+          "targetEvidence" : null,
+          "workflowEvidence" : null
+        }
+      },
+      "updates" : {
+        "LOCATION" : {
+          "evidence" : "유담관 8층이에요",
+          "action" : "SET"
+        },
+        "SYMPTOM" : {
+          "evidence" : null,
+          "action" : "KEEP"
+        },
+        "OCCURRED_AT" : {
+          "evidence" : null,
+          "action" : "KEEP"
+        },
+        "CATEGORY" : {
+          "evidence" : null,
+          "action" : "KEEP"
+        },
+        "TARGET" : {
+          "evidence" : null,
+          "action" : "KEEP"
+        },
+        "CAMPUS_RELEVANCE" : {
+          "evidence" : null,
+          "action" : "KEEP"
+        }
+      }
+    },
+    "providerResponse" : {
+      "id" : "chatcmpl-Ef3Qhf1Uf6jWF6xTxouNlmV5rvwUe",
+      "object" : "chat.completion",
+      "created" : 1793453339,
+      "model" : "gpt-6-luna",
+      "choices" : [ {
+        "index" : 0,
+        "message" : {
+          "role" : "assistant",
+          "content" : "{\"intent\":\"REPORT\",\"report\":{\"category\":\"FACILITY\",\"subcategory\":\"HVAC\",\"locationText\":\"유담관 8층\",\"building\":\"유담관\",\"floor\":\"8\",\"symptom\":\"에어컨에서 바람이 나오지 않음\",\"occurredAtText\":null,\"followUpQuestion\":null,\"missingFields\":[],\"emergencyHint\":false,\"workGroup\":\"FACILITY_MAINTENANCE\",\"targetText\":\"에어컨\",\"campusRelevance\":\"CAMPUS_FACILITY\"},\"assessment\":{\"reason\":\"NONE\",\"evidence\":null,\"rationale\":null,\"question\":null,\"known\":{\"locationEvidence\":\"유담관 8층\",\"scopeEvidence\":null,\"symptomEvidence\":null,\"targetEvidence\":null,\"workflowEvidence\":null}},\"updates\":{\"LOCATION\":{\"evidence\":\"유담관 8층이에요\",\"action\":\"SET\"},\"SYMPTOM\":{\"evidence\":null,\"action\":\"KEEP\"},\"OCCURRED_AT\":{\"evidence\":null,\"action\":\"KEEP\"},\"CATEGORY\":{\"evidence\":null,\"action\":\"KEEP\"},\"TARGET\":{\"evidence\":null,\"action\":\"KEEP\"},\"CAMPUS_RELEVANCE\":{\"evidence\":null,\"action\":\"KEEP\"}}}",
+          "refusal" : null,
+          "annotations" : [ ]
+        },
+        "finish_reason" : "stop"
+      } ],
+      "usage" : {
+        "prompt_tokens" : 3370,
+        "completion_tokens" : 259,
+        "total_tokens" : 3629,
+        "prompt_tokens_details" : {
+          "cached_tokens" : 3174,
+          "cache_write_tokens" : 193,
+          "audio_tokens" : 0
+        },
+        "completion_tokens_details" : {
+          "reasoning_tokens" : 0,
+          "audio_tokens" : 0,
+          "accepted_prediction_tokens" : 0,
+          "rejected_prediction_tokens" : 0
+        }
+      },
+      "service_tier" : "default",
+      "system_fingerprint" : null
+    },
+    "usage" : {
+      "outputTokens" : 259,
+      "inputTokens" : 3370
+    }
+  }, {
+    "flow" : "L7",
+    "text" : "도서관 정수기가 고장났어요",
+    "answer" : null,
+    "expect" : {
+      "status" : [ "CONTINUE" ],
+      "nextReason" : [ "LOCATION_DETAIL" ],
+      "questionPresent" : true
+    },
+    "serverFinal" : {
+      "intent" : "REPORT",
+      "status" : "CONTINUE",
+      "nextReason" : "LOCATION_DETAIL",
+      "category" : "FACILITY",
+      "subcategory" : "WATER_DISPENSER",
+      "workGroup" : "SHARED_EQUIPMENT",
+      "targetText" : "정수기",
+      "building" : "유담관",
+      "floor" : null,
+      "locationText" : "도서관",
+      "symptom" : "도서관 정수기가 고장남",
+      "followUpQuestion" : "어느 층이나 구역의 정수기인지 알려주시겠어요?",
+      "clarification" : {
+        "reason" : "LOCATION_DETAIL",
+        "neededReasons" : [ "LOCATION_DETAIL" ],
+        "message" : "담당자가 확인할 장소를 정하기 위해 필요해요.",
+        "source" : "AI_AND_RULES"
+      }
+    },
+    "problems" : [ ],
+    "status" : "PASS",
+    "modelContent" : {
+      "intent" : "REPORT",
+      "report" : {
+        "category" : "FACILITY",
+        "subcategory" : "WATER_DISPENSER",
+        "locationText" : "도서관",
+        "building" : null,
+        "floor" : null,
+        "symptom" : "도서관 정수기가 고장남",
+        "occurredAtText" : null,
+        "followUpQuestion" : "어느 층이나 구역의 정수기인지 알려주시겠어요?",
+        "missingFields" : [ "LOCATION" ],
+        "emergencyHint" : false,
+        "workGroup" : "SHARED_EQUIPMENT",
+        "targetText" : "정수기",
+        "campusRelevance" : "SCHOOL_SERVICE"
+      },
+      "assessment" : {
+        "reason" : "LOCATION_DETAIL",
+        "evidence" : "도서관",
+        "rationale" : "건물은 확인되지만 정수기가 있는 구체적인 위치가 없어 처리에 필요합니다.",
+        "question" : "어느 층이나 구역의 정수기인지 알려주시겠어요?",
+        "known" : {
+          "locationEvidence" : null,
+          "scopeEvidence" : null,
+          "symptomEvidence" : null,
+          "targetEvidence" : "정수기",
+          "workflowEvidence" : null
+        }
+      }
+    },
+    "providerResponse" : {
+      "id" : "chatcmpl-Ef3Qlz9fyXhXF4p5BAQdMu82DEnqF",
+      "object" : "chat.completion",
+      "created" : 1793453343,
+      "model" : "gpt-6-luna",
+      "choices" : [ {
+        "index" : 0,
+        "message" : {
+          "role" : "assistant",
+          "content" : "{\"intent\":\"REPORT\",\"report\":{\"category\":\"FACILITY\",\"subcategory\":\"WATER_DISPENSER\",\"locationText\":\"도서관\",\"building\":null,\"floor\":null,\"symptom\":\"도서관 정수기가 고장남\",\"occurredAtText\":null,\"followUpQuestion\":\"어느 층이나 구역의 정수기인지 알려주시겠어요?\",\"missingFields\":[\"LOCATION\"],\"emergencyHint\":false,\"workGroup\":\"SHARED_EQUIPMENT\",\"targetText\":\"정수기\",\"campusRelevance\":\"SCHOOL_SERVICE\"},\"assessment\":{\"reason\":\"LOCATION_DETAIL\",\"evidence\":\"도서관\",\"rationale\":\"건물은 확인되지만 정수기가 있는 구체적인 위치가 없어 처리에 필요합니다.\",\"question\":\"어느 층이나 구역의 정수기인지 알려주시겠어요?\",\"known\":{\"locationEvidence\":null,\"scopeEvidence\":null,\"symptomEvidence\":null,\"targetEvidence\":\"정수기\",\"workflowEvidence\":null}}}",
+          "refusal" : null,
+          "annotations" : [ ]
+        },
+        "finish_reason" : "stop"
+      } ],
+      "usage" : {
+        "prompt_tokens" : 2596,
+        "completion_tokens" : 213,
+        "total_tokens" : 2809,
+        "prompt_tokens_details" : {
+          "cached_tokens" : 2570,
+          "cache_write_tokens" : 23,
+          "audio_tokens" : 0
+        },
+        "completion_tokens_details" : {
+          "reasoning_tokens" : 0,
+          "audio_tokens" : 0,
+          "accepted_prediction_tokens" : 0,
+          "rejected_prediction_tokens" : 0
+        }
+      },
+      "service_tier" : "default",
+      "system_fingerprint" : null
+    },
+    "usage" : {
+      "outputTokens" : 213,
+      "inputTokens" : 2596
+    }
+  }, {
+    "flow" : "L7",
+    "text" : "도서관 정수기가 고장났어요",
+    "answer" : "8층이에요",
+    "expect" : {
+      "status" : [ "COMPLETE" ],
+      "building" : "유담관",
+      "floor" : "8",
+      "locationContains" : [ "도서관" ],
+      "symptomPresent" : true
+    },
+    "serverFinal" : {
+      "intent" : "REPORT",
+      "status" : "COMPLETE",
+      "nextReason" : null,
+      "category" : "FACILITY",
+      "subcategory" : "WATER_DISPENSER",
+      "workGroup" : "SHARED_EQUIPMENT",
+      "targetText" : "정수기",
+      "building" : "유담관",
+      "floor" : "8",
+      "locationText" : "유담관 8층 도서관",
+      "symptom" : "도서관 정수기가 고장남",
+      "followUpQuestion" : null,
+      "clarification" : {
+        "reason" : null,
+        "neededReasons" : [ ],
+        "message" : null,
+        "source" : "SERVER_RULES"
+      }
+    },
+    "problems" : [ ],
+    "status" : "PASS",
+    "modelContent" : {
+      "intent" : "REPORT",
+      "report" : {
+        "category" : "FACILITY",
+        "subcategory" : "WATER_DISPENSER",
+        "locationText" : "도서관 8층",
+        "building" : "유담관",
+        "floor" : "8",
+        "symptom" : "정수기가 고장남",
+        "occurredAtText" : null,
+        "followUpQuestion" : null,
+        "missingFields" : [ ],
+        "emergencyHint" : false,
+        "workGroup" : "SHARED_EQUIPMENT",
+        "targetText" : "정수기",
+        "campusRelevance" : "SCHOOL_SERVICE"
+      },
+      "assessment" : {
+        "reason" : "NONE",
+        "evidence" : null,
+        "rationale" : null,
+        "question" : null,
+        "known" : {
+          "locationEvidence" : "8층이에요",
+          "scopeEvidence" : null,
+          "symptomEvidence" : null,
+          "targetEvidence" : null,
+          "workflowEvidence" : null
+        }
+      },
+      "updates" : {
+        "LOCATION" : {
+          "evidence" : "8층이에요",
+          "action" : "SET"
+        },
+        "SYMPTOM" : {
+          "evidence" : null,
+          "action" : "KEEP"
+        },
+        "OCCURRED_AT" : {
+          "evidence" : null,
+          "action" : "KEEP"
+        },
+        "CATEGORY" : {
+          "evidence" : null,
+          "action" : "KEEP"
+        },
+        "TARGET" : {
+          "evidence" : null,
+          "action" : "KEEP"
+        },
+        "CAMPUS_RELEVANCE" : {
+          "evidence" : null,
+          "action" : "KEEP"
+        }
+      }
+    },
+    "providerResponse" : {
+      "id" : "chatcmpl-Ef3QoVDiRyL3qm4dcnLfepTSp16ZF",
+      "object" : "chat.completion",
+      "created" : 1793453346,
+      "model" : "gpt-6-luna",
+      "choices" : [ {
+        "index" : 0,
+        "message" : {
+          "role" : "assistant",
+          "content" : "{\n  \"intent\": \"REPORT\",\n  \"report\": {\n    \"category\": \"FACILITY\",\n    \"subcategory\": \"WATER_DISPENSER\",\n    \"locationText\": \"도서관 8층\",\n    \"building\": \"유담관\",\n    \"floor\": \"8\",\n    \"symptom\": \"정수기가 고장남\",\n    \"occurredAtText\": null,\n    \"followUpQuestion\": null,\n    \"missingFields\": [],\n    \"emergencyHint\": false,\n    \"workGroup\": \"SHARED_EQUIPMENT\",\n    \"targetText\": \"정수기\",\n    \"campusRelevance\": \"SCHOOL_SERVICE\"\n  },\n  \"assessment\": {\n    \"reason\": \"NONE\",\n    \"evidence\": null,\n    \"rationale\": null,\n    \"question\": null,\n    \"known\": {\n      \"locationEvidence\": \"8층이에요\",\n      \"scopeEvidence\": null,\n      \"symptomEvidence\": null,\n      \"targetEvidence\": null,\n      \"workflowEvidence\": null\n    }\n  },\n  \"updates\": {\n    \"LOCATION\": {\n      \"evidence\": \"8층이에요\",\n      \"action\": \"SET\"\n    },\n    \"SYMPTOM\": {\n      \"evidence\": null,\n      \"action\": \"KEEP\"\n    },\n    \"OCCURRED_AT\": {\n      \"evidence\": null,\n      \"action\": \"KEEP\"\n    },\n    \"CATEGORY\": {\n      \"evidence\": null,\n      \"action\": \"KEEP\"\n    },\n    \"TARGET\": {\n      \"evidence\": null,\n      \"action\": \"KEEP\"\n    },\n    \"CAMPUS_RELEVANCE\": {\n      \"evidence\": null,\n      \"action\": \"KEEP\"\n    }\n  }\n}",
+          "refusal" : null,
+          "annotations" : [ ]
+        },
+        "finish_reason" : "stop"
+      } ],
+      "usage" : {
+        "prompt_tokens" : 3341,
+        "completion_tokens" : 379,
+        "total_tokens" : 3720,
+        "prompt_tokens_details" : {
+          "cached_tokens" : 3174,
+          "cache_write_tokens" : 164,
+          "audio_tokens" : 0
+        },
+        "completion_tokens_details" : {
+          "reasoning_tokens" : 0,
+          "audio_tokens" : 0,
+          "accepted_prediction_tokens" : 0,
+          "rejected_prediction_tokens" : 0
+        }
+      },
+      "service_tier" : "default",
+      "system_fingerprint" : null
+    },
+    "usage" : {
+      "outputTokens" : 379,
+      "inputTokens" : 3341
+    }
+  } ]
+}
