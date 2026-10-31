@@ -210,6 +210,26 @@ class ClarificationSufficiencyTest {
         }
     }
 
+    @Test void r1bASpaceOnlyCorrectionOrDenialUpdatesThePlaceAndKeepsBuildingAndFloor(){
+        var previous=new LinkedHashMap<String,Object>(wifi("유담관 8층 도서관"));previous.put("building","유담관");previous.put("floor","8");
+        // The model may return the new space alone or with the known building and floor; both keep 유담관 8층.
+        for(var c:List.of(new String[]{"도서관이 아니라 강의실이에요","강의실","유담관 8층 강의실"},new String[]{"도서관이 아니라 강의실이에요","유담관 8층 강의실","유담관 8층 강의실"},
+                new String[]{"도서관은 아니에요","유담관 8층","유담관 8층"})){
+            var extracted=new LinkedHashMap<String,Object>(previous);extracted.put("locationText",c[1]);
+            if(!c[1].contains("유담관")){extracted.put("building",null);extracted.put("floor",null);}
+            var updates=Map.<String,Object>of("LOCATION",Map.of("action","SET","evidence",c[0]));
+            var r=FollowUpPolicy.apply("REPORT",extracted,previous,updates,c[0],"LOCATION",FollowUpPolicy.state(null)).report();
+            assertEquals(c[2],r.get("locationText"),c[0]+" / model "+c[1]);assertEquals("유담관",r.get("building"));assertEquals("8",r.get("floor"));
+        }
+        // Unchanged: a floor-only reply keeps the space, and a building change drops the old room.
+        var kept=FollowUpPolicy.apply("REPORT",new LinkedHashMap<>(previous),previous,Map.of("LOCATION",Map.of("action","SET","evidence","9층")),"9층이에요","LOCATION",FollowUpPolicy.state(null)).report();
+        assertEquals("유담관 9층 도서관",kept.get("locationText"));
+        var roomed=new LinkedHashMap<String,Object>(previous);roomed.put("locationText","유담관 803호");
+        var moved=new LinkedHashMap<String,Object>(roomed);moved.put("building","북악관");moved.put("locationText","북악관");moved.put("floor",null);
+        var r=FollowUpPolicy.apply("REPORT",moved,roomed,Map.of("LOCATION",Map.of("action","SET","evidence","북악관")),"유담관이 아니라 북악관이에요","LOCATION",FollowUpPolicy.state(null)).report();
+        assertEquals("북악관",r.get("building"));assertFalse(r.get("locationText").toString().contains("803"),r.get("locationText").toString());
+    }
+
     private class Stub extends AiService {
         final Map<String,Object> proposed, updates, assessment;
         Stub(Map<String,Object> proposed,Map<String,Object> updates,Map<String,Object> assessment) {

@@ -109,8 +109,8 @@
       "system_fingerprint" : null
     },
     "usage" : {
-      "outputTokens" : 202,
-      "inputTokens" : 2594
+      "inputTokens" : 2594,
+      "outputTokens" : 202
     }
   }, {
     "flow" : "L2",
@@ -209,8 +209,8 @@
       "system_fingerprint" : null
     },
     "usage" : {
-      "outputTokens" : 218,
-      "inputTokens" : 2597
+      "inputTokens" : 2597,
+      "outputTokens" : 218
     }
   }, {
     "flow" : "L3",
@@ -309,8 +309,8 @@
       "system_fingerprint" : null
     },
     "usage" : {
-      "outputTokens" : 201,
-      "inputTokens" : 2594
+      "inputTokens" : 2594,
+      "outputTokens" : 201
     }
   }, {
     "flow" : "L3",
@@ -434,8 +434,8 @@
       "system_fingerprint" : null
     },
     "usage" : {
-      "outputTokens" : 230,
-      "inputTokens" : 3323
+      "inputTokens" : 3323,
+      "outputTokens" : 230
     }
   }, {
     "flow" : "L4",
@@ -532,8 +532,8 @@
       "system_fingerprint" : null
     },
     "usage" : {
-      "outputTokens" : 177,
-      "inputTokens" : 2601
+      "inputTokens" : 2601,
+      "outputTokens" : 177
     }
   }, {
     "flow" : "L5",
@@ -632,8 +632,8 @@
       "system_fingerprint" : null
     },
     "usage" : {
-      "outputTokens" : 173,
-      "inputTokens" : 2600
+      "inputTokens" : 2600,
+      "outputTokens" : 173
     }
   }, {
     "flow" : "L6",
@@ -732,8 +732,8 @@
       "system_fingerprint" : null
     },
     "usage" : {
-      "outputTokens" : 170,
-      "inputTokens" : 2597
+      "inputTokens" : 2597,
+      "outputTokens" : 170
     }
   }, {
     "flow" : "L6",
@@ -860,8 +860,8 @@
       "system_fingerprint" : null
     },
     "usage" : {
-      "outputTokens" : 259,
-      "inputTokens" : 3370
+      "inputTokens" : 3370,
+      "outputTokens" : 259
     }
   }, {
     "flow" : "L7",
@@ -960,8 +960,8 @@
       "system_fingerprint" : null
     },
     "usage" : {
-      "outputTokens" : 213,
-      "inputTokens" : 2596
+      "inputTokens" : 2596,
+      "outputTokens" : 213
     }
   }, {
     "flow" : "L7",
@@ -1088,8 +1088,8 @@
       "system_fingerprint" : null
     },
     "usage" : {
-      "outputTokens" : 379,
-      "inputTokens" : 3341
+      "inputTokens" : 3341,
+      "outputTokens" : 379
     }
   } ]
 }

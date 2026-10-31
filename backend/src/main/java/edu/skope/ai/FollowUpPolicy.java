@@ -306,6 +306,9 @@ final class FollowUpPolicy {
         if (stated != null && normalize(answer).contains(normalize(stated)) && !denied(answer, stated)
                 && !BUILDING.matcher(stated).matches()) context = stated;
         else if (context != null && denied(answer, context)) context = null;
+        // A space-only correction or denial ('도서관이 아니라 강의실이에요', '도서관은 아니에요') updates the place
+        // while the known building and floor stay.
+        boolean spaceCorrected = !buildingChanged && text(result,"building") != null && !Objects.equals(context, placeContext(text(result,"locationText"), text(result,"building")));
         if (buildingChanged) { result.put("building",building); result.put("floor",null); result.put("locationText",building); }
         var floors=new LinkedHashSet<String>();var fm=FLOOR.matcher(answer);while(fm.find())floors.add((fm.group(1)==null?"":"B")+fm.group(2));
         boolean correction=answer.matches("(?s).*(아니고|아니라|아니에요|말고|정정|수정).*" );
@@ -328,7 +331,7 @@ final class FollowUpPolicy {
         if (explicitBuilding) result.put("building",building);
         if (floor == null && inferred != null) floor=inferred;
         if (floor != null) result.put("floor",floor);
-        if (explicitBuilding || floor != null || room != null) {
+        if (explicitBuilding || floor != null || room != null || spaceCorrected) {
             String oldRoom=roomOf(text(result,"locationText"));
             // Floor-only corrections invalidate an old room; a changed building invalidates all old details.
             if(room==null && !buildingChanged && floor==null) room=oldRoom;
