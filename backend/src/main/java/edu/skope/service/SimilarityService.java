@@ -178,7 +178,7 @@ public class SimilarityService {
             throw new IllegalArgumentException("Invalid similarity settings");
         boolean type = Objects.equals(left.get("category"), right.get("category"))
                 && Objects.equals(left.get("subcategory"), right.get("subcategory"));
-        String buildingA = normalized(left.get("building")), buildingB = normalized(right.get("building"));
+        String buildingA = edu.skope.domain.CampusPlaces.key(left.get("building")), buildingB = edu.skope.domain.CampusPlaces.key(right.get("building"));
         String floorA = normalized(left.get("floor")).replace("층", "");
         String floorB = normalized(right.get("floor")).replace("층", "");
         String roomA = room(left), roomB = room(right);

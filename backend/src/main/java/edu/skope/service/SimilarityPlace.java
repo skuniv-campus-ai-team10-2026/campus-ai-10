@@ -1,5 +1,6 @@
 package edu.skope.service;
 
+import edu.skope.domain.CampusPlaces;
 import edu.skope.repository.Db;
 import java.time.Duration;
 import java.util.*;
@@ -23,7 +24,7 @@ final class SimilarityPlace {
         boolean allowed(){return building&&floor&&room&&detail;}
     }
     static Match compare(Map<String,Object> a,Map<String,Object> b,boolean comparableVectors){
-        String ba=norm(a.get("building")),bb=norm(b.get("building"));
+        String ba=CampusPlaces.key(a.get("building")),bb=CampusPlaces.key(b.get("building"));
         boolean building=!ba.isBlank()&&ba.equals(bb);
         String fa=norm(a.get("floor")).replace("층",""),fb=norm(b.get("floor")).replace("층","");
         boolean floor=fa.isBlank()||fb.isBlank()||fa.equals(fb);

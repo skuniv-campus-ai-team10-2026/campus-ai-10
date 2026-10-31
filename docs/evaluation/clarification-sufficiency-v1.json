@@ -1,0 +1,26 @@
+{
+  "version": "clarification-sufficiency-v1",
+  "fixedAt": "2026-10-31",
+  "purpose": "LIVE check of the common clarification-sufficiency policy (hybrid-check-v8) with gpt-6-luna. Expectations were fixed before any provider call. Synthetic student sentences, not real reports or independent accuracy.",
+  "limits": { "maxLlmCalls": 10, "maxEmbeddingCalls": 0, "maxUsd": 0.01, "automaticRetries": 0 },
+  "statusMeaning": "COMPLETE = accepted without a question; CONTINUE = NEEDS_INPUT with a question; MANUAL_REVIEW = administrator review path",
+  "flows": [
+    { "id": "L1", "turns": [
+      { "text": "도서관이 더러워요", "expect": { "status": ["COMPLETE"], "building": "유담관", "locationContains": ["도서관"], "symptomPresent": true } } ] },
+    { "id": "L2", "turns": [
+      { "text": "도서관 8층이 더러워요", "expect": { "status": ["COMPLETE"], "building": "유담관", "floor": "8" } } ] },
+    { "id": "L3", "turns": [
+      { "text": "강의실이 불편해요", "expect": { "status": ["CONTINUE"], "nextReason": ["ISSUE_UNCLEAR"], "questionPresent": true } },
+      { "answer": "잘 모르겠어요", "expect": { "status": ["MANUAL_REVIEW"], "questionPresent": false } } ] },
+    { "id": "L4", "turns": [
+      { "text": "북악관 608호 에어컨이 안 켜져요", "expect": { "status": ["COMPLETE"] } } ] },
+    { "id": "L5", "turns": [
+      { "text": "유담관 10층 화장실이 더러워요", "expect": { "status": ["COMPLETE"], "building": "유담관", "locationExcludes": ["도서관"] } } ] },
+    { "id": "L6", "turns": [
+      { "text": "도서관 에어컨이 안 나와요", "expect": { "status": ["CONTINUE"], "nextReason": ["LOCATION_DETAIL"], "questionPresent": true } },
+      { "answer": "유담관 8층이에요", "expect": { "status": ["COMPLETE"], "building": "유담관", "floor": "8", "locationContains": ["도서관"], "symptomPresent": true } } ] },
+    { "id": "L7", "turns": [
+      { "text": "도서관 정수기가 고장났어요", "expect": { "status": ["CONTINUE"], "nextReason": ["LOCATION_DETAIL"], "questionPresent": true } },
+      { "answer": "8층이에요", "expect": { "status": ["COMPLETE"], "building": "유담관", "floor": "8", "locationContains": ["도서관"], "symptomPresent": true } } ] }
+  ]
+}

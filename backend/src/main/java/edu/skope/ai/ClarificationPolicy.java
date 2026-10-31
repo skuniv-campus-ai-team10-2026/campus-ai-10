@@ -1,5 +1,6 @@
 package edu.skope.ai;
 
+import edu.skope.domain.Codes;
 import java.util.*;
 
 /** AI supplies grounded observations and a proposed reason; server rules own the actual question/decision. */
@@ -43,7 +44,10 @@ final class ClarificationPolicy {
         if(wifiEvidence!=null)known.put("symptomEvidence",wifiEvidence);
         String symptom=text(report,"symptom"), place=text(report,"locationText"), building=text(report,"building");
         String current=compact(symptom), type=text(report,"subcategory");
-        boolean observedFault=FollowUpPolicy.observedFault(field==null?original:symptomChanged?answer:original)!=null;
+        String symptomWords=field==null?original:symptomChanged?answer:original;
+        boolean observedFault=FollowUpPolicy.observedFault(symptomWords)!=null;
+        // A stated condition (dirty, smelly, clogged ...) is an actionable problem like a breakage.
+        boolean observed=observedFault||FollowUpPolicy.observedCondition(symptomWords)!=null;
         boolean academic="ACADEMIC".equals(report.get("category"));
         boolean physical=!"QUESTION".equals(intent)&&!academic;
         // Ownership is asked once, only when it decides between facility handling and a personal inquiry.
@@ -58,6 +62,7 @@ final class ClarificationPolicy {
         // Uncertain classification is an administrator task, not a student interview.
         if(reviews.stream().anyMatch(x->!"OCCURRED_AT".equals(x)&&!"CATEGORY".equals(x)))needed.add("CONFLICT");
         if(relevanceNeeded)needed.add("CAMPUS_RELEVANCE");
+        boolean statedRange=false;
         if(placeNeeded) {
             if(missing.contains("LOCATION"))needed.add("LOCATION_REQUIRED");
             else {
@@ -66,7 +71,12 @@ final class ClarificationPolicy {
                 if(field==null)scope|=wide(original);
                 if(scope&&!known.containsKey("scopeEvidence")&&field==null)known.put("scopeEvidence",original.substring(0,Math.min(200,original.length())));
                 boolean detailed=text(report,"floor").matches("B?[1-9]\\d{0,2}")||specificPlace(place,building)||specificPlace(known.get("locationEvidence"),building);
-                if(!scope&&!detailed)needed.add("LOCATION_DETAIL");
+                // A building-level place is enough unless something must be found inside it and no range says where:
+                // a fixed facility, a named object other than the place itself, or a broken object. Otherwise floor
+                // and room are optional context.
+                boolean locate=!Codes.broad(type)||objectToFind(report)||observedFault;
+                if(!scope&&!detailed&&locate)needed.add("LOCATION_DETAIL");
+                statedRange=scope;
             }
         }
         if(physical) {
@@ -74,6 +84,8 @@ final class ClarificationPolicy {
             if(type.equals("WIFI")&&!wifiDetail(compact(known.get("symptomEvidence"))))needed.add("SYMPTOM_DETAIL");
             if(type.equals("ELECTRIC")&&!observedFault&&!target(compact(field!=null&&symptomChanged?answer:original+"\n"+answer))&&!concreteTarget(known.get("targetEvidence")))needed.add("TARGET_UNCLEAR");
             if(type.equals("UNKNOWN")&&current.matches(".*(?:시설|설비|장비|기기|뭔가).*(?:고장|이상|안됨|안돼).*" )&&!target(current)&&known.get("targetEvidence")==null)needed.add("TARGET_UNCLEAR");
+            // An explicitly stated outage range (e.g. the whole building) is actionable without a failure-mode diagnosis.
+            if(statedRange)needed.remove("SYMPTOM_DETAIL");
         }
         String proposedReason=Objects.toString(suggestion.get("reason"),"NONE");
         String evidence=Objects.toString(suggestion.get("evidence"),"");
@@ -82,14 +94,19 @@ final class ClarificationPolicy {
                 &&(current.matches(".*(?:신청|발급|휴학|복학|등록|졸업).*(?:안돼|안됨|안되|어려|문제|불편).*")||grounded&&proposedReason.equals("WORKFLOW_UNCLEAR")))needed.add("WORKFLOW_UNCLEAR");
         // Generic OTHER problems can benefit from a grounded semantic ambiguity, without requiring a known category.
         if(grounded&&type.equals("UNKNOWN")&&!missing.contains("SYMPTOM")) {
-            if(proposedReason.equals("SYMPTOM_DETAIL")&&!observedFault&&!usefulSymptom(known.get("symptomEvidence")))needed.add(proposedReason);
-            if(proposedReason.equals("TARGET_UNCLEAR")&&physical&&!observedFault&&!target(current)&&known.get("targetEvidence")==null)needed.add(proposedReason);
+            if(proposedReason.equals("SYMPTOM_DETAIL")&&!observed&&!statedRange&&!usefulSymptom(known.get("symptomEvidence")))needed.add(proposedReason);
+            if(proposedReason.equals("TARGET_UNCLEAR")&&physical&&!observed&&!target(current)&&known.get("targetEvidence")==null)needed.add(proposedReason);
         }
         if(field!=null&&!last.isBlank()&&cannotAnswer(answer))unavailable.add(last);
         // Once a useful location reply makes the report actionable, further diagnosis is optional.
         // This does not waive unknown targets, unspecified issues or contradictory information.
         if(field!=null && last.startsWith("LOCATION") && ((Number)state.getOrDefault("noProgress",0)).intValue()==0
                 && needed.equals(Set.of("SYMPTOM_DETAIL")) && !missing.contains("SYMPTOM"))needed.remove("SYMPTOM_DETAIL");
+        // An answer settles what was asked; it never adds a new optional requirement. A reason absent before this turn
+        // counts only when it is essential or this answer changed the related fact.
+        if(field!=null&&old.get("neededReasons") instanceof List<?> before)
+            needed.removeIf(r->!before.contains(r)&&!Set.of("ISSUE_UNCLEAR","CONFLICT","CAMPUS_RELEVANCE").contains(r)
+                    &&!(r.startsWith("LOCATION")?placeChanged:r.equals("TARGET_UNCLEAR")?targetChanged||symptomChanged:symptomChanged));
         // A newly supplied fact can resolve a formerly unavailable item, but asking again cannot.
         unavailable.retainAll(needed);
         var unresolvedAsked=new LinkedHashSet<>(needed);unresolvedAsked.retainAll(asked);
@@ -109,7 +126,8 @@ final class ClarificationPolicy {
         state.put("neededReasons",List.copyOf(needed));state.put("urgentReview",status.equals("COMPLETE")&&(!needed.isEmpty()||!reviews.isEmpty()||ownershipOpen));
         String next=reason==null?null:reason.startsWith("LOCATION")?"LOCATION":reason.equals("CONFLICT")&&reviews.contains("LOCATION")?"LOCATION":reason.equals("CAMPUS_RELEVANCE")?"CATEGORY":"SYMPTOM";
         state.put("nextField",next);
-        report.put("followUpQuestion",reason==null?null:question(reason,type,academic,intent));
+        String proposedQuestion=grounded&&Objects.equals(reason,proposedReason)?Objects.toString(suggestion.get("question"),null):null;
+        report.put("followUpQuestion",reason==null?null:question(reason,type,academic,intent,report,proposedQuestion));
         var explanation=new LinkedHashMap<String,Object>();explanation.put("reason",reason);explanation.put("neededReasons",List.copyOf(needed));
         explanation.put("message",reason==null?null:why(reason));explanation.put("source",grounded&&Objects.equals(reason,proposedReason)?"AI_AND_RULES":"SERVER_RULES");
         return new Decision(report,state,explanation);
@@ -124,8 +142,11 @@ final class ClarificationPolicy {
     // Require BOTH observations in the student's words; '먹통' alone is still ambiguous.
     private static boolean connectedWithoutInternet(String value){
         if(uncertainInternetPair(value))return false;
-        boolean connected=value.matches(".*(?:connected|연결(?:은|는|이)?(?:됨|됐|되어|돼)|접속(?:은|는|이)?(?:됨|됐|되어|돼)).*");
-        boolean noInternet=value.matches(".*(?:(?:인터넷|internet)(?:은|는|이|가)?(?:먹통|안됨|안돼|안되|불가|notworking|unavailable)|nointernet).*");
+        // "연결해도/연결했는데" states a completed connection as much as "연결은 돼요".
+        boolean connected=value.matches(".*(?:connected|(?:연결|접속)(?:은|는|이)?(?:됨|됐|되어|돼)|(?:연결|접속)(?:해도|했는데|했지만|하면|하고나서|은했는데)).*");
+        // A page or site that will not open is the same observation as "인터넷이 안 돼요".
+        boolean noInternet=value.matches(".*(?:(?:인터넷|internet)(?:은|는|이|가)?(?:먹통|안됨|안돼|안되|불가|notworking|unavailable)|nointernet"
+                +"|(?:인터넷|웹)?(?:페이지|사이트|웹사이트)(?:가|이|는|은)?(?:열리지않|안열|안떠|안뜨|로딩이안|로딩되지않)).*");
         return connected&&noInternet;
     }
     private static boolean uncertainInternetPair(String value){
@@ -165,6 +186,44 @@ final class ClarificationPolicy {
         case "CONFLICT"->"서로 다른 정보 중 확실한 내용만 전달하려고 해요.";
         case "CAMPUS_RELEVANCE"->"학교 물건이면 담당자가 점검하고, 개인 물건이면 일반 문의로 안내해요.";
         default->"담당자가 어떤 문제를 처리해야 하는지 알아야 해요.";};}
+    /** A named object other than the reported place itself must be located inside a building. */
+    private static boolean objectToFind(Map<String,Object> report){
+        String target=compact(text(report,"targetText"));
+        return !target.isBlank()&&!compact(text(report,"locationText")+text(report,"building")).contains(target);
+    }
+    // The model's own question is used only for the server's chosen reason, as one short question without forbidden asks.
+    private static final java.util.regex.Pattern FORBIDDEN_ASK=java.util.regex.Pattern.compile("언제|날짜|며칠|몇\\s*시|시간대|학번|이름|성함|연락처|비밀번호|계정|아이디|전화|이메일|유형|분류|카테고리|부서|담당자|질문인지|신고인지");
+    // The wording must actually ask for the chosen reason; a tag match alone is not enough. Anything unsure uses the
+    // server question. Location questions must not drift into a diagnosis.
+    private static final Map<String,java.util.regex.Pattern> ASKS=Map.of(
+            "LOCATION_REQUIRED",java.util.regex.Pattern.compile("어디|어느|건물|장소|위치"),
+            "LOCATION_DETAIL",java.util.regex.Pattern.compile("층|어디|어느\\s*(?:곳|쪽|공간|구역|방|호실|위치)|위치|공간|구역|호실"),
+            "ISSUE_UNCLEAR",java.util.regex.Pattern.compile("어떤|무엇|무슨|불편|문제"),
+            "SYMPTOM_DETAIL",java.util.regex.Pattern.compile("어떻게|어떤|현상|증상|되나요|안\\s*되|나타나"),
+            "TARGET_UNCLEAR",java.util.regex.Pattern.compile("어떤|어느|무엇|무슨|설비|물건|기기|장비"));
+    private static final java.util.regex.Pattern DIAGNOSIS=java.util.regex.Pattern.compile("어떻게|증상|원인|왜|고장\\s*났|현상");
+    static boolean usableQuestion(String q,String reason){
+        if(q==null||!ASKS.containsKey(reason))return false;String s=q.strip();
+        if(reason.startsWith("LOCATION")&&DIAGNOSIS.matcher(s).find())return false;
+        return s.length()>=5&&s.length()<=90&&s.endsWith("?")&&s.indexOf('?')==s.length()-1&&!s.contains("\n")
+                &&!FORBIDDEN_ASK.matcher(s).find()&&ASKS.get(reason).matcher(s).find();
+    }
+    /** The question names what is already known and asks only for the missing part. */
+    static String question(String reason,String type,boolean academic,String intent,Map<String,Object> report,String proposed){
+        if(usableQuestion(proposed,reason))return proposed.strip();
+        String place=text(report,"locationText").isBlank()?text(report,"building"):text(report,"locationText"), target=text(report,"targetText");
+        boolean general=academic||intent.equals("QUESTION");
+        return switch(reason){
+            case "LOCATION_REQUIRED"->target.isBlank()?"문제가 있는 건물이나 장소가 어디인가요?":target+josa(target,"이","가")+" 있는 건물이나 장소가 어디인가요?";
+            case "LOCATION_DETAIL"->(place.isBlank()?"":place+"의 ")+"몇 층, 어느 공간인가요?"+(target.isBlank()?"":" "+target+josa(target,"이","가")+" 있는 곳을 알려주세요.");
+            case "TARGET_UNCLEAR"->place.isBlank()?question(reason,type,academic,intent):place+"에서 어떤 설비나 물건에 문제가 있나요?";
+            case "ISSUE_UNCLEAR"->!general&&!place.isBlank()?place+josa(place,"을","를")+" 이용할 때 어떤 문제가 있나요?":question(reason,type,academic,intent);
+            default->question(reason,type,academic,intent);};
+    }
+    private static String josa(String word,String withFinal,String withoutFinal){
+        char last=word.charAt(word.length()-1);
+        return last>='가'&&last<='힣'&&(last-'가')%28!=0?withFinal:withoutFinal;
+    }
     private static String question(String reason,String type,boolean academic,String intent){return switch(reason){
         case "LOCATION_REQUIRED"->"어느 건물이나 장소에서 발생했나요?";
         case "LOCATION_DETAIL"->"어느 층이나 어느 쪽에서 발생했나요?";
