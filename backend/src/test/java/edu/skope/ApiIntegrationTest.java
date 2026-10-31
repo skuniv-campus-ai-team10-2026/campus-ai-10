@@ -128,7 +128,8 @@ class ApiIntegrationTest {
         assertEquals(0,Db.id(db.one("SELECT COUNT(*) total FROM reports"),"total"));
         var saved=student.ok("POST","/assistant/intake",Map.of("clientRequestId",key,"revision",terminal.get("revision").asInt(),"submitForReview",true),200);
         assertEquals("ACCEPTED",saved.get("status").asText());assertEquals("NEEDS_REVIEW",saved.at("/report/routeStatus").asText());
-        assertTrue(saved.at("/report/reviewNote").asText().contains("문제 내용"));
+        assertFalse(saved.path("report").has("reviewNote"),"the administrator note is not returned to the student");
+        assertTrue(Db.str(db.one("SELECT review_note FROM reports WHERE id=?",saved.at("/report/id").asLong()),"reviewNote").contains("문제 내용"));
     }
     @Test void intakeConcurrentSubmissionUsesOneReportAndExpiredDraftDoesNotRestartAnalysis()throws Exception{
         var student=new Session().login("student1");var body=Map.of("clientRequestId",UUID.randomUUID().toString(),"text","북악관 502호에서 와이파이가 끊겨요");
@@ -177,9 +178,9 @@ class ApiIntegrationTest {
         var body=Map.of("clientRequestId",key,"revision",2,"submitForReview",true,"answer",reply);
         var saved=student.ok("POST","/assistant/intake",body,200);long id=saved.at("/report/id").asLong();
         assertEquals("ACCEPTED",saved.path("status").asText());assertEquals(original,saved.at("/report/originalText").asText());
-        String note=saved.at("/report/reviewNote").asText();assertTrue(note.length()>1000);assertTrue(note.length()<=2000);
+        assertFalse(saved.path("report").has("reviewNote"),"the administrator note is not returned to the student");
+        String note=Db.str(db.one("SELECT review_note FROM reports WHERE id=?",id),"reviewNote");assertTrue(note.length()>1000);assertTrue(note.length()<=2000);
         assertTrue(note.contains("마지막 추가 답변: "+last));assertTrue(note.contains("미분석 추가 답변: "+reply));
-        assertEquals(note,Db.str(db.one("SELECT review_note FROM reports WHERE id=?",id),"reviewNote"));
         var admin=new Session().login("admin");assertEquals(note,admin.ok("GET","/admin/reports/"+id,null,200).path("reviewNote").asText());
         assertEquals(id,student.ok("POST","/assistant/intake",body,200).at("/report/id").asLong());
         assertEquals(1,Db.id(db.one("SELECT COUNT(*) total FROM reports"),"total"));
@@ -193,7 +194,8 @@ class ApiIntegrationTest {
         var student=new Session().login("student1");
         var saved=student.ok("POST","/assistant/intake",Map.of("clientRequestId",UUID.randomUUID().toString(),"text","은주2관 콘센트에서 타는 냄새가 나요"),200);
         assertEquals("ACCEPTED",saved.get("status").asText());assertEquals("NEEDS_REVIEW",saved.at("/report/routeStatus").asText());
-        assertTrue(saved.at("/report/reviewNote").asText().contains("점검할 공간"));
+        assertFalse(saved.path("report").has("reviewNote"),"the administrator note is not returned to the student");
+        assertTrue(Db.str(db.one("SELECT review_note FROM reports WHERE id=?",saved.at("/report/id").asLong()),"reviewNote").contains("점검할 공간"));
         assertTrue(saved.at("/report/emergencyHint").asBoolean());
     }
     JsonNode status(Session a,long id,String state)throws Exception{return a.ok("PATCH","/admin/reports/"+id+"/status",Map.of("status",state,"resolutionText","시연 점검 및 설정 변경 완료"),200);}
