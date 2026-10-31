@@ -59,7 +59,7 @@ public class ReportService {
         if(status!=null&&!status.isBlank()){try{Codes.Status.valueOf(status);}catch(Exception e){throw new ApiException(400,"VALIDATION_ERROR","상태가 올바르지 않습니다.");}where+=" AND status=?";args.add(status);}
         if(routeStatus!=null&&!routeStatus.isBlank()){try{Codes.RouteStatus.valueOf(routeStatus);}catch(Exception e){throw new ApiException(400,"VALIDATION_ERROR","배정 상태가 올바르지 않습니다.");}where+=" AND route_status=?";args.add(routeStatus);}
         long total=Db.id(db.one("SELECT COUNT(*) total FROM reports"+where,args.toArray()),"total");args.add(size);args.add((long)page*size);
-        var rows=db.all("SELECT * FROM reports"+where+" ORDER BY id DESC LIMIT ? OFFSET ?",args.toArray());rows.forEach(r->{decorate(r);if(admin)decorateTransfer(r);});
+        var rows=db.all("SELECT * FROM reports"+where+" ORDER BY id DESC LIMIT ? OFFSET ?",args.toArray());rows.forEach(r->{decorate(r);if(admin)decorateTransfer(r);else hideAdminFields(r);});
         return Map.of("items",rows,"page",page,"size",size,"totalElements",total);
     }
     public Map<String,Object> detail(long id,long studentId,boolean admin){
@@ -67,8 +67,10 @@ public class ReportService {
         String scope=admin?(department==null?"":" AND assigned_department_id=?"):" AND student_id=?";
         var r=db.one("SELECT * FROM reports WHERE id=?"+scope,admin?(department==null?new Object[]{id}:new Object[]{id,department}):new Object[]{id,studentId});
         if(r==null)throw new ApiException(404,"REPORT_NOT_FOUND","신고를 찾을 수 없습니다.");
-        decorate(r);if(admin){decorateTransfer(r);r.put("events",db.all("SELECT e.event_type,e.old_value,e.new_value,e.note,e.created_at changed_at,u.display_name actor_name FROM report_events e JOIN users u ON u.id=e.actor_id WHERE e.report_id=? ORDER BY e.id",id));}return r;
+        decorate(r);if(admin){decorateTransfer(r);r.put("events",db.all("SELECT e.event_type,e.old_value,e.new_value,e.note,e.created_at changed_at,u.display_name actor_name FROM report_events e JOIN users u ON u.id=e.actor_id WHERE e.report_id=? ORDER BY e.id",id));}else hideAdminFields(r);return r;
     }
+    /** Student responses only. The stored review note still drives review hold, routing and similarity exclusion. */
+    private static void hideAdminFields(Map<String,Object> r){r.remove("reviewNote");}
     private void decorate(Map<String,Object> r){Object route=r.get("routingRuleId");Map<String,Object> rule=route==null?null:db.one("SELECT rr.*,d.name department_name FROM routing_rules rr JOIN departments d ON d.id=rr.department_id WHERE rr.id=?",route);r.put("assignedDepartment",routes.department(rule));
         // Rows saved before V10 have no stored group; it is derived from the type instead of a bulk reclassification.
         r.put("workGroup",Codes.workGroup(Objects.toString(r.get("subcategory"),null),r.get("workGroup")));r.remove("embeddingJson");r.remove("clientRequestId");}

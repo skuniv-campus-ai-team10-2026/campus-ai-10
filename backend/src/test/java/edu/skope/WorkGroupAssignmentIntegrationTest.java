@@ -53,7 +53,7 @@ class WorkGroupAssignmentIntegrationTest {
     JsonNode accepted(String text)throws Exception{
         var r=file(text);
         assertEquals("ACCEPTED",r.path("status").asText(),text+" is clear: no follow-up question ("+r.at("/analysis/report/followUpQuestion")+")");
-        assertTrue(r.at("/report/reviewNote").isNull(),"routing alone never adds a review note (similar-report comparison stays on)");
+        assertNull(db.one("SELECT review_note FROM reports WHERE id=?",r.at("/report/id").asLong()).get("reviewNote"),"routing alone never adds a review note (similar-report comparison stays on)");
         return r.path("report");
     }
     JsonNode admin(JsonNode report)throws Exception{return http.new Session().login("admin").ok("GET","/admin/reports/"+report.path("id").asLong(),null,200);}
