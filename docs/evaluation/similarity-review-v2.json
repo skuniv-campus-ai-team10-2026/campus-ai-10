@@ -1,0 +1,789 @@
+{
+  "schemaVersion": 1,
+  "id": "similarity-review-v2",
+  "preparedDate": "2026-10-30",
+  "status": "PREPARED_NOT_RUN",
+  "labelProvenance": "Codex-authored synthetic challenge set, expectations fixed before model/vector output. Not independently human-reviewed. Not a representative independent accuracy estimate; some semantic families overlap earlier development data.",
+  "scope": "Pair policy and real embedding semantics on explicitly fixed confirmed fields. No claim to include LLM extraction accuracy or live browser E2E. Every report/problem/object placement is fictional. Published place addresses are reused only as identifiers.",
+  "measurement": {
+    "primaryPairs": 16,
+    "positivePairs": 8,
+    "negativePairs": 8,
+    "metrics": [
+      "TP",
+      "FP",
+      "TN",
+      "FN",
+      "Precision",
+      "Recall"
+    ],
+    "boundaryChecksExcludedFromMetrics": true,
+    "workflowChecksExcludedFromMetrics": true,
+    "labelDefinition": "Whether these reports of the same observed issue should be offered together for administrator review. Explicitly different objects/issues are negative. No label establishes real root cause or authorizes incident merge.",
+    "threshold": 0.82,
+    "conditionalWifiSupportThreshold": 0.7,
+    "windowDays": 30,
+    "embeddingModel": "text-embedding-3-small"
+  },
+  "execution": {
+    "paidCallsAuthorized": false,
+    "paidCallsThisPreparation": 0,
+    "plannedNewLlmCalls": 0,
+    "maximumNewEmbeddingAttemptsIfLaterAuthorized": 32,
+    "automaticPaidRetries": false,
+    "overwriteExistingResults": false,
+    "liveMayStartOnlyAfter": "Separate execution authorization, current unit-price/token estimate and run spend cap are recorded; stop on the first failed paid attempt.",
+    "caching": "Reuse exact embedding input+model+revision only. Do not substitute old vectors after changing text/place/symptom. Keep local safety tests separate from LIVE measurements."
+  },
+  "locationEvidenceFile": "docs/evaluation/campus-locations.json",
+  "locationsCheckedAt": "2026-10-20",
+  "reports": [
+    {
+      "id": "R01",
+      "requestKind": "REPORT",
+      "category": "IT",
+      "subcategory": "WIFI",
+      "workGroup": "IT_SUPPORT",
+      "targetText": "무선망",
+      "campusRelevance": "CAMPUS_FACILITY",
+      "building": "북악관",
+      "floor": null,
+      "locationText": "북악관 608호",
+      "symptom": "무선 연결이 주기적으로 해제됨",
+      "originalText": "북악관 608호에서 무선 연결이 삼십 초쯤 지나면 해제되고 다시 연결됩니다.",
+      "createdAt": "2026-10-29T09:00:00",
+      "reviewNote": null
+    },
+    {
+      "id": "R02",
+      "requestKind": "REPORT",
+      "category": "IT",
+      "subcategory": "WIFI",
+      "workGroup": "IT_SUPPORT",
+      "targetText": "무선망",
+      "campusRelevance": "CAMPUS_FACILITY",
+      "building": "북악관",
+      "floor": null,
+      "locationText": "북악관 608호",
+      "symptom": "수업 중 무선망 접속이 반복 해제됨",
+      "originalText": "북악관 608호 무선망이 붙었다 떨어졌다 해서 수업 자료를 열기 어렵습니다.",
+      "createdAt": "2026-10-29T09:00:00",
+      "reviewNote": null
+    },
+    {
+      "id": "R03",
+      "requestKind": "REPORT",
+      "category": "FACILITY",
+      "subcategory": "LEAK",
+      "workGroup": "FACILITY_MAINTENANCE",
+      "targetText": "천장 배관",
+      "campusRelevance": "CAMPUS_FACILITY",
+      "building": "은주2관",
+      "floor": "2",
+      "locationText": "은주2관 2층 205호",
+      "symptom": "사무실 입구 천장 배관에서 물이 떨어짐",
+      "originalText": "은주2관 2층 205호 사무실 입구 위 배관에서 물방울이 떨어져 바닥이 젖습니다.",
+      "createdAt": "2026-10-29T09:00:00",
+      "reviewNote": null
+    },
+    {
+      "id": "R04",
+      "requestKind": "REPORT",
+      "category": "FACILITY",
+      "subcategory": "LEAK",
+      "workGroup": "FACILITY_MAINTENANCE",
+      "targetText": "천장 배관",
+      "campusRelevance": "CAMPUS_FACILITY",
+      "building": "은주2관",
+      "floor": "2",
+      "locationText": "은주2관 2층 205호",
+      "symptom": "사무실 입구 위쪽 배관의 물방울",
+      "originalText": "은주2관 2층 205호 출입문 바로 위 배관 연결 부위에서 물이 똑똑 샙니다.",
+      "createdAt": "2026-10-29T09:00:00",
+      "reviewNote": null
+    },
+    {
+      "id": "R05",
+      "requestKind": "REPORT",
+      "category": "FACILITY",
+      "subcategory": "HVAC",
+      "workGroup": "FACILITY_MAINTENANCE",
+      "targetText": "에어컨",
+      "campusRelevance": "CAMPUS_FACILITY",
+      "building": "유담관",
+      "floor": "12",
+      "locationText": "유담관 12층 1202호",
+      "symptom": "사무실 창가 에어컨에서 찬 바람이 나오지 않음",
+      "originalText": "유담관 12층 1202호 사무실 창가 쪽 에어컨을 켜도 미지근한 바람만 나옵니다.",
+      "createdAt": "2026-10-29T09:00:00",
+      "reviewNote": null
+    },
+    {
+      "id": "R06",
+      "requestKind": "REPORT",
+      "category": "FACILITY",
+      "subcategory": "HVAC",
+      "workGroup": "FACILITY_MAINTENANCE",
+      "targetText": "에어컨",
+      "campusRelevance": "CAMPUS_FACILITY",
+      "building": "유담관",
+      "floor": "12",
+      "locationText": "유담관 12층 1202호",
+      "symptom": "창가 냉방기의 냉방 불량",
+      "originalText": "유담관 12층 1202호 창가 냉방기가 돌아가기는 하지만 전혀 시원하지 않습니다.",
+      "createdAt": "2026-10-29T09:00:00",
+      "reviewNote": null
+    },
+    {
+      "id": "R07",
+      "requestKind": "REPORT",
+      "category": "FACILITY",
+      "subcategory": "WATER_DISPENSER",
+      "workGroup": "SHARED_EQUIPMENT",
+      "targetText": "정수기",
+      "campusRelevance": "CAMPUS_FACILITY",
+      "building": "유담관",
+      "floor": "14",
+      "locationText": "유담관 14층 1404호",
+      "symptom": "사무실 정수기의 냉수 출수 불량",
+      "originalText": "유담관 14층 1404호 사무실 정수기에서 냉수 버튼을 눌러도 물이 나오지 않습니다.",
+      "createdAt": "2026-10-29T09:00:00",
+      "reviewNote": null
+    },
+    {
+      "id": "R08",
+      "requestKind": "REPORT",
+      "category": "FACILITY",
+      "subcategory": "WATER_DISPENSER",
+      "workGroup": "SHARED_EQUIPMENT",
+      "targetText": "정수기",
+      "campusRelevance": "CAMPUS_FACILITY",
+      "building": "유담관",
+      "floor": "14",
+      "locationText": "유담관 14층 1404호",
+      "symptom": "정수기의 찬물 출수가 안 됨",
+      "originalText": "유담관 14층 1404호 정수기 온수는 나오는데 찬물 쪽은 눌러도 아무것도 안 나와요.",
+      "createdAt": "2026-10-29T09:00:00",
+      "reviewNote": null
+    },
+    {
+      "id": "R09",
+      "requestKind": "REPORT",
+      "category": "FACILITY",
+      "subcategory": "ELECTRIC",
+      "workGroup": "ELECTRICAL_MAINTENANCE",
+      "targetText": "천장 조명",
+      "campusRelevance": "CAMPUS_FACILITY",
+      "building": "북악관",
+      "floor": null,
+      "locationText": "북악관 608호",
+      "symptom": "출입문 바로 위 조명의 반복 점멸",
+      "originalText": "북악관 608호 출입문 바로 위 천장 조명이 계속 깜빡거립니다.",
+      "createdAt": "2026-10-29T09:00:00",
+      "reviewNote": null
+    },
+    {
+      "id": "R10",
+      "requestKind": "REPORT",
+      "category": "FACILITY",
+      "subcategory": "ELECTRIC",
+      "workGroup": "ELECTRICAL_MAINTENANCE",
+      "targetText": "천장 조명",
+      "campusRelevance": "CAMPUS_FACILITY",
+      "building": "북악관",
+      "floor": null,
+      "locationText": "북악관 608호",
+      "symptom": "출입문 위 조명이 간헐적으로 꺼졌다 켜짐",
+      "originalText": "북악관 608호 문 위 전등이 밝아졌다 꺼졌다를 반복합니다.",
+      "createdAt": "2026-10-29T09:00:00",
+      "reviewNote": null
+    },
+    {
+      "id": "R11",
+      "requestKind": "REPORT",
+      "category": "FACILITY",
+      "subcategory": "FURNITURE",
+      "workGroup": "SHARED_EQUIPMENT",
+      "targetText": "의자",
+      "campusRelevance": "CAMPUS_FACILITY",
+      "building": "은주2관",
+      "floor": "2",
+      "locationText": "은주2관 2층 205호",
+      "symptom": "사무실 출입문 옆 의자의 다리 파손",
+      "originalText": "은주2관 2층 205호 사무실 출입문 바로 옆 의자의 오른쪽 앞다리가 부러졌습니다.",
+      "createdAt": "2026-10-29T09:00:00",
+      "reviewNote": null
+    },
+    {
+      "id": "R12",
+      "requestKind": "REPORT",
+      "category": "FACILITY",
+      "subcategory": "FURNITURE",
+      "workGroup": "SHARED_EQUIPMENT",
+      "targetText": "의자",
+      "campusRelevance": "CAMPUS_FACILITY",
+      "building": "은주2관",
+      "floor": "2",
+      "locationText": "은주2관 2층 205호",
+      "symptom": "입구 옆 의자 앞다리 파손",
+      "originalText": "은주2관 2층 205호 문 옆 의자 하나가 앞다리가 부러져서 앉을 수 없어요.",
+      "createdAt": "2026-10-29T09:00:00",
+      "reviewNote": null
+    },
+    {
+      "id": "R13",
+      "requestKind": "REPORT",
+      "category": "OTHER",
+      "subcategory": "UNKNOWN",
+      "workGroup": "FACILITY_MAINTENANCE",
+      "targetText": "거울",
+      "campusRelevance": "CAMPUS_FACILITY",
+      "building": "유담관",
+      "floor": "12",
+      "locationText": "유담관 12층 1202호",
+      "symptom": "사무실 출입문 오른쪽 벽 거울 균열",
+      "originalText": "유담관 12층 1202호 출입문 오른쪽 벽 거울에 긴 금이 생겼습니다.",
+      "createdAt": "2026-10-29T09:00:00",
+      "reviewNote": null
+    },
+    {
+      "id": "R14",
+      "requestKind": "REPORT",
+      "category": "OTHER",
+      "subcategory": "UNKNOWN",
+      "workGroup": "FACILITY_MAINTENANCE",
+      "targetText": "미러",
+      "campusRelevance": "CAMPUS_FACILITY",
+      "building": "유담관",
+      "floor": "12",
+      "locationText": "유담관 12층 1202호",
+      "symptom": "입구 오른편 벽 미러의 긴 균열",
+      "originalText": "유담관 12층 1202호 문 오른쪽에 붙은 미러가 세로로 길게 갈라져 있어요.",
+      "createdAt": "2026-10-29T09:00:00",
+      "reviewNote": null
+    },
+    {
+      "id": "R15",
+      "requestKind": "REPORT",
+      "category": "OTHER",
+      "subcategory": "UNKNOWN",
+      "workGroup": "FACILITY_MAINTENANCE",
+      "targetText": "문손잡이",
+      "campusRelevance": "CAMPUS_FACILITY",
+      "building": "유담관",
+      "floor": "14",
+      "locationText": "유담관 14층 1404호",
+      "symptom": "사무실 출입문 손잡이가 헛돎",
+      "originalText": "유담관 14층 1404호 사무실 출입문 문손잡이가 헛돌아서 문을 열기 어렵습니다.",
+      "createdAt": "2026-10-29T09:00:00",
+      "reviewNote": null
+    },
+    {
+      "id": "R16",
+      "requestKind": "REPORT",
+      "category": "OTHER",
+      "subcategory": "UNKNOWN",
+      "workGroup": "FACILITY_MAINTENANCE",
+      "targetText": "손잡이",
+      "campusRelevance": "CAMPUS_FACILITY",
+      "building": "유담관",
+      "floor": "14",
+      "locationText": "유담관 14층 1404호",
+      "symptom": "출입문 손잡이를 돌려도 문이 열리지 않음",
+      "originalText": "유담관 14층 1404호 출입문 손잡이를 돌려도 걸쇠가 움직이지 않고 손잡이만 돌아가요.",
+      "createdAt": "2026-10-29T09:00:00",
+      "reviewNote": null
+    },
+    {
+      "id": "R17",
+      "requestKind": "REPORT",
+      "category": "IT",
+      "subcategory": "WIFI",
+      "workGroup": "IT_SUPPORT",
+      "targetText": "무선망",
+      "campusRelevance": "CAMPUS_FACILITY",
+      "building": "북악관",
+      "floor": null,
+      "locationText": "북악관 608호",
+      "symptom": "무선망 연결 자체가 끊김",
+      "originalText": "북악관 608호에서 연결되어 있던 와이파이가 자꾸 해제됩니다.",
+      "createdAt": "2026-10-29T09:00:00",
+      "reviewNote": null
+    },
+    {
+      "id": "R18",
+      "requestKind": "REPORT",
+      "category": "IT",
+      "subcategory": "WIFI",
+      "workGroup": "IT_SUPPORT",
+      "targetText": "무선망 안내문",
+      "campusRelevance": "CAMPUS_FACILITY",
+      "building": "북악관",
+      "floor": null,
+      "locationText": "북악관 608호",
+      "symptom": "정상 사용 중인 무선망의 안내문 훼손",
+      "originalText": "북악관 608호 와이파이는 정상인데 비밀번호를 적은 안내문 글씨가 지워졌습니다.",
+      "createdAt": "2026-10-29T09:00:00",
+      "reviewNote": null
+    },
+    {
+      "id": "R19",
+      "requestKind": "REPORT",
+      "category": "FACILITY",
+      "subcategory": "LEAK",
+      "workGroup": "FACILITY_MAINTENANCE",
+      "targetText": "천장 배관",
+      "campusRelevance": "CAMPUS_FACILITY",
+      "building": "은주2관",
+      "floor": "2",
+      "locationText": "은주2관 2층 205호",
+      "symptom": "사무실 출입문 위 천장 배관 누수",
+      "originalText": "은주2관 2층 205호 출입문 위쪽 천장 배관에서 물이 샙니다.",
+      "createdAt": "2026-10-29T09:00:00",
+      "reviewNote": null
+    },
+    {
+      "id": "R20",
+      "requestKind": "REPORT",
+      "category": "FACILITY",
+      "subcategory": "LEAK",
+      "workGroup": "FACILITY_MAINTENANCE",
+      "targetText": "창틀",
+      "campusRelevance": "CAMPUS_FACILITY",
+      "building": "은주2관",
+      "floor": "2",
+      "locationText": "은주2관 2층 205호",
+      "symptom": "비가 올 때 반대편 창틀에서 물이 들어옴",
+      "originalText": "은주2관 2층 205호 반대쪽 창틀에 비가 들이칩니다. 천장 배관은 마른 상태입니다.",
+      "createdAt": "2026-10-29T09:00:00",
+      "reviewNote": null
+    },
+    {
+      "id": "R21",
+      "requestKind": "REPORT",
+      "category": "FACILITY",
+      "subcategory": "HVAC",
+      "workGroup": "FACILITY_MAINTENANCE",
+      "targetText": "에어컨",
+      "campusRelevance": "CAMPUS_FACILITY",
+      "building": "유담관",
+      "floor": "12",
+      "locationText": "유담관 12층 1202호",
+      "symptom": "창가 에어컨의 냉방 불량",
+      "originalText": "유담관 12층 1202호 창가 쪽 에어컨만 찬 바람이 안 나옵니다.",
+      "createdAt": "2026-10-29T09:00:00",
+      "reviewNote": null
+    },
+    {
+      "id": "R22",
+      "requestKind": "REPORT",
+      "category": "FACILITY",
+      "subcategory": "HVAC",
+      "workGroup": "FACILITY_MAINTENANCE",
+      "targetText": "에어컨",
+      "campusRelevance": "CAMPUS_FACILITY",
+      "building": "유담관",
+      "floor": "12",
+      "locationText": "유담관 12층 1202호",
+      "symptom": "출입문 쪽 별도 에어컨의 누수",
+      "originalText": "유담관 12층 1202호 출입문 쪽 다른 에어컨에서 물이 떨어집니다. 창가 쪽 기기와 별개입니다.",
+      "createdAt": "2026-10-29T09:00:00",
+      "reviewNote": null
+    },
+    {
+      "id": "R23",
+      "requestKind": "REPORT",
+      "category": "FACILITY",
+      "subcategory": "FURNITURE",
+      "workGroup": "SHARED_EQUIPMENT",
+      "targetText": "의자",
+      "campusRelevance": "CAMPUS_FACILITY",
+      "building": "은주2관",
+      "floor": "2",
+      "locationText": "은주2관 2층 205호",
+      "symptom": "출입문 옆 의자 등받이 파손",
+      "originalText": "은주2관 2층 205호 출입문 옆 의자의 등받이가 떨어졌습니다.",
+      "createdAt": "2026-10-29T09:00:00",
+      "reviewNote": null
+    },
+    {
+      "id": "R24",
+      "requestKind": "REPORT",
+      "category": "FACILITY",
+      "subcategory": "FURNITURE",
+      "workGroup": "SHARED_EQUIPMENT",
+      "targetText": "책상",
+      "campusRelevance": "CAMPUS_FACILITY",
+      "building": "은주2관",
+      "floor": "2",
+      "locationText": "은주2관 2층 205호",
+      "symptom": "창가 책상의 서랍 파손",
+      "originalText": "은주2관 2층 205호 창가 책상의 서랍 손잡이가 부러졌습니다.",
+      "createdAt": "2026-10-29T09:00:00",
+      "reviewNote": null
+    },
+    {
+      "id": "R25",
+      "requestKind": "REPORT",
+      "category": "FACILITY",
+      "subcategory": "ELECTRIC",
+      "workGroup": "ELECTRICAL_MAINTENANCE",
+      "targetText": "조명",
+      "campusRelevance": "CAMPUS_FACILITY",
+      "building": "북악관",
+      "floor": null,
+      "locationText": "북악관 608호",
+      "symptom": "출입문 위 전등 고장",
+      "originalText": "북악관 608호 출입문 위 전등 한 개가 켜지지 않습니다.",
+      "createdAt": "2026-10-29T09:00:00",
+      "reviewNote": null
+    },
+    {
+      "id": "R26",
+      "requestKind": "REPORT",
+      "category": "FACILITY",
+      "subcategory": "ELECTRIC",
+      "workGroup": "ELECTRICAL_MAINTENANCE",
+      "targetText": "콘센트",
+      "campusRelevance": "CAMPUS_FACILITY",
+      "building": "북악관",
+      "floor": null,
+      "locationText": "북악관 608호",
+      "symptom": "반대편 콘센트의 외관 파손",
+      "originalText": "북악관 608호 반대편 콘센트 덮개가 깨졌습니다. 전등은 정상적으로 켜집니다.",
+      "createdAt": "2026-10-29T09:00:00",
+      "reviewNote": null
+    },
+    {
+      "id": "R27",
+      "requestKind": "REPORT",
+      "category": "OTHER",
+      "subcategory": "UNKNOWN",
+      "workGroup": "FACILITY_MAINTENANCE",
+      "targetText": "거울",
+      "campusRelevance": "CAMPUS_FACILITY",
+      "building": "유담관",
+      "floor": "12",
+      "locationText": "유담관 12층 1202호",
+      "symptom": "벽 거울의 균열",
+      "originalText": "유담관 12층 1202호 입구 벽 거울이 갈라졌습니다.",
+      "createdAt": "2026-10-29T09:00:00",
+      "reviewNote": null
+    },
+    {
+      "id": "R28",
+      "requestKind": "REPORT",
+      "category": "OTHER",
+      "subcategory": "UNKNOWN",
+      "workGroup": "FACILITY_MAINTENANCE",
+      "targetText": "문손잡이",
+      "campusRelevance": "CAMPUS_FACILITY",
+      "building": "유담관",
+      "floor": "12",
+      "locationText": "유담관 12층 1202호",
+      "symptom": "출입문 손잡이 탈락",
+      "originalText": "유담관 12층 1202호 문손잡이가 빠져서 바닥에 떨어졌습니다.",
+      "createdAt": "2026-10-29T09:00:00",
+      "reviewNote": null
+    },
+    {
+      "id": "R29",
+      "requestKind": "REPORT",
+      "category": "OTHER",
+      "subcategory": "UNKNOWN",
+      "workGroup": "FACILITY_MAINTENANCE",
+      "targetText": "거울",
+      "campusRelevance": "CAMPUS_FACILITY",
+      "building": "유담관",
+      "floor": "12",
+      "locationText": "유담관 12층 1202호",
+      "symptom": "출입문 오른쪽 거울 균열",
+      "originalText": "유담관 12층 1202호 출입문 오른쪽 거울에 금이 갔습니다.",
+      "createdAt": "2026-10-29T09:00:00",
+      "reviewNote": null
+    },
+    {
+      "id": "R30",
+      "requestKind": "REPORT",
+      "category": "OTHER",
+      "subcategory": "UNKNOWN",
+      "workGroup": "FACILITY_MAINTENANCE",
+      "targetText": "거울",
+      "campusRelevance": "CAMPUS_FACILITY",
+      "building": "유담관",
+      "floor": "12",
+      "locationText": "유담관 12층 1202호",
+      "symptom": "반대편 창가의 별도 거울 파손",
+      "originalText": "유담관 12층 1202호 창가의 다른 거울이 깨졌습니다. 출입문 오른쪽 거울과 별개입니다.",
+      "createdAt": "2026-10-29T09:00:00",
+      "reviewNote": null
+    },
+    {
+      "id": "R31",
+      "requestKind": "REPORT",
+      "category": "OTHER",
+      "subcategory": "UNKNOWN",
+      "workGroup": "FACILITY_MAINTENANCE",
+      "targetText": "안내판",
+      "campusRelevance": "CAMPUS_FACILITY",
+      "building": "유담관",
+      "floor": "14",
+      "locationText": "유담관 14층 1404호",
+      "symptom": "학교 고정 안내판 지지대 파손",
+      "originalText": "유담관 14층 1404호 입구에 고정된 학교 안내판의 지지대가 부러졌습니다.",
+      "createdAt": "2026-10-29T09:00:00",
+      "reviewNote": null
+    },
+    {
+      "id": "R32",
+      "requestKind": "REPORT",
+      "category": "OTHER",
+      "subcategory": "UNKNOWN",
+      "workGroup": "SHARED_EQUIPMENT",
+      "targetText": "실습복",
+      "campusRelevance": "SCHOOL_SERVICE",
+      "building": "유담관",
+      "floor": "14",
+      "locationText": "유담관 14층 1404호",
+      "symptom": "학교 대여 실습복의 지퍼 파손",
+      "originalText": "유담관 14층 1404호에서 학교 대여 실습복을 받았는데 지퍼가 망가져 교환을 요청합니다.",
+      "createdAt": "2026-10-29T09:00:00",
+      "reviewNote": null
+    }
+  ],
+  "pairs": [
+    {
+      "id": "S01",
+      "leftReportId": "R01",
+      "rightReportId": "R02",
+      "expectedCandidate": true,
+      "reason": "같은 호실에서 반복되는 무선 연결 해제의 다른 표현"
+    },
+    {
+      "id": "S02",
+      "leftReportId": "R03",
+      "rightReportId": "R04",
+      "expectedCandidate": true,
+      "reason": "동일 위치의 배관 누수를 구체적으로 지칭"
+    },
+    {
+      "id": "S03",
+      "leftReportId": "R05",
+      "rightReportId": "R06",
+      "expectedCandidate": true,
+      "reason": "같은 창가 냉방기의 냉방 불량"
+    },
+    {
+      "id": "S04",
+      "leftReportId": "R07",
+      "rightReportId": "R08",
+      "expectedCandidate": true,
+      "reason": "동일 정수기의 냉수 출수 장애"
+    },
+    {
+      "id": "S05",
+      "leftReportId": "R09",
+      "rightReportId": "R10",
+      "expectedCandidate": true,
+      "reason": "동일한 위치의 조명 점멸"
+    },
+    {
+      "id": "S06",
+      "leftReportId": "R11",
+      "rightReportId": "R12",
+      "expectedCandidate": true,
+      "reason": "동일 의자의 지지대 파손"
+    },
+    {
+      "id": "S07",
+      "leftReportId": "R13",
+      "rightReportId": "R14",
+      "expectedCandidate": true,
+      "reason": "같은 벽 거울의 균열과 지원되는 거울/미러 호환"
+    },
+    {
+      "id": "S08",
+      "leftReportId": "R15",
+      "rightReportId": "R16",
+      "expectedCandidate": true,
+      "reason": "같은 출입문 장애이며 대상 명칭 차이를 점수와 별도로 평가"
+    },
+    {
+      "id": "S09",
+      "leftReportId": "R17",
+      "rightReportId": "R18",
+      "expectedCandidate": false,
+      "reason": "실제 연결 장애와 정상 망의 안내문 훼손은 다른 문제"
+    },
+    {
+      "id": "S10",
+      "leftReportId": "R19",
+      "rightReportId": "R20",
+      "expectedCandidate": false,
+      "reason": "같은 방이지만 명시적으로 다른 누수 지점과 조건"
+    },
+    {
+      "id": "S11",
+      "leftReportId": "R21",
+      "rightReportId": "R22",
+      "expectedCandidate": false,
+      "reason": "명시적으로 다른 두 기기와 다른 증상"
+    },
+    {
+      "id": "S12",
+      "leftReportId": "R23",
+      "rightReportId": "R24",
+      "expectedCandidate": false,
+      "reason": "같은 비품 유형과 방이지만 대상과 고장이 다름"
+    },
+    {
+      "id": "S13",
+      "leftReportId": "R25",
+      "rightReportId": "R26",
+      "expectedCandidate": false,
+      "reason": "전등 장애와 별도 콘센트 외관 파손"
+    },
+    {
+      "id": "S14",
+      "leftReportId": "R27",
+      "rightReportId": "R28",
+      "expectedCandidate": false,
+      "reason": "기타 신고의 같은 업무 그룹 안에서 대상이 다름"
+    },
+    {
+      "id": "S15",
+      "leftReportId": "R29",
+      "rightReportId": "R30",
+      "expectedCandidate": false,
+      "reason": "동일한 대상 이름이어도 명시적으로 다른 물체"
+    },
+    {
+      "id": "S16",
+      "leftReportId": "R31",
+      "rightReportId": "R32",
+      "expectedCandidate": false,
+      "reason": "같은 장소의 기타 신고지만 대상과 처리 업무 그룹이 다름"
+    }
+  ],
+  "boundaryChecks": [
+    {
+      "id": "B01",
+      "basePair": "S01",
+      "patch": {
+        "right": {
+          "createdAt": "2026-11-28T09:00:00"
+        }
+      },
+      "assertion": "TIME_WINDOW_PASS",
+      "expectedGate": true,
+      "note": "정확히 30일. 합성 시각 경계 검사이며 평가 당일의 실제 접수 아님"
+    },
+    {
+      "id": "B02",
+      "basePair": "S01",
+      "patch": {
+        "right": {
+          "createdAt": "2026-11-28T09:00:01"
+        }
+      },
+      "assertion": "TIME_WINDOW_PASS",
+      "expectedGate": false,
+      "note": "30일을 1초 초과하면 제외"
+    },
+    {
+      "id": "B03",
+      "basePair": "S02",
+      "patch": {
+        "right": {
+          "floor": null
+        }
+      },
+      "assertion": "PLACE_GATE_PASS",
+      "expectedGate": true,
+      "note": "같은 호실이고 한쪽 층만 누락"
+    },
+    {
+      "id": "B04",
+      "basePair": "S02",
+      "patch": {
+        "right": {
+          "floor": "3"
+        }
+      },
+      "assertion": "PLACE_GATE_PASS",
+      "expectedGate": false,
+      "note": "의도적으로 층 메타데이터를 충돌시킨 결정적 정책 검사. 실제 공간 주장 아님"
+    },
+    {
+      "id": "B05",
+      "basePair": "S01",
+      "patch": {
+        "right": {
+          "building": null
+        }
+      },
+      "assertion": "PLACE_GATE_PASS",
+      "expectedGate": false,
+      "note": "건물 추출 누락은 후보 차단. 원문만으로 자동 복구한다고 가정하지 않음"
+    },
+    {
+      "id": "B06",
+      "basePair": "S01",
+      "patch": {
+        "right": {
+          "requestKind": "QUESTION"
+        }
+      },
+      "assertion": "ELIGIBLE_FOR_INDEX",
+      "expectedGate": false,
+      "note": "실제 index와 조회로 검증. diagnose만으로는 문의 제외를 확인할 수 없음"
+    },
+    {
+      "id": "B07",
+      "basePair": "S01",
+      "patch": {
+        "right": {
+          "reviewNote": "[합성] 소유 미확정 관리자 확인 필요"
+        }
+      },
+      "assertion": "ELIGIBLE_FOR_INDEX",
+      "expectedGate": false,
+      "note": "검토 메모 접수 제외는 실제 index와 DB 조회로 검증"
+    },
+    {
+      "id": "B08",
+      "basePair": "S01",
+      "patch": {
+        "both": {
+          "embeddingJson": null,
+          "embeddingModel": null
+        }
+      },
+      "assertion": "FALLBACK_ONLY",
+      "expectedGate": true,
+      "note": "실패를 로컬 대역으로 주입. 접수 보존, 점수 null/RULE_ONLY, 자동 사건 연결 없음. 실제 공급자에 실패 요청을 보내지 않음"
+    }
+  ],
+  "workflowChecks": [
+    {
+      "id": "W01",
+      "expectation": "후보 생성만으로 reports.incident_id가 설정되거나 신고 수가 줄지 않는다"
+    },
+    {
+      "id": "W02",
+      "expectation": "권한 있는 관리자의 SAME_INCIDENT 결정 후 신고 2건/사건 1건으로 구분된다"
+    },
+    {
+      "id": "W03",
+      "expectation": "RELATED_DISTINCT 또는 REJECTED 후 재색인해도 관리자 결정을 덮어쓰지 않는다"
+    },
+    {
+      "id": "W04",
+      "expectation": "부서 담당자는 권한 밖 신고/유사 후보를 조회하거나 결정할 수 없다"
+    },
+    {
+      "id": "W05",
+      "expectation": "완료된 사건 뒤 신규 신고는 재발 후보일 뿐이며 관리자 확정 전 재발 확정으로 표시하지 않는다"
+    }
+  ]
+}
