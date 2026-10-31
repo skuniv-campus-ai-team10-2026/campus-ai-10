@@ -3,6 +3,7 @@ import {cleanup,fireEvent,render,screen,waitFor} from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import {MemoryRouter,Route,Routes} from 'react-router-dom';
 import {api,post,patch} from './api';
+import {clearPendingPhotos} from './attachments';
 import {AnalyzePage,HomePage} from './student';
 import {ReportDetailPage} from './reports';
 import {SessionContext} from './context';
@@ -13,6 +14,24 @@ const baseDraft:Draft={originalText:'학교 인터넷이 안 돼요',preferredIn
 function mountAnalysis(draft:Draft){sessionStorage.setItem('skope-draft',JSON.stringify(draft));return render(<MemoryRouter initialEntries={['/report/analyze']}><Routes><Route path="/report/analyze" element={<AnalyzePage/>}/><Route path="/reports/success" element={<div>접수 성공 화면</div>}/></Routes></MemoryRouter>);}
 describe('student and admin workflows',()=>{
  beforeEach(()=>{cleanup();sessionStorage.clear();vi.clearAllMocks();vi.mocked(api).mockResolvedValue({items:[{id:1,category:'IT',subcategory:'WIFI',workName:'무선 인터넷',departmentName:'정보전산원',verified:true}]});});
+ it.each(['reanalyze','manual','remove'] as const)('preserves photo selection through %s and reload',async(action)=>{
+  clearPendingPhotos();URL.createObjectURL=vi.fn(()=>'blob:preview');URL.revokeObjectURL=vi.fn();
+  const user=userEvent.setup();
+  const initial=action==='manual'?{...baseDraft,analysis:{intent:'QUESTION' as const,aiMode:'DEMO' as const,report:null,questionAnswer:null,routingPreview:null}}:baseDraft;
+  mountAnalysis({...initial,hadPhotos:false});
+  await user.upload(screen.getByLabelText('첨부 사진 선택'),new File(['photo'],'test.png',{type:'image/png'}));
+  if(action==='remove')await user.click(screen.getByRole('button',{name:'test.png 삭제'}));
+  if(action==='manual')await user.click(screen.getByRole('button',{name:'분석 없이 직접 신고 내용 입력'}));
+  else{
+   vi.mocked(post).mockResolvedValue({...baseDraft.analysis,report:{...baseDraft.analysis!.report,followUpQuestion:null}});
+   await user.type(screen.getByLabelText('추가 질문 답변'),'북악관 502호');await user.click(screen.getByRole('button',{name:'재분석'}));
+   await waitFor(()=>expect(screen.queryByLabelText('추가 질문 답변')).not.toBeInTheDocument());
+  }
+  const saved=JSON.parse(sessionStorage.getItem('skope-draft')!) as Draft;expect(saved.hadPhotos).toBe(action!=='remove');
+  if(action==='manual')expect(saved.manual).toBe(true);
+  cleanup();clearPendingPhotos();mountAnalysis(saved);
+  expect(screen.queryByText(/새로고침으로 이전에 선택한 사진이 사라졌습니다/)!==null).toBe(action!=='remove');
+ });
  it('renders an unsupported question without creating a report',async()=>{
   mountAnalysis({...baseDraft,analysis:{intent:'QUESTION',aiMode:'DEMO',report:null,routingPreview:null,questionAnswer:{text:'확인된 안내 근거가 없어 답변할 수 없습니다.',verified:false}}});
   expect(await screen.findByText('확인된 안내 근거가 없어 답변할 수 없습니다.')).toBeInTheDocument();

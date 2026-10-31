@@ -1,4 +1,4 @@
-import {bindPhotos} from './attachments';
+import {bindPhotos,DraftPhotoRecovery} from './attachments';
 import {ChevronLeft,ClipboardCheck,FilePenLine,Send} from 'lucide-react';
 import {useEffect,useRef,useState} from 'react';
 import {Link,useNavigate} from 'react-router-dom';
@@ -10,7 +10,8 @@ export function IntakeFlow({draft,onEdit}:{draft:Draft;onEdit:()=>void}) {
  const navigate=useNavigate(),[result,setResult]=useState(draft.intakeResult),[answer,setAnswer]=useState(''),[busy,setBusy]=useState(false),[error,setError]=useState<unknown>(null),pending=useRef(false);
  function receive(next:IntakeResult){
   if(next.status==='ACCEPTED'&&next.report){bindPhotos(draft.clientRequestId,next.report.id);sessionStorage.removeItem('skope-draft');sessionStorage.setItem('skope-last-report',String(next.report.id));navigate('/reports/success',{state:{report:next.report},replace:true});return;}
-  setResult(next);sessionStorage.setItem('skope-draft',JSON.stringify({...draft,intakeResult:next,analysis:next.analysis??undefined}));
+  const saved=sessionStorage.getItem('skope-draft');const current:Draft=saved?JSON.parse(saved):draft;
+  setResult(next);sessionStorage.setItem('skope-draft',JSON.stringify({...draft,hadPhotos:current.clientRequestId===draft.clientRequestId?current.hadPhotos:draft.hadPhotos,intakeResult:next,analysis:next.analysis??undefined}));
  }
  useEffect(()=>{
   let active=true;setBusy(true);
@@ -31,14 +32,14 @@ export function IntakeFlow({draft,onEdit}:{draft:Draft;onEdit:()=>void}) {
 
   <section className="card answer-card intake-card">{result?.status==='NEEDS_INPUT'&&<div className="card-top intake-assistant-heading"><span className="icon-tile"><img className="assistant-logo" src="/skope-assistant-outline.svg" alt=""/></span><div><h2>SKOPE 도우미</h2><p>접수에 필요한 내용만 확인할게요.</p></div></div>}
    <div className="intake-context">
-    {(report?.locationText||report?.symptom||report?.occurredAtText)&&<div className="intake-summary" aria-label="현재 파악한 내용"><h3>현재 파악한 내용</h3><dl>{report.locationText&&<div><dt>장소</dt><dd>{report.locationText}</dd></div>}{report.symptom&&<div><dt>문제·문의</dt><dd>{report.symptom}</dd></div>}{report.occurredAtText&&<div><dt>발생 시점</dt><dd>{report.occurredAtText}</dd></div>}</dl></div>}
-    <details><summary>처음 남긴 내용</summary><blockquote>{draft.originalText}</blockquote></details>
+    {(report?.locationText||report?.symptom||report?.occurredAtText)&&<div className="intake-summary" aria-label="현재까지 파악한 내용"><h3>현재까지 파악한 내용</h3><dl>{report.locationText&&<div><dt>장소</dt><dd>{report.locationText}</dd></div>}{report.symptom&&<div><dt>문제·문의</dt><dd>{report.symptom}</dd></div>}{report.occurredAtText&&<div><dt>발생 시점</dt><dd>{report.occurredAtText}</dd></div>}</dl></div>}
+    <details><summary>최초 원문 보기</summary><blockquote>{draft.originalText}</blockquote></details>
     {result?.latestAnswer&&<p className="intake-latest-answer">마지막 답변: {result.latestAnswer}</p>}
    </div>
 
    {analysis?.report?.emergencyHint&&<Emergency/>}<ErrorBox error={error}/>
    {busy&&<Loading text="내용을 확인하고 있어요"/>}
-   {result?.status==='NEEDS_INPUT'&&question?<form onSubmit={e=>{e.preventDefault();void send();}}><h3 id="intake-question" className="intake-question">{question}</h3>{analysis?.clarification?.message&&analysis.clarification.message!=='담당자가 어떤 문제를 처리해야 하는지 알아야 해요.'&&<p className="field-hint">{analysis.clarification.message}</p>}<label>추가 답변<textarea required maxLength={500} value={answer} onChange={e=>setAnswer(e.target.value)} placeholder={placeholder} aria-describedby="intake-question" rows={3}/></label><button className="button primary" disabled={busy}><Send size={16} aria-hidden="true"/>답변 보내기</button></form>:<p>{result?.message}</p>}
+   {result?.status==='NEEDS_INPUT'&&question?<form onSubmit={e=>{e.preventDefault();void send();}}><h3 id="intake-question" className="intake-question">{question}</h3>{analysis?.clarification?.message&&analysis.clarification.message!=='담당자가 어떤 문제를 처리해야 하는지 알아야 해요.'&&<p className="field-hint">{analysis.clarification.message}</p>}<label>추가 답변<textarea required maxLength={500} value={answer} onChange={e=>setAnswer(e.target.value)} placeholder={placeholder} aria-describedby="intake-question" rows={3}/></label><DraftPhotoRecovery draft={draft} disabled={busy}/><button className="button primary" disabled={busy}><Send size={16} aria-hidden="true"/>답변 보내기</button></form>:<><p>{result?.message}</p><DraftPhotoRecovery draft={draft} disabled={busy}/></>}
    {result&&<div className="intake-actions">
     <button className="button intake-outline" disabled={busy} onClick={onEdit}><FilePenLine size={16} aria-hidden="true"/>내용 직접 수정</button>
     <button className="button intake-outline" disabled={busy} onClick={()=>void send(true)}><ClipboardCheck size={16} aria-hidden="true"/>이 내용으로 접수하기</button>

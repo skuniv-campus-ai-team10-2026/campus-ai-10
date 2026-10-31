@@ -1,3 +1,4 @@
+import type {Draft} from './types';
 import {useEffect,useRef,useState,useSyncExternalStore} from 'react';
 import {Camera,Trash2} from 'lucide-react';
 import {api,ApiError} from './api';
@@ -77,7 +78,7 @@ export function ReportPhotos({reportId,admin=false,autoUpload=false,canUpload=tr
 export function PhotoPicker({files,onChange,disabled=false}:{files:File[];onChange:(files:File[])=>void;disabled?:boolean}){
   const input=useRef<HTMLInputElement>(null),[error,setError]=useState<string|null>(null),[dragging,setDragging]=useState(false);
  function addPhotos(selected:File[]){if(disabled||!selected.length)return;const message=validatePhotos(selected,files.length);setError(message);if(!message)onChange([...files,...selected]);}
- return <section className={dragging?"photo-picker is-dragging":"photo-picker"} aria-label="사진 첨부" onDragOver={e=>{if(!Array.from(e.dataTransfer.types).includes('Files'))return;e.preventDefault();e.dataTransfer.dropEffect=disabled?'none':'copy';if(!disabled)setDragging(true);}} onDragLeave={e=>{if(!e.currentTarget.contains(e.relatedTarget as Node|null))setDragging(false);}} onDrop={e=>{e.preventDefault();setDragging(false);addPhotos(Array.from(e.dataTransfer.files));}}><div className="photo-heading"><strong>사진 첨부 <span>(선택)</span></strong><small>{files.length}/3</small></div><p>현장 사진을 함께 남겨 주세요.</p><button className="photo-dropzone" type="button" disabled={disabled||files.length>=3} onClick={()=>input.current?.click()}><Camera size={28}/><strong>{dragging?'여기에 사진을 놓아주세요':'사진 추가하기'}</strong></button><input ref={input} className="sr-only" type="file" accept="image/jpeg,image/png,.jpg,.jpeg,.png" multiple aria-label="첨부 사진 선택" disabled={disabled} onChange={e=>{addPhotos(Array.from(e.target.files??[]));e.target.value='';}}/>{error&&<p className="photo-error" role="alert">{error}</p>}<div className="photo-grid">{files.map((file,index)=><figure key={`${index}-${file.name}`}><Preview file={file}/><figcaption>{file.name}</figcaption><button type="button" aria-label={`${file.name} 삭제`} disabled={disabled} onClick={()=>{onChange(files.filter((_,i)=>i!==index));setError(null);}}><Trash2 size={16}/></button></figure>)}</div></section>;
+ return <section className={dragging?"photo-picker is-dragging":"photo-picker"} aria-label="사진 첨부" onDragOver={e=>{if(!Array.from(e.dataTransfer.types).includes('Files'))return;e.preventDefault();e.dataTransfer.dropEffect=disabled?'none':'copy';if(!disabled)setDragging(true);}} onDragLeave={e=>{if(!e.currentTarget.contains(e.relatedTarget as Node|null))setDragging(false);}} onDrop={e=>{e.preventDefault();setDragging(false);addPhotos(Array.from(e.dataTransfer.files));}}><div className="photo-heading"><strong>사진 첨부 <span>(선택)</span></strong><small>{files.length}/3</small></div><p>현장 사진을 함께 남겨 주세요.</p><button className="photo-dropzone" type="button" disabled={disabled||files.length>=3} onClick={()=>input.current?.click()}><Camera size={28}/><strong>{dragging?'여기에 사진을 놓아주세요':'사진 추가하기'}</strong><span className="photo-drag-hint">사진을 여기로 끌어다 놓아도 첨부할 수 있어요.</span></button><input ref={input} className="sr-only" type="file" accept="image/jpeg,image/png,.jpg,.jpeg,.png" multiple aria-label="첨부 사진 선택" disabled={disabled} onChange={e=>{addPhotos(Array.from(e.target.files??[]));e.target.value='';}}/>{error&&<p className="photo-error" role="alert">{error}</p>}<div className="photo-grid">{files.map((file,index)=><figure key={`${index}-${file.name}`}><Preview file={file}/><figcaption>{file.name}</figcaption><button type="button" aria-label={`${file.name} 삭제`} disabled={disabled} onClick={()=>{onChange(files.filter((_,i)=>i!==index));setError(null);}}><Trash2 size={16}/></button></figure>)}</div></section>;
 }
 
 export function AutoUploadPhotos({reportId}:{reportId:number}){
@@ -89,4 +90,17 @@ export function AutoUploadPhotos({reportId}:{reportId:number}){
  if(state.files.length&&!state.attempted)void loadPhotos(base,state,version).then(()=>{if(version===sessionVersion&&!state.attempted)void uploadPhotos(base,state);}).catch(error=>{if(version===sessionVersion){state.error=error;notify(state);}});
  },[state,base]);
  return <>{state.busy&&state.operation==='upload'&&<p role="status">사진을 저장하고 있어요…</p>}{state.error&&<ErrorBox error={state.error}/>}</>;
+}
+
+// Files live only in memory; persist only the selection marker in the draft.
+export function DraftPhotoRecovery({draft,disabled=false}:{draft:Draft;disabled?:boolean}){
+ const [missing,setMissing]=useState(()=>!!draft.hadPhotos&&!drafts.get(draft.clientRequestId)?.length);
+ const [files,setFiles]=useState<File[]>(()=>drafts.get(draft.clientRequestId)??[]);
+
+ return <section className="card draft-photo-recovery">{missing&&<p role="alert">새로고침으로 이전에 선택한 사진이 사라졌습니다. 사진을 첨부하려면 다시 선택해 주세요. 다시 선택하지 않으면 사진 없이 접수됩니다.</p>}<PhotoPicker files={files} disabled={disabled} onChange={next=>{
+  stagePhotos(draft.clientRequestId,next);setFiles(next);if(next.length)setMissing(false);
+  const saved=sessionStorage.getItem('skope-draft');
+  const current:Draft=saved?JSON.parse(saved):draft;
+  if(current.clientRequestId===draft.clientRequestId)sessionStorage.setItem('skope-draft',JSON.stringify({...current,hadPhotos:next.length>0}));
+ }}/></section>;
 }
